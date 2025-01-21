@@ -15,8 +15,7 @@
     * **Kube-API server**
 
     ```mermaid
-
-    graph LR
+    graph TD
     A[kube-APIserver] --> B{Control Plane}
     A --> C{Worker Node}
     B --> D[kube scheduler]
