@@ -5,6 +5,6 @@
 
 ### High Level System Architecture
 
-!(/Images/K8s_Infra.drawio.png)
+![k8s_infra](/Images/K8s_Infra.drawio.png)
 ![CMS_K8S_Architecture-K8s Infra drawio](https://github.com/user-attachments/assets/d87c3414-2464-4d7d-867c-a0b633f0b996)
 
