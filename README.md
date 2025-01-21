@@ -16,5 +16,8 @@ The Cloud team has implemented an on-premise Central Hub deployment strategy usi
 - **Efficient Kubernetes Management**: Rancher provides centralized management of Kubernetes clusters, enabling easy monitoring, troubleshooting, and governance of the infrastructure.
 - **Enhance Reliability and Scalability**: The integration of these tools improves operational efficiency and ensures that the system can scale to meet future demands.
 
-1. [Overview_Of_Infrasctrure](Overview_Of_Infrasctrure.md).
-2. [How_the_Installation_Script_Works](How_the_Installation_Script_Works.md)
+1. [Introduction](Introduction.md).
+2. [Design Considerations](Design_Considerations.md)
+3. [Architecture Overview](Architecture_Overview.md)
+4. [Detail Design](Detail_Design.md)
+5. [Cyber_Security](Cyber_Security.md)
