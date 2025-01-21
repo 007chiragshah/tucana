@@ -5,4 +5,4 @@
 
 ### High Level System Architecture
 
-![alt text](/Images/CMS_K8S_Architecture-K8s Infra.drawio.png)
+![alt text](Images/CMS_K8S_Architecture-K8s Infra.drawio.png)
