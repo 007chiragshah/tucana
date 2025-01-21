@@ -49,7 +49,7 @@
 | Data Disk  | None  | 300GB | None |
 | Operating System  | Linux (Ubuntu 22.04) | Linux (Ubuntu 22.04)| Linux (Ubuntu 22.04)|
 
-#### Infrastructure Component Considerations
+### Infrastructure Component Considerations
 
 In this section we will provide a brief introduction of key components of the infrastructure.
 
