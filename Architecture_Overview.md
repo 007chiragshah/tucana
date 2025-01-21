@@ -5,7 +5,9 @@
 
 ## High Level System Architecture
 
-![k8s_infra](/Images/K8s_Infra.drawio.png)
+<div align="center">
+<img alt="k8s_infra" src="/Images/K8s_Infra.drawio.png">
+</div>
 
   ### 1. **Control Plane Node**:
 
