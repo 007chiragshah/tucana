@@ -10,9 +10,9 @@
   ### 1. **Control Plane Node**:
 
   - The control plane is responsible for container orchestration, making global decisions (e.g., scheduling), detecting/responding to cluster events, and maintains the state of a cluster.
-  - The Kubernetes control plane consists of several components, each responsible for a specific task (as explained below). These components work together to ensure that each Kubernetes cluster’s state matches the 
-    pre-defined desired state.
-    * **Kube-API server**
+  - The Kubernetes control plane consists of several components, each responsible for a specific task (as explained below). These components work together to ensure that each Kubernetes cluster’s state matches 
+    the pre-defined desired state.
+    1. **Kube-API server**
 
     ```mermaid
     graph TD
