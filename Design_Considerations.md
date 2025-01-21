@@ -3,11 +3,11 @@
 <h2> 📈 Design Considerations </h2>
 </div>
 
-### Design Constraints
+## Design Constraints
 
-#### Hardware Limitations
+### Hardware Limitations
 
-1. **For central hub desktop**
+#### **For central hub desktop**
 
 | Requirement  | Central Hub Desktop |
 | ------------- | ------------- |
@@ -26,7 +26,7 @@
 | Supporting Software  | None  |
 | System Volume Configuration	| System volume level shall remain at 100% at all times |
 
-2. **For central-hub server**
+#### **For central-hub server**
 
 | Requirement  | Central Hub Server |
 | ------------- | ------------- |
@@ -39,7 +39,7 @@
 | Operating System  | Linux  |
 | Supporting Software  | None  |
 
-3. **For kubernetes cluster**
+#### **For kubernetes cluster**
 
 | Requirement  | Control Plane Node | Worker Nodes (3 Nodes) | Load Balancer Node |
 | ------------- | ------------- | ------------- | ------------- |
