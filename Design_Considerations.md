@@ -73,22 +73,7 @@ In this section we will provide a brief introduction of key components of the in
   efficiency, ease to scale the application etc.
 
 
-4. **Postgres SQL**:
-- We are using postgres in our infra as a database to store the data of different central-hub applications with AES-256 encryption algorithm.
-- In our infra we are using kubegres to manage the posrgres, as kubegres is a kuberntes operator who manages the deployment, scaling etc of the postgres.
-- We used postgres in our infra because of its advanced features like supports SQL and JSON, able to manage structured and unstructured data, provides strong security with encrypted data by using AES-256 
-  encryption algorithm. 
-
-
-5. **Kafka**:
-- We are using kafka in our infra for collecting and storing real time data from the different sources like alerts, event-authentication, technical alerts, sdc events etc.
-- Kafka is a distributed event platform which uses producers to sent messages to different topics, where consumer can read that message by subscribing the relevant topics. We are using zookeepr for managing 
-  kafka cluster state and its high availability.
-- We are using **Strimzi Operator** in our infra for managing the apache kafka on the kubernetes where strimzi is a kubernetes operator which simplifies the deployment and management of the kafka.
-- We used kafka as it is known for high throughput with real time data stream, fault tolerance. It make sures of data reliability and low letency communication and easy to integrate.
-
-
-6. **Ansible**:
+4. **Ansible**:
 - We are using ansible for the automation and deploying our whole infrastructure on multiple nodes by deviding into five main task, which further broken down to smaller sub-task, where all the tasks are consist 
   of simple yaml files.
 - We used ansible for automation in our infra as it is a powerful agentless automation tool means it doesn't required to installation on the target machines so it's reduce its complexity also it uses a simple 
@@ -96,26 +81,21 @@ In this section we will provide a brief introduction of key components of the in
   the desired states which makes sure of idempotency and reduce the errors.
 
 
-7. **Helm Chart**
+5. **Helm Chart**
 - We are using helm chart in our infra to deploying and managing the different central-hub applications.
 - Advantage of using helm chart is it simplifies the kuberntes resource management by automating dependency handling and resource creating like with helmchart we do not have to create different resource like 
   service, deployment, pods, replicaset unlike kubernetes cluster as all these things automatically taken care by the helm chart by using the templates, charts and values.yaml files. It enables the easy 
   deployment, upgrades and rollback with version control.
 
 
-8. **Istio**:
+6. **Istio**:
 - We are using istio in our infra to encrypt the communication between service to service by enabling the mTLS (mutual TLS) protocol, where authentication required from both the end which makes communication 
   more secured.
 - We used istio for this becaue it provides a great features like advanced traffice management, secured communication using mTLS protocol, supports both kubernetes and VM-based environment, more flexible for 
   large scale and multi node cluster.
 
 
-9. **Redis**:
-- We used redis in our infra for caching, session management, storing user state of our different central hub applications.
-- We used redis because it provides features like high performance as an in memory data store, supports complex data structure, faster and more scalable for caching, flexible.
-
-
-10. **Monitoring**:
+7. **Monitoring**:
 - In our infra we are using different monitoring tools for the different monitoring as mentioned below:
 - **Kubernetes Dashboard**: We are using kubernetes dashboard for monitoring the kubernetes cluster, different resources state, resource performance monitoring, checking logs etc.
 - **Loki Dashboard**: We are using loki dashboard to display the audit related logs and pod related logs.
