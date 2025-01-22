@@ -163,9 +163,9 @@
 
  10. **Kubernetes Objects**:
 
-    - **Deployment**:
-      - We are installing our central-hub application as deployment as deployment manages the desired state of application replicas which provides the **high availability**, also with replicas it is easy to 
-        scale up/down the application, Also with deployment It is easy to roll back to old version or roll our new version of the application.
+ - **Deployment**:
+   - We are installing our central-hub application as deployment as deployment manages the desired state of application replicas which provides the **high availability**, also with replicas it is easy to 
+     scale up/down the application, Also with deployment It is easy to roll back to old version or roll our new version of the application.
 
     - **Pod**:
       - A Pod is the smallest deployable unit in Kubernetes, representing a single instance of a running process. It can contain one or more tightly coupled containers that share the same network namespace, 
