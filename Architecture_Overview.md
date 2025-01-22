@@ -21,8 +21,11 @@
   <img alt="Kube-API-Server" src="/Images/Kube-API-Server.png">
   </div>
 
-  - The kube-apiserver is Kubernetes' central control component. It handles requests (e.g., from kubectl), authenticates and validates them, updates the etcd datastore, and coordinates all cluster 
-    operations. Other components like the scheduler, controller-manager, and kubelet interact with the cluster solely through the kube-apiserver.
+  - The kube-API server acts as the central communication hub for users, components, and the Kubernetes cluster. When using tools like kubectl, it communicates via HTTP REST APIs, while internal components such 
+    as the scheduler and controllers use gRPC for interactions. The API server ensures secure communication through TLS, validating data for API objects, managing API requests, and authenticating and authorizing 
+    users. It also coordinates processes between control plane and worker node components, ensuring smooth cluster operations.
+  - Additionally, the API server exclusively interacts with etcd to store and retrieve cluster state information. It features a built-in bastion apiserver proxy, which enables external access to ClusterIP 
+    services, providing a secure way to interact with the cluster's internal resources. This design allows the API server to serve as a robust and secure gateway for managing the Kubernetes ecosystem.
 
   2. **ETCD**:
   - ETCD is a distributed key-value store used by Kubernetes to securely store cluster data like pod states and namespaces under the /registry directory. Accessible only by the API server via gRPC, it 
