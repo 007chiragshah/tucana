@@ -61,7 +61,7 @@
 5. **TLS Cert for Ingres**:
 
 <div align="center">
-<img src="https://github.com/user-attachments/assets/c66e038b-cba2-4c05-a575-ed924aa083fc" alt="TLS Dia">
+<img alt="TLS" src="Images/TLS_Dia.png">
 </div>  
 
 - We have used TLS cert for ingres domain because When deploying services in Kubernetes, Ingress resources are often used to expose HTTP and HTTPS routes from outside the cluster to services within it. To 
@@ -72,7 +72,7 @@
 6. **x.509 Certificate**:
 
 <div align="center">
-<img src="https://github.com/user-attachments/assets/8ff60f2d-d1ba-4937-899a-d5cce118bf16" alt="x509 dia">
+<img alt="X.509" src="Images/x509_dia.png">
 </div>   
 
 - We have used x.509 certificate to encrypt the communication between the central hub and patient monitor and this certificates should be generated with the trusted certificate authority.
@@ -82,7 +82,7 @@
 7. **ssh keys**:
 
 <div align="center">
-<img src="https://github.com/user-attachments/assets/a5b700c0-1b21-498a-9a80-6ff023d0fc6f" alt="ssh diagram">
+<img alt="ssh_dia" src="Images/ssh_diagram.png">
 </div>
 
 - We are using ssh private key to login into different nodes on which we have stored the same public key.
