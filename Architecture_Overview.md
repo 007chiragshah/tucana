@@ -22,8 +22,8 @@
   </div>
 
   - The kube-API server acts as the central communication hub for users, components, and the Kubernetes cluster. When using tools like kubectl, it communicates via HTTP REST APIs, while internal components such 
-    as the scheduler and controllers use gRPC for interactions. The API server ensures secure communication through TLS, validating data for API objects, managing API requests, and authenticating and authorizing 
-    users. It also coordinates processes between control plane and worker node components, ensuring smooth cluster operations.
+    as the scheduler and controllers use gRPC for interactions. The API server ensures secure communication through TLS, validating data for API objects, managing API requests, and authenticating and 
+    authorizing users. It also coordinates processes between control plane and worker node components, ensuring smooth cluster operations.
   - Additionally, the API server exclusively interacts with etcd to store and retrieve cluster state information. It features a built-in bastion apiserver proxy, which enables external access to ClusterIP 
     services, providing a secure way to interact with the cluster's internal resources. This design allows the API server to serve as a robust and secure gateway for managing the Kubernetes ecosystem.
 
@@ -36,8 +36,8 @@
   
   - etcd is a distributed key-value store designed to securely store Kubernetes cluster data, such as pod information, states, and namespaces. It is accessible only by the Kubernetes API server to ensure 
     security. Kubernetes interacts with etcd through its key-value API using gRPC, storing all objects in the /registry directory in key-value format.
-  - The Kubernetes API server leverages etcd's watch feature to track changes to object states, enabling real-time updates and coordination. As the only StatefulSet component in the control plane, etcd serves as 
-    a reliable and robust database for managing Kubernetes cluster data.
+  - The Kubernetes API server leverages etcd's watch feature to track changes to object states, enabling real-time updates and coordination. As the only StatefulSet component in the control plane, etcd serves a 
+    as a reliable and robust database for managing Kubernetes cluster data.
 
 
   3. **kube-scheduler**:
@@ -51,8 +51,8 @@
   <img alt="Kubernetes-control-manage" src="Images/Kubernetes-control-manage.png">
   </div>
 
-  - The kube-controller-manager manages various controllers to maintain the cluster's desired state. For instance, it ensures deployments specified in a YAML manifest, such as replicas, volume mounts, and config 
-    maps, remain consistent.
+  - The kube-controller-manager manages various controllers to maintain the cluster's desired state. For instance, it ensures deployments specified in a YAML manifest, such as replicas, volume mounts, and 
+    configmaps, remain consistent.
   - Key controllers include:
      - Deployment Controllers: Manage multiple replicas of containerized applications.
      - Replication Controllers: Ensure a fixed number of pod replicas are running, replacing failed pods automatically.
@@ -78,8 +78,8 @@
   ### Worker Nodes:
  
   - Worker nodes are critical components in a Kubernetes architecture because they help in running containerized applications.
-  - Worker nodes are the primary execution units in a Kubernetes cluster where the actual workloads run. Each worker node can host multiple pods, each containing one or more containers running inside them. Every 
-    worker node consists of three components responsible for scheduling and managing these pods:
+  - Worker nodes are the primary execution units in a Kubernetes cluster where the actual workloads run. Each worker node can host multiple pods, each containing one or more containers running inside them. 
+    Every worker node consists of three components responsible for scheduling and managing these pods:
 
   1. **Kubelet**:
 
@@ -108,4 +108,53 @@
 
   <div align="center">
   <img alt="container-runtime-architecture" src="Images/container-runtime-architecture.png">
-  </div>    
+  </div>
+
+  - Just like the Java Runtime (JRE) is needed to run Java programs, a container runtime is essential for running containers. It handles tasks like pulling images from registries, allocating resources, 
+    isolating containers, and managing their lifecycle on a host.
+  - Kubernetes communicates with container runtimes through the Container Runtime Interface (CRI), which defines APIs for container creation, starting, stopping, and deletion, as well as managing images and 
+    networks. The Open Container Initiative (OCI) establishes standards for container formats and runtimes. Kubernetes supports multiple CRI-compliant runtimes, such as CRI-O, Docker Engine, and containerd. The 
+    kubelet agent interacts with the container runtime using CRI APIs to manage containers and report container information to the control plane.
+
+ 4. **Postgres SQL**:
+
+  - We are using postgres in our infra as a database to store the data of different central-hub applications with AES-256 encryption algorithm.
+  - In our infra we are using kubegres to manage the posrgres, as kubegres is a kuberntes operator who manages the deployment, scaling etc of the postgres.
+  - We used postgres in our infra because of its advanced features like supports SQL and JSON, able to manage structured and unstructured data, provides strong security with encrypted data by using AES-256 
+    encryption algorithm.
+
+ 5. **Kafka**
+
+  <div align="center">
+  <img alt="kafka_arch" src="Images/kafka_arch.png">
+  </div>
+  
+  - We are using kafka in our infra for collecting and storing real time data from the different sources like alerts, event-authentication, technical alerts, sdc events etc.
+  - Kafka is a distributed event platform which uses producers to sent messages to different topics, where consumer can read that message by subscribing the relevant topics. We are using zookeepr for managing 
+    kafka cluster state and its high availability.
+  - We are using **Strimzi Operator** in our infra for managing the apache kafka on the kubernetes where strimzi is a kubernetes operator which simplifies the deployment and management of the kafka.
+  - We used kafka as it is known for high throughput with real time data stream, fault tolerance. It make sures of data reliability and low letency communication and easy to integrate.
+
+ 6. **Redis**
+
+   ```mermaid
+   graph TD
+      A[Simple Database] --> B{Primary}
+      C[Clustered Database] --> D{P1}
+      C --> E{P2}
+      C --> F{P3}
+      G[HA Clustered Database] --> H{P1} --> I{R1}
+      G --> J{P2} --> K{R2}
+      G --> L{P3} --> M{R3}
+      N[HA Database] --> O{Primary} --> P{Replica}
+   ```
+    
+    graph TD
+      A[Simple Database] --> B{Primary}
+      C[Clustered Database] --> D{P1}
+      C --> E{P2}
+      C --> F{P3}
+      G[HA Clustered Database] --> H{P1} --> I{R1}
+      G --> J{P2} --> K{R2}
+      G --> L{P3} --> M{R3}
+      N[HA Database] --> O{Primary} --> P{Replica}
