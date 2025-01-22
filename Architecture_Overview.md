@@ -46,8 +46,8 @@
       L
   end
   ```
-     - The kube-apiserver is Kubernetes' central control component. It handles requests (e.g., from kubectl), authenticates and validates them, updates the etcd datastore, and coordinates all cluster 
-       operations. Other components like the scheduler, controller-manager, and kubelet interact with the cluster solely through the kube-apiserver.
+  - The kube-apiserver is Kubernetes' central control component. It handles requests (e.g., from kubectl), authenticates and validates them, updates the etcd datastore, and coordinates all cluster 
+    operations. Other components like the scheduler, controller-manager, and kubelet interact with the cluster solely through the kube-apiserver.
 
   2. **ETCD**:
      - ETCD is a distributed key-value store used by Kubernetes to securely store cluster data like pod states and namespaces under the /registry directory. Accessible only by the API server via gRPC, it 
