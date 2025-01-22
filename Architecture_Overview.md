@@ -167,39 +167,37 @@
    - We are installing our central-hub application as deployment as deployment manages the desired state of application replicas which provides the **high availability**, also with replicas it is easy to 
      scale up/down the application, Also with deployment It is easy to roll back to old version or roll our new version of the application.
 
-    - **Pod**:
-      - A Pod is the smallest deployable unit in Kubernetes, representing a single instance of a running process. It can contain one or more tightly coupled containers that share the same network namespace, 
-        storage volumes, and configuration.
+ - **Pod**:
+   - A Pod is the smallest deployable unit in Kubernetes, representing a single instance of a running process. It can contain one or more tightly coupled containers that share the same network namespace, 
+     storage volumes, and configuration.
 
-    - **Static Pod**:
-      - A pod directly managed by the kubelet, defined via static configuration files on a node. Static pods are not part of a Deployment or ReplicaSet and are typically used for critical control plane 
-        components.
+ - **Static Pod**:
+   - A pod directly managed by the kubelet, defined via static configuration files on a node. Static pods are not part of a Deployment or ReplicaSet and are typically used for critical control plane 
+     components.
 
-    - **Service Account**:
-      - We used Service Account in Kubernetes as an identity used by processes running inside pods to interact with the Kubernetes API. It provides an authenticated and authorized way for pods to access r 
-        resources in the cluster.
+ - **Service Account**:
+   - We used Service Account in Kubernetes as an identity used by processes running inside pods to interact with the Kubernetes API. It provides an authenticated and authorized way for pods to access r 
+     resources in the cluster.
 
-    - **Secret**:
-      - We used secret in our infra to store the sensitive information like password, key, certificate, tokens in a encryption form, which use by the pods or a service to access the credentials or other 
-        sensitive data without exposing it in a plain text. By using this we can **secured** our sensitive data.
-      - Secret are encrypting data with **base64 encryption** algorithm.
+ - **Secret**:
+   - We used secret in our infra to store the sensitive information like password, key, certificate, tokens in a encryption form, which use by the pods or a service to access the credentials or other 
+     sensitive data without exposing it in a plain text. By using this we can **secured** our sensitive data.
+   - Secret are encrypting data with **base64 encryption** algorithm.
      
-    - **Configmap**:
-      - We used configmap to store a non-sensitive data in a key value pair in a plaintext formate as it is latter used by the application and retrieve configuration settings like database URLs, environment 
-        variables, or feature flags, making it easier to manage and update configurations without modifying the application.
+ - **Configmap**:
+   - We used configmap to store a non-sensitive data in a key value pair in a plaintext formate as it is latter used by the application and retrieve configuration settings like database URLs, environment 
+     variables, or feature flags, making it easier to manage and update configurations without modifying the application.
 
-    - **Cluster role and role binding**:
-      - We are using clusterrole and rolebinding to restrict the access of service account to limited resoueces with limited rights.
-      - Where A ClusterRole is a set of permissions that can be applied across the entire cluster, granting access to resources like nodes, namespaces, or persistent volumes. ClusterRoles are often used for 
-        cluster-wide access or in cases where the same role needs to be applied to multiple namespaces and A RoleBinding is used to bind a Role or ClusterRole to a user, service account, or group, granting them 
-        the specified permissions within a particular namespace (RoleBinding) or across the entire cluster (ClusterRoleBinding).
+ - **Cluster role and role binding**:
+   - We are using clusterrole and rolebinding to restrict the access of service account to limited resoueces with limited rights.
+   - Where A ClusterRole is a set of permissions that can be applied across the entire cluster, granting access to resources like nodes, namespaces, or persistent volumes. ClusterRoles are often used for 
+     cluster-wide access or in cases where the same role needs to be applied to multiple namespaces and A RoleBinding is used to bind a Role or ClusterRole to a user, service account, or group, granting them 
+     the specified permissions within a particular namespace (RoleBinding) or across the entire cluster (ClusterRoleBinding).
 
-    - **StatefulSet**:
-      - We are using statefulset for the postgressql in our setup as statefulset is used when you want to manage the state of the any application also It ensures stable, unique identities and persistent storage 
-        for each pod, which is useful for databases and distributed systems.
+ - **StatefulSet**:
+   - We are using statefulset for the postgressql in our setup as statefulset is used when you want to manage the state of the any application also It ensures stable, unique identities and persistent storage 
+     for each pod, which is useful for databases and distributed systems.
 
-    - **Namespace**:
-      - We are using different different namespaces in our setup to isolate the different resources like for central-hub application we are using central-hub namespace, for k8s dashboard we are using dashboard 
-        namespace, for ingress-nginx we are using ingres-nginx namespace etc.
-
-      
+ - **Namespace**:
+   - We are using different different namespaces in our setup to isolate the different resources like for central-hub application we are using central-hub namespace, for k8s dashboard we are using dashboard 
+     namespace, for ingress-nginx we are using ingres-nginx namespace etc.
