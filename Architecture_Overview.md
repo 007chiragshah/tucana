@@ -126,7 +126,7 @@
  5. **Kafka**:
 
   <div align="center">
-  <img alt="kafka_arch" src="Images/kafka_arch.png">
+  <img alt="kafka" src="Images/kafka.drawio.png">
   </div>
   
   - We are using kafka in our infra for collecting and storing real time data from the different sources like alerts, event-authentication, technical alerts, sdc events etc.
