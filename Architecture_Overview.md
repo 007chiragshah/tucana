@@ -50,8 +50,8 @@
     operations. Other components like the scheduler, controller-manager, and kubelet interact with the cluster solely through the kube-apiserver.
 
   2. **ETCD**:
-     - ETCD is a distributed key-value store used by Kubernetes to securely store cluster data like pod states and namespaces under the /registry directory. Accessible only by the API server via gRPC, it 
-       supports state tracking through its watch feature, making it a critical StatefulSet component for Kubernetes.
+  - ETCD is a distributed key-value store used by Kubernetes to securely store cluster data like pod states and namespaces under the /registry directory. Accessible only by the API server via gRPC, it 
+    supports state tracking through its watch feature, making it a critical StatefulSet component for Kubernetes.
 
-  3. **kuber control manager**:
-  4. 
+  4. **kuber control manager**:
+  5. 
