@@ -161,6 +161,14 @@
   - We choose ingres as a loadbalancer because it offers centralized traffic management, path-based routing, and SSL termination. we can use the same ingress loadbalancer for different application with single 
     yaml file just with the routing rules.
 
+
+ 9. **Istio**:
+
+  - We are using istio in our infra to encrypt the communication between service to service by enabling the mTLS (mutual TLS) protocol, where authentication required from both the end which makes communication 
+    more secured.
+  - We used istio for this becaue it provides a great features like advanced traffice management, secured communication using mTLS protocol, supports both kubernetes and VM-based environment, more flexible for 
+    large scale and multi node cluster.
+  
  10. **Kubernetes Objects**:
 
  - **Deployment**:
