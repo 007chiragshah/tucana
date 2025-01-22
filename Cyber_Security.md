@@ -91,11 +91,47 @@
 
 ### Central Hub Automatic Secret Rotationn
 
-**Problem**:
+#### **Problem**:
 - We need to be able to rotate multiple kinds of secrets on a different schedule. The secrets will include:
   - Application secret: random strings required by an application for different uses
   - Asymmetric key pairs: used for encryption, signatures and validations
   - Service secrets: used to connect between different services (kafka, redis, postgres, etc)
 - Depending on the purpose of the secret the handling of an update to the secret will need to be implemented differently on each application. Ideally the proposed solution should propose a no downtime solution
 
+#### **Solution**:
 
+**Secret Storage**:
+
+- Secrets are currently stored in K8s. In order to allow zero downtime secret rotation we need to inject this secret in a way that the running pods can be updated without the need of restarting the service. For 
+  this end, we are going to inject secrets in each pod by mounting a volume with a .env file containing all the required secrets for the application. 
+- If secrets are updated in the background, K8s will update the secret file in the volume. It’s important to notice that in order for this update to work without restarting the service, we must only update 
+  secret values and not create new secrets (adding/renaming/deleting secrets would result in a pod restart).
+- When required we might need to keep more that one valid secret for the same use (for example for live services like Postgres or Kafka), in order to be able to swap them without downtime
+
+
+**Application Secret Update**:
+
+- Each application should be monitoring the file injected in the volume by K8s. If this file changes, we can reload application settings and refresh existing configuration. This will mainly work for application 
+  secrets, but still need additional work in case of any ongoing connections to other secrets.
+- When a change is detected the application will have to take care of swapping ongoing connections with new ones. For services like Redis, Kafka and Postgres, we will have multiple valid users at the same time 
+  in a way that when the secret is rotated, we can still use the previous secret for some time. This will give the application time to gracefully swap ongoing connections.
+- In the case of Kafka, we have both consumer and producer clients. For consumers we can make use of the singleton pattern to replace the current consumer client with the new one. Any messages that were not 
+  consumed, will be processed after the swap (delay should be really small). For producers, we also swap clients and then flush any pending old messages, any new messages are published into the new producer.
+- The approach for Postgres and Redis is similar, we make the clients run inside a singleton and when there is an update to the settings, we replace the clients with new ones.
+
+
+**Infra Secret Update**:
+
+- From the infra side we need to run a cron job which will be in charge of rotating secrets. The implementation will change from secret to secret, depending on secret type.
+- After a certain time window we will have to make the old secrets invalid and just keep the new secrets.
+- There is a particularity for Kafka. Since Kafka is managed by “Strimzi” we will have to make use of it to create a new user. This will take care of creating all required secrets for the new user, though the 
+  way credentials are provided as a secret is inconvenient for key rotation. For this reason we will need to create an intermediate secret which will take care of handling current Kafka keys.
+
+  
+<div align="center">
+<img alt="secret_update" src="Images/secret_update.png">
+</div>
+
+<div align="center">
+<img alt="seecret_replace" src="Images/secret_replace.png">
+</div>
