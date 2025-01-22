@@ -123,7 +123,7 @@
   - We used postgres in our infra because of its advanced features like supports SQL and JSON, able to manage structured and unstructured data, provides strong security with encrypted data by using AES-256 
     encryption algorithm.
 
- 5. **Kafka**
+ 5. **Kafka**:
 
   <div align="center">
   <img alt="kafka_arch" src="Images/kafka_arch.png">
@@ -135,26 +135,18 @@
   - We are using **Strimzi Operator** in our infra for managing the apache kafka on the kubernetes where strimzi is a kubernetes operator which simplifies the deployment and management of the kafka.
   - We used kafka as it is known for high throughput with real time data stream, fault tolerance. It make sures of data reliability and low letency communication and easy to integrate.
 
- 6. **Redis**
+ 6. **Redis**:
 
-   ```mermaid
-   graph TD
-      A[Simple Database] --> B{Primary}
-      C[Clustered Database] --> D{P1}
-      C --> E{P2}
-      C --> F{P3}
-      G[HA Clustered Database] --> H{P1} --> I{R1}
-      G --> J{P2} --> K{R2}
-      G --> L{P3} --> M{R3}
-      N[HA Database] --> O{Primary} --> P{Replica}
-   ```
-    
-    graph TD
-      A[Simple Database] --> B{Primary}
-      C[Clustered Database] --> D{P1}
-      C --> E{P2}
-      C --> F{P3}
-      G[HA Clustered Database] --> H{P1} --> I{R1}
-      G --> J{P2} --> K{R2}
-      G --> L{P3} --> M{R3}
-      N[HA Database] --> O{Primary} --> P{Replica}
+  - We used redis in our infra for caching, session management, storing user state of our different central hub applications.
+  - We choose redis because it provides features like high performance as an in memory data store, supports complex data structure, faster and more scalable for caching, flexible. It supports pub/sub messaging, 
+    ensuring fast, scalable, and reliable performance.
+
+ 7. **Monitoring**:
+
+  - We are using different dashboards like kubernetes dashboard, Grafana Dashboard, Loki Dashboard for different monitoring purpose.
+    - **Kubernetes Dashboard**:
+      - We used kubernetes dashboard in our infra setup to monitor the health, cluster state, logs, performance of all the kubernetes resources like pods, jobs, deployment, replicaset, services etc. 
+    - **Loki Dashboard**:
+      - We are using loki dashboard to display the audit related logs and pod related logs.
+    - **Grafana Dashboard**:
+      - We are using Grafana dashboard to show color coded visulisation of the different alerts coming from the prometheus with the different views of the current alert. its status, also with the table formate.
