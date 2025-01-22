@@ -26,3 +26,12 @@
 - A producer sends a message (e.g., a log entry) to a Kafka topic.
 - The message is stored in a partition on one or more brokers.
 - A consumer subscribes to the topic, retrieves the message, and processes it (e.g., storing it in a database).
+
+### Istio:
+
+<div align="center">
+<img alt="Istio" src="Images/istio.drawio.png">
+</div>
+
+- We are using istio in our infra to encrypt the communication between service to service by enabling the mTLS (mutual TLS) protocol, where authentication required from both the end which makes communication 
+  more secured.
