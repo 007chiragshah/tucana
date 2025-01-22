@@ -27,9 +27,17 @@
   - Additionally, the API server exclusively interacts with etcd to store and retrieve cluster state information. It features a built-in bastion apiserver proxy, which enables external access to ClusterIP 
     services, providing a secure way to interact with the cluster's internal resources. This design allows the API server to serve as a robust and secure gateway for managing the Kubernetes ecosystem.
 
+
   2. **ETCD**:
-  - ETCD is a distributed key-value store used by Kubernetes to securely store cluster data like pod states and namespaces under the /registry directory. Accessible only by the API server via gRPC, it 
-    supports state tracking through its watch feature, making it a critical StatefulSet component for Kubernetes.
+
+  <div align="center">
+  <img alt="ETCD" src="Images/ETCD.png">
+  </div>
+  
+  - etcd is a distributed key-value store designed to securely store Kubernetes cluster data, such as pod information, states, and namespaces. It is accessible only by the Kubernetes API server to ensure 
+    security. Kubernetes interacts with etcd through its key-value API using gRPC, storing all objects in the /registry directory in key-value format.
+  - The Kubernetes API server leverages etcd's watch feature to track changes to object states, enabling real-time updates and coordination. As the only StatefulSet component in the control plane, etcd serves as 
+    a reliable and robust database for managing Kubernetes cluster data.
 
   4. **kuber control manager**:
   5. 
