@@ -9,13 +9,13 @@
 <img alt="k8s_infra" src="/Images/K8s_Infra.drawio.png">
 </div>
 
-  ### **Control Plane Node**:
+  ### Control Plane Node:
 
   - The control plane is responsible for container orchestration, making global decisions (e.g., scheduling), detecting/responding to cluster events, and maintains the state of a cluster.
   - The Kubernetes control plane consists of several components, each responsible for a specific task (as explained below). These components work together to ensure that each Kubernetes cluster’s state matches 
     the pre-defined desired state.
 
-  #### 1. **Kube-API server**
+  1. **Kube-API server**
 
   <div align="center">
   <img alt="Kube-API-Server" src="/Images/Kube-API-Server.png">
@@ -39,5 +39,40 @@
   - The Kubernetes API server leverages etcd's watch feature to track changes to object states, enabling real-time updates and coordination. As the only StatefulSet component in the control plane, etcd serves as 
     a reliable and robust database for managing Kubernetes cluster data.
 
-  4. **kuber control manager**:
-  5. 
+
+  3. **kube-scheduler**:
+
+  - The kube-scheduler selects the best worker node for a pod based on its requirements, such as CPU, memory, and affinity, leveraging etcd to store critical scheduling data. It filters nodes, scores them using 
+    plugins, and binds the pod to the highest-scoring node, ensuring efficient and priority-based pod management while supporting custom plugins.
+
+  4. **kube-controller-manager**:
+
+  <div align="center">
+  <img alt="Kubernetes-control-manage" src="Images/Kubernetes-control-manage.png">
+  </div>
+
+  - The kube-controller-manager manages various controllers to maintain the cluster's desired state. For instance, it ensures deployments specified in a YAML manifest, such as replicas, volume mounts, and config 
+    maps, remain consistent.
+  - Key controllers include:
+     - Deployment Controllers: Manage multiple replicas of containerized applications.
+     - Replication Controllers: Ensure a fixed number of pod replicas are running, replacing failed pods automatically.
+     - StatefulSet Controllers: Provide persistent storage, unique network identities, and controlled scaling for stateful applications.
+     - DaemonSet Controllers: Ensure specific pods run on every node or selected nodes based on labels.
+
+  5. **cloud-controller-manager**
+
+  <div align="center">
+  <img alt="cloud-controller-manager" src="Images/cloud-controller-manager.png">
+  </div>
+
+  - The cloud controller manager bridges Cloud Platform APIs and the Kubernetes cluster, enabling seamless integration between Kubernetes and cloud providers via plugins. It allows core Kubernetes components to 
+    function independently while supporting cloud-specific functionality.
+  - As in our setup we are using on-premise setup so CCM is not required for on-prem setup.
+
+  6. **Promtail agent**:
+
+  - On Controlplane node we are using promtail agent to collect logs and forward them to Loki for centralized log management. Promtail is responsible for discovering log sources, attaching metadata (such as pod 
+    name, namespace, and labels), and forward logs to Loki. It can collect logs from system components like the kube-apiserver, kube-scheduler, and kube-controller-manager.
+
+
+  ### Worker Nodes:
