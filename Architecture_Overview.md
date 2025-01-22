@@ -18,7 +18,7 @@
   1. **Kube-API server**
 
   <div align="center">
-  <img alt="Kube-API-Server" src="Images/Kube-API-Server.png">
+  <img alt="Kube-API-Server" src="/Images/Kube-API-Server.png">
   </div>
 
   - The kube-apiserver is Kubernetes' central control component. It handles requests (e.g., from kubectl), authenticates and validates them, updates the etcd datastore, and coordinates all cluster 
