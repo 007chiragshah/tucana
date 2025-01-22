@@ -76,3 +76,36 @@
 
 
   ### Worker Nodes:
+ 
+  - Worker nodes are critical components in a Kubernetes architecture because they help in running containerized applications.
+  - Worker nodes are the primary execution units in a Kubernetes cluster where the actual workloads run. Each worker node can host multiple pods, each containing one or more containers running inside them. Every 
+    worker node consists of three components responsible for scheduling and managing these pods:
+
+  1. **Kubelet**:
+
+  <div align="center">
+  <img alt="kubelet" src="Images/kubelet.png">
+  </div>
+
+  - The kubelet is a vital Kubernetes component running on every node, responsible for node registration with the API server and managing pods based on the podSpec. It creates, modifies, and deletes containers, 
+    handles probes (liveliness, readiness, and startup), mounts volumes, and reports node and pod status to the API server.
+  - It accepts podSpec from sources like files, HTTP endpoints, and servers, leveraging the container runtime to pull images and run containers. During control plane bootstrapping, the kubelet starts the API 
+    server, scheduler, and controller manager as static pods, ensuring pods remain in the desired state.
+
+ 2. **kube-proxy**:
+
+  <div align="center">
+  <img alt="kubeproxy" src="Images/kubeproxy.png">
+  </div>
+
+  - Kube-proxy is a key component in Kubernetes that implements Services for exposing pods to traffic. It works in conjunction with Kubernetes Service and Endpoint objects, where Services expose pods, and 
+    Endpoints store their IP addresses and ports. Kube-proxy creates network rules to route traffic to the correct pods under a Service object, supporting protocols like UDP, TCP, and SCTP.
+  - Running as a daemonset on every node, Kube-proxy interacts with the API server to retrieve details about Services and their associated pod IPs and ports. It monitors changes to services and endpoints, 
+    updating routing rules accordingly. Kube-proxy operates in different modes, including IPTables, IPVS, Userspace, and Kernelspace. In IPTables mode, it manages traffic through IPtable rules, randomly 
+    selecting a backend pod for load balancing.
+ 
+ 3. **Container runtime**:
+
+  <div align="center">
+  <img alt="container-runtime-architecture" src="Images/container-runtime-architecture.png">
+  </div>    
