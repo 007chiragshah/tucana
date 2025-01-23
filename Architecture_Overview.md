@@ -21,6 +21,23 @@
   <img alt="Kube-API-Server" src="/Images/Kube-API-Server.png">
   </div>
 
+  ```mermaid 
+  graph TD
+    A[kube-API-server] --> B{Control Plane}
+    B --> C[kube-scheduler]
+    B --> D[etcd]
+    B --> E[kube-controller manager]
+
+    A --> F{Worker Node}
+    F --> G[kube-proxy]
+    F --> H[Kubelet]
+    F --> I[kubectl]
+
+    J[apps using k8s SDK] --> A
+    K[Monitoring Systems] --> A
+    L[Third Party Apps] --> A
+  ```
+
   - The kube-API server acts as the central communication hub for users, components, and the Kubernetes cluster. When using tools like kubectl, it communicates via HTTP REST APIs, while internal components such 
     as the scheduler and controllers use gRPC for interactions. The API server ensures secure communication through TLS, validating data for API objects, managing API requests, and authenticating and 
     authorizing users. It also coordinates processes between control plane and worker node components, ensuring smooth cluster operations.
