@@ -10,39 +10,6 @@
 <img alt="Rancher_Arch" src="Images/Rancher_Archi.png">
 </div>
 
-```mermaid
-classDiagram
-    class RKE2_Server_Node {
-        RKE Supervisor
-        kubelet
-        etcd
-        api-server
-        controller-manager
-        cloud-controller-manager
-        scheduler
-    }
-
-    class RKE2_Agent_Node {
-        RKE Supervisor
-        kubelet
-        "CRI: containerd"
-        "RKE2 K8s Deployments"
-        kube-proxy
-        "CNI: canal"
-        CoreDNS
-        metric-server
-        Ingress
-        "Service Mesh"
-        "Other Apps"
-    }
-
-    RKE2_Server_Node ..> RKE2_Agent_Node : "Static pods"
-
-    %% Correct note syntax
-    RKE2_Agent_Node : "Managed processes"
-    "RKE2 K8s Deployments" : "Helm or raw manifests"
-```
-
 - We are using Rancher in our infra for creating and managing the kubernetes cluster of one master node, three worker nodes, and one load balancer.
 - Rancher is a complete container management platform for Kubernetes, giving you the tools to successfully run Kubernetes anywhere
 - In our setup we are deploying rke2 service using helm chart and installing the service on each node by using ansible, where on master node we are installing the "rke2-server" service, and on the worker nodes 
