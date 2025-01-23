@@ -56,31 +56,23 @@
   <img alt="ETCD" src="Images/ETCD.png">
   </div>
 
-    ```mermaid 
+  ```mermaid 
   graph TD
-    subgraph Control_Plane
-        A[kube-API-server]
-        C[kube-scheduler]
-        D[etcd]
-        E[kube-controller manager]
-        A --> C
-        A --> D
-        A --> E
-    end
-    
-    subgraph Worker_Node
-        F[kubelet]
-        G[kube-proxy]
-        H[kubectl]
-        A --> F
-        A --> G
-        A --> H
-    end
-    
-    J[Apps using k8s SDK] --> A
-    K[Monitoring Systems] --> A
-    L[Third Party Apps] --> A
-  ``
+    A[kube-API server] -->|gRPC| B{etcd}
+    B --> C[/registry/APIService.k8s.io/apiservices/*]
+    B --> D[/registry/certificatesigningrequests/*]
+    B --> E[/registry/clusterrolebindings/*]
+    B --> F[/registry/clusterroles/*]
+    B --> G[/registry/configmaps/*]
+    B --> H[/registry/daemonsets/*]
+    B --> I[/registry/events/*]
+    B --> J[/registry/namespaces/*]
+    B --> K[/registry/pods/*]
+    B --> L[/registry/secrets/*]
+    B --> M[/registry/serviceaccounts/*]
+    B --> N[/registry/services/*]
+    B --> O{registry/*}
+  ```
   
   - etcd is a distributed key-value store designed to securely store Kubernetes cluster data, such as pod information, states, and namespaces. It is accessible only by the Kubernetes API server to ensure 
     security. Kubernetes interacts with etcd through its key-value API using gRPC, storing all objects in the /registry directory in key-value format.
