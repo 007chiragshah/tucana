@@ -19,10 +19,16 @@
 
   ```mermaid 
   graph TD
-    A[kube-API-server] --> B[Control Plane]
-    B --> C[kube-scheduler]
-    B --> D[etcd]
-    B --> E[kube-controller manager]
+    subgraph "Control Plane"
+        A[kube-API-server]
+        B[kube-scheduler]
+        D[etcd]
+        E[kube-controller manager]
+    end
+
+    A --> B
+    A --> D
+    A --> E
 
     F[Worker Node] --> G[kube-proxy]
     F --> H[Kubelet]
@@ -32,13 +38,6 @@
     A --> J[apps using k8s SDK]
     A --> K[Monitoring Systems]
     A --> L[Third Party Apps]
-    
-    subgraph "Control Plane"
-        B
-        C
-        D
-        E
-    end
     
     subgraph "Worker Node"
         F
