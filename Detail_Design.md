@@ -23,10 +23,6 @@
   management. 
 ### Kafka Cluster:
 
-<div align="center">
-<img alt="kafka_arch" src="Images/kafka_arch.png">
-</div>
-
 ```mermaid
 graph TD
     subgraph Producers
