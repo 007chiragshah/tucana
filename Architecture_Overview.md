@@ -32,21 +32,17 @@
         H[kubectl]
     end
 
-    subgraph "Other Apps"
-        J[apps using k8s SDK]
-        K[Monitoring Systems]
-        L[Third Party Apps]
-    end
-
     A --> B
     A --> D
     A --> E
     A --> F
     A --> G
     A --> H
-    A --> J
-    A --> K
-    A --> L
+
+    J[apps using k8s SDK] --> A
+    K[Monitoring Systems] --> A
+    L[Third Party Apps] --> A
+
   ```
 
   - The kube-API server acts as the central communication hub for users, components, and the Kubernetes cluster. When using tools like kubectl, it communicates via HTTP REST APIs, while internal components such 
