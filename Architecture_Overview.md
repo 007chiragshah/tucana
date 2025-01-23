@@ -19,20 +19,19 @@
 
   ```mermaid 
   graph TD
-    A[kube-API server] -->|gRPC| B(etcd)
-    B --> C[\registry\APIServiceRegistration.k8s.io\apiservices\*]
-    B --> D[\registry\certificatesigningrequests\*]
-    B --> E[\registry\clusterrolebindings\*]
-    B --> F[\registry\clusterroles\*]
-    B --> G[\registry\configmaps\*]
-    B --> H[\registry\daemonsets\*]
-    B --> I[\registry\events\*]
-    B --> J[\registry\namespaces\*]
-    B --> K[\registry\pods\*]
-    B --> L[\registry\secrets\*]
-    B --> M[\registry\serviceaccounts\*]
-    B --> N[\registry\services\*]
-    B --> O[\registry\*]
+    A[kube-API-server] --> B{Control Plane}
+    B --> C[kube-scheduler]
+    B --> D[etcd]
+    B --> E[kube-controller manager]
+
+    A --> F{Worker Node}
+    F --> G[kube-proxy]
+    F --> H[Kubelet]
+    F --> I[kubectl]
+
+    J[apps using k8s SDK] --> A
+    K[Monitoring Systems] --> A
+    L[Third Party Apps] --> A
   ```
 
   - The kube-API server acts as the central communication hub for users, components, and the Kubernetes cluster. When using tools like kubectl, it communicates via HTTP REST APIs, while internal components such 
@@ -51,19 +50,19 @@
   ```mermaid 
   graph TD
     A[kube-API server] -->|gRPC| B(etcd)
-    B --> C[registry/APIServiceRegistration.k8s.io/apiservices/*]
-    B --> D[registry/certificatesigningrequests/*]
-    B --> E[registry/clusterrolebindings/*]
-    B --> F[registry/clusterroles/*]
-    B --> G[registry/configmaps/*]
-    B --> H[registry/daemonsets/*]
-    B --> I[registry/events/*]
-    B --> J[registry/namespaces/*]
-    B --> K[registry/pods/*]
-    B --> L[registry/secrets/*]
-    B --> M[registry/serviceaccounts/*]
-    B --> N[registry/services/*]
-    B --> O[registry/*]
+    B --> C[APIServiceRegistration]
+    B --> D[CertificateSigningRequests]
+    B --> E[ClusterRoleBindings]
+    B --> F[ClusterRoles]
+    B --> G[ConfigMaps]
+    B --> H[DaemonSets]
+    B --> I[Events]
+    B --> J[Namespaces]
+    B --> K[Pods]
+    B --> L[Secrets]
+    B --> M[ServiceAccounts]
+    B --> N[Services]
+    B --> O[Other Resources]
   ```
   
   - etcd is a distributed key-value store designed to securely store Kubernetes cluster data, such as pod information, states, and namespaces. It is accessible only by the Kubernetes API server to ensure 
