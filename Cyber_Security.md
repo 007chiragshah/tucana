@@ -96,7 +96,27 @@ sequenceDiagram
 
 <div align="center">
 <img alt="X.509" src="Images/x509_dia.png">
-</div>   
+</div> 
+
+```mermaid
+flowchart LR
+    A[Sender] --> B{Encrypt}
+    B --> C[Ciphertext]
+    C --> D{Decrypt}
+    D --> E[Recipient]
+
+    subgraph Public Key
+        F[Recipient's Public Key] --> B
+    end
+
+    subgraph Private Key
+        D --> G[Recipient's Private Key]
+    end
+
+    note right of B, D
+        Different keys are used to
+        encrypt and decrypt message
+```
 
 - We have used x.509 certificate to encrypt the communication between the central hub and patient monitor and this certificates should be generated with the trusted certificate authority.
 - An X.509 certificate is a digital certificate that uses the X.509 public key infrastructure (PKI) standard to verify the ownership of a public key. It is widely used to secure communications over networks 
