@@ -11,42 +11,52 @@
 </div>
 
 ```mermaid
-classDiagram
-    class RKE2ServerNode {
-        - RKE Supervisor*
-        - kubelet
-        - etcd
-        - api-server
-        - controller-manager
-        - cloud-controller-manager
-        - scheduler
-        - Static pods
-    }
-    
-    class RKE2AgentNode {
-        - RKE Supervisor
-        - kubelet
-        - CRI: containerd
-        - Managed processes
-    }
+graph TB
+    subgraph RKE2_Server_Node ["RKE2 Server Node"]
+        RKESupervisorServer["RKE Supervisor*"]
+        KubeletServer["kubelet"]
+        Etcd["etcd"]
+        APIServer["api-server"]
+        ControllerManager["controller-manager"]
+        CloudControllerManager["cloud-controller-manager"]
+        Scheduler["scheduler"]
+        StaticPods["Static pods"]
 
-    class RKE2K8sDeployments {
-        - kube-proxy
-        - CNI: canal
-        - helm-controller
-        - CoreDNS
-        - metric-server
-        - Ingress
-    }
+        RKESupervisorServer --> KubeletServer
+        KubeletServer --> APIServer
+        APIServer --> Etcd
+        APIServer --> ControllerManager
+        APIServer --> CloudControllerManager
+        APIServer --> Scheduler
+        KubeletServer --> StaticPods
+    end
 
-    class UserDefinedWorkloads {
-        - Service Mesh
-        - Other Apps
-    }
+    subgraph RKE2_Agent_Node ["RKE2 Agent Node"]
+        RKESupervisorAgent["RKE Supervisor"]
+        KubeletAgent["kubelet"]
+        CRIContainerd["CRI: containerd"]
+        ManagedProcesses["Managed processes"]
 
-    RKE2ServerNode <|-- RKE2AgentNode : Communication
-    RKE2AgentNode *-- RKE2K8sDeployments : Deployments
-    RKE2AgentNode *-- UserDefinedWorkloads : Workloads
+        subgraph RKE2_K8s_Deployments ["RKE2 K8s Deployments"]
+            KubeProxy["kube-proxy"]
+            CNI["CNI: canal"]
+            HelmController["helm-controller"]
+            CoreDNS["CoreDNS"]
+            MetricServer["metric-server"]
+            Ingress["Ingress"]
+        end
+
+        subgraph User_Defined_Workloads ["User-defined workloads"]
+            ServiceMesh["Service Mesh"]
+            OtherApps["Other Apps"]
+        end
+
+        RKESupervisorAgent --> KubeletAgent
+        KubeletAgent --> CRIContainerd
+        KubeletAgent --> ManagedProcesses
+        ManagedProcesses --> RKE2_K8s_Deployments
+        ManagedProcesses --> User_Defined_Workloads
+    end
 ```
 
 - We are using Rancher in our infra for creating and managing the kubernetes cluster of one master node, three worker nodes, and one load balancer.
