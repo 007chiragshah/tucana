@@ -60,42 +60,24 @@
   </div>
 
   ```mermaid 
-  classDiagram
-    class KubeAPI_Server {
-        +gRPC etcd
-    }
-
-    class Etcd {
-        +APIServiceRegistration
-        +CertificateSigningRequests
-        +ClusterRoleBindings
-        +ClusterRoles
-        +ConfigMaps
-        +DaemonSets
-        +Events
-        +Namespaces
-        +Pods
-        +Secrets
-        +ServiceAccounts
-        +Services
-        +OtherResources
-    }
-
-    KubeAPI_Server --> Etcd
-
-    Etcd : +APIServiceRegistration
-    Etcd : +CertificateSigningRequests
-    Etcd : +ClusterRoleBindings
-    Etcd : +ClusterRoles
-    Etcd : +ConfigMaps
-    Etcd : +DaemonSets
-    Etcd : +Events
-    Etcd : +Namespaces
-    Etcd : +Pods
-    Etcd : +Secrets
-    Etcd : +ServiceAccounts
-    Etcd : +Services
-    Etcd : +OtherResources
+  graph TD
+    A[kube-API server] -->|gRPC| B(etcd)
+    B --> Registry[/registry/*]
+    subgraph Registry
+        C[/registry/replicasets/*]
+        D[/registry/persistentvolumes/*]
+        E[/registry/networkpolicies/*]
+        F[/registry/deployments/*]
+        G[/registry/ingresses/*]
+        H[/registry/jobs/*]
+        I[/registry/leases/*]
+        J[/registry/nodes/*]
+        K[/registry/poddisruptionbudgets/*]
+        L[/registry/secrets/*]
+        M[/registry/serviceaccounts/*]
+        N[/registry/services/*]
+        O[/registry/*]
+    end
   ```
   
   - etcd is a distributed key-value store designed to securely store Kubernetes cluster data, such as pod information, states, and namespaces. It is accessible only by the Kubernetes API server to ensure 
