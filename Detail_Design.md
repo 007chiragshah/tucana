@@ -28,53 +28,43 @@
 </div>
 
 ```mermaid
-graph TD
-    A[Producer] --> B{Kafka Broker 1};
-    B --> C[Partition 1];
-    B --> D[Partition 2];
-    E[Producer] --> B;
-    F[Producer] --> B;
-    G[Kafka Broker 2] --> H[Partition 3];
-    G --> I[Partition 4];
-    J[Producer] --> G;
-    K[Producer] --> G;
-    L[Kafka Broker 3] --> M[Partition 5];
-    L --> N[Partition 6];
-    O[Producer] --> L;
-    P[Producer] --> L;
-    C --> Q[Consumer Group 1];
-    D --> R[Consumer Group 2];
-    H --> S[Consumer Group 3];
-    I --> T[Consumer Group 4];
-    M --> U[Consumer Group 5];
-    N --> V[Consumer Group 6];
-    W[Zookeeper] -.-> B;
-    W -.-> G;
-    W -.-> L;
+classDiagram
+    class Message {
+        - id: int
+        - content: string
+        - timestamp: datetime
+    }
 
-    subgraph Brokers
-        B
-        G
-        L
-    end
+    class Producer {
+        - name: string
+        - topic: string
+        - send(message: Message)
+    }
 
-    subgraph Partitions
-        C
-        D
-        H
-        I
-        M
-        N
-    end
+    class Consumer {
+        - name: string
+        - topic: string
+        - receive()
+    }
 
-    subgraph Consumer Groups
-        Q
-        R
-        S
-        T
-        U
-        V
-    end
+    class Broker {
+        - name: string
+        - partitions: list<Partition>
+    }
+
+    class Partition {
+        - id: int
+        - leader: Broker
+        - replicas: list<Broker>
+        - messages: list<Message>
+    }
+
+    Producer "sends" --> Message
+    Producer --> Broker
+    Consumer "receives" <-- Message
+    Consumer --> Broker
+    Broker "owns" --> Partition
+    Partition "has" --> Message 
 ```
 - We are using kafka in our infra for collecting and storing real time data from the different sources like alerts, event-autheProducers and Consumers Work Independently:ntication, technical alerts, sdc events 
   etc.
