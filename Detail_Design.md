@@ -99,11 +99,6 @@ graph TD
 
 ### Istio:
 
-<div align="center">
-<img alt="Istio" src="Images/Infrastructure_Istio Architecture.png">
-</div>
-
-
 ```mermaid
 graph TD
     subgraph Gateways
