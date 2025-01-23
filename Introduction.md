@@ -4,6 +4,27 @@
 <h2> 🎯 Introduction </h2>
 </div>
 
+```mermaid
+graph TD
+    A[Kubernetes Cluster] --> B(Central Server);
+    B --> C(SDC);
+    B --> D(Web);
+    B --> E(rkc);
+    B --> F(Redis);
+    B --> G(Postgres);
+    B --> H(Grafana);
+    B --> I(mirth);
+    B --> J(Patient);
+    B --> K(Kafka);
+    B --> L(Audit Trail);
+    B --> M(Istio);
+    B --> N(Prometheus);
+    B --> O(Loki);
+    B --> P(Central Monitor);
+    B --> Q(Authentication);
+    B --> R(k8s Dashboard);
+```
+
 ### Purpose
 
 The purpose of this Infrastructure document is to provide a detailed description of the Central hub Infra, design decisions, design detailed understanding. This document will offer a clear and thorough understanding  to end user that how our infrasturcture is designed to provide high availability, reliability and seamless operation. Additionally it's also explains the functionality and interaction of it's various components to provide robust and efficient system.
