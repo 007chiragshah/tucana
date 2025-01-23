@@ -194,8 +194,8 @@
   ```mermaid 
   graph LR
     A[Client]-->B(Ingress-managed Load Balancer);
+    B-->C{Ingress};
     subgraph Cluster
-        B-->C{Ingress};
         C-->D[routing rules];
         D-->E[Service];
         E-->F[Pod];
