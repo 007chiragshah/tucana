@@ -165,22 +165,11 @@
 
   ```mermaid 
   graph LR
-    A[Broker] --> B[Zookeeper]
+    A[Broker<br/>TLS Certificate] --> B[Zookeeper<br/>TLS/Encryption]
     subgraph Kafka Cluster
         A[Broker]
-        C[Broker]
-    end
-    A -- B
-    A -- C
-    note right of B
-        TLS/Encryption
-    end note
-    note left of C
-        TLS/Encryption
-    end note
-    note bottom of A
-        TLS Certificate
-    end note
+        C[Broker<br/>TLS/Encryption]
+    end;
   ```
   
   - We are using kafka in our infra for collecting and storing real time data from the different sources like alerts, event-authentication, technical alerts, sdc events etc.
