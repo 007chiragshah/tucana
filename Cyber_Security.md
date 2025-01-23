@@ -184,3 +184,32 @@ graph LR
 <div align="center">
 <img alt="seecret_replace" src="Images/secret_replace.png">
 </div>
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant "Post Secret Job"
+    participant "Key Encryptor"
+    participant "db"
+    participant "App Secret Rotator"
+
+    User->>"Post Secret Job": create job
+    "Post Secret Job"->>"Key Encryptor": encrypt user key
+    "Key Encryptor"->>"Post Secret Job": user key encrypted
+    "Post Secret Job"->>"db": store user key
+    "db"->>"App Secret Rotator": update secret in db
+    "App Secret Rotator"->>"db": secret updated in db
+```
+
+```mermaid
+sequenceDiagram
+    participant cron job trigger
+    participant "Expire Secret Job"
+    participant "Kafka (strimzi)"
+
+    cron job trigger->>"Expire Secret Job": trigger
+    activate "Expire Secret Job"
+    "Expire Secret Job"->>"Kafka (strimzi)": Delete user: user-456
+    "Kafka (strimzi)"-->>"Expire Secret Job": Deleted
+    deactivate "Expire Secret Job"
+```
