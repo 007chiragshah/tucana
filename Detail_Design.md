@@ -70,20 +70,46 @@
 
 - This mutual authentication ensures that both parties are verified, enhancing the security of communication, especially in service-to-service interactions in microservices architectures.
 
-###
 
-| **Protocol** | **Port**          | **Source**                  | **Destination**              | **Description**               |
-|--------------|-------------------|-----------------------------|------------------------------|--------------------------------|
-| TCP          | 9345             | Kubernetes worker nodes     | Kubernetes control plane nodes | RKE2 supervisor API           |
-| TCP          | 6443             | Kubernetes worker nodes     | Kubernetes control plane nodes | Kubernetes API                |
-| TCP          | 10250            | All Kubernetes nodes        | All Kubernetes nodes          | kubelet metrics               |
-| TCP          | 2379             | Kubernetes control plane nodes | Kubernetes control plane nodes | etcd client port              |
-| TCP          | 2380             | Kubernetes control plane nodes | Kubernetes control plane nodes | etcd peer port                |
-| TCP          | 2381             | Kubernetes control plane nodes | Kubernetes control plane nodes | etcd metrics port             |
-| TCP          | 30000-32767      | All Kubernetes nodes        | All Kubernetes nodes          | NodePort port range           |
-| UDP          | 8472             | All Kubernetes nodes        | All Kubernetes nodes          | Cilium CNI VXLAN              |
-| TCP          | 4240             | All Kubernetes nodes        | All Kubernetes nodes          | Cilium CNI health checks      |
-| ICMP         | 8/0              | All Kubernetes nodes        | All Kubernetes nodes          | Cilium CNI health checks      |
-| UDP          | 49152-65535      | Patient Monitors            | All Kubernetes nodes          | SDC                           |
-| UDP          | 3702             | Patient Monitors            | All Kubernetes nodes          | SDC discovery                 |
+### k8s infra components
+
+| **Name**                                     | **Author/Manufacturer**              | **Version**                              | **Vulnerability (if reported)** | **Usage in Cluster**                      |
+|---------------------------------------------|---------------------------------------|------------------------------------------|----------------------------------|------------------------------------------|
+| docker.io/library/haproxy:2.7               | Docker Hub                            | 2.7                                      | Not reported                    | Load Balancing                           |
+| docker.io/rancher/mirrored-cilium-operator-generic:v1.14.4 | Rancher (mirrored)                   | v1.14.4                                  | Not reported                    | CNI (Container Network Interface) Operator |
+| docker.io/rancher/mirrored-cilium-cilium:v1.14.4 | Rancher (mirrored)                   | v1.14.4                                  | Not reported                    | CNI (Networking for Cluster)             |
+| docker.io/rancher/hardened-cni-plugins:v1.2.0-build20231009 | Rancher                            | v1.2.0-build20231009                     | Not reported                    | Hardened CNI Plugins for Network Security |
+| docker.io/rancher/rke2-cloud-provider:v1.28.2-build20231016 | Rancher                            | v1.28.2-build20231016                    | Not reported                    | Cloud Provider Integration for RKE2      |
+| docker.io/rancher/hardened-etcd:v3.5.9-k3s1-build20230802 | Rancher                            | v3.5.9-k3s1-build20230802                | Not reported                    | Cluster State Management (etcd)          |
+| docker.io/rancher/klipper-helm:v0.8.2-build20230815 | Rancher                            | v0.8.2-build20230815                     | Not reported                    | Helm Chart Manager                       |
+| docker.io/rancher/hardened-kubernetes:v1.29.0-rke2r1-build20231213 | Rancher                            | v1.29.0-rke2r1-build20231213             | Not reported                    | Hardened Kubernetes Core                 |
+| docker.io/rancher/hardened-coredns:v1.10.1-build20231009 | Rancher                            | v1.10.1-build20231009                    | Not reported                    | DNS Resolution                           |
+| docker.io/rancher/hardened-cluster-autoscaler:v1.8.6-build20231009 | Rancher                            | v1.8.6-build20231009                     | Not reported                    | Cluster Autoscaling                      |
+| docker.io/rancher/hardened-k8s-metrics-server:v0.6.3-build20231009 | Rancher                            | v0.6.3-build20231009                     | Not reported                    | Metrics Collection (K8s)                 |
+| docker.io/rancher/mirrored-sig-storage-snapshot-controller:v6.2.1 | Rancher (mirrored)                | v6.2.1                                   | Not reported                    | Snapshot Controller for Storage          |
+| docker.io/rancher/mirrored-sig-storage-snapshot-validation-webhook:v6.2.2 | Rancher (mirrored)                | v6.2.2                                   | Not reported                    | Storage Snapshot Validation              |
+| gcr.io/kubebuilder/kube-rbac-proxy:v0.13.0  | Kubebuilder                           | v0.13.0                                  | Not reported                    | RBAC (Role-Based Access Control) Proxy   |
+| docker.io/kubernetesui/dashboard:v2.7.0     | Kubernetes UI                         | v2.7.0                                   | Not reported                    | Web UI for Kubernetes                    |
+| docker.io/kubernetesui/metrics-scraper:v1.0.9 | Kubernetes UI                        | v1.0.9                                   | Not reported                    | Scraper for Kubernetes Dashboard Metrics |
+| quay.io/strimzi/kafka:0.42.0-kafka-3.7.1    | Strimzi                               | 0.42.0-kafka-3.7.1                       | Not reported                    | Apache Kafka for Data Streaming          |
+| quay.io/strimzi/operator:0.42.0             | Strimzi                               | 0.42.0                                   | Not reported                    | Kafka Operator                           |
+| docker.io/rancher/local-path-provisioner:v0.0.24 | Rancher                            | v0.0.24                                  | Not reported                    | Local Storage Provisioner                |
+| docker.io/reactivetechio/kubegres:1.16      | Reactive Tech IO                      | 1                                        | Not reported                    | PostgreSQL Operator for Kubernetes       |
+| registry.k8s.io/ingress-nginx/controller:v1.11.1 | Kubernetes Ingress NGINX            | v1.11.1                                  | Not reported                    | Ingress Controller (NGINX)               |
+| registry.k8s.io/ingress-nginx/custom-error-pages:v1.0.1 | Kubernetes Ingress NGINX          | v1.0.1                                   | Not reported                    | Custom Error Pages for NGINX             |
+| registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.4.1 | Kubernetes Ingress NGINX          | v1.4.1                                   | Not reported                    | Webhook Certificate Generator            |
+| docker.io/library/busybox:latest           | Docker Hub (library/busybox)          | latest                                   | Not reported                    | Minimal OS Image                         |
+| docker.io/library/postgres:14.12           | Docker Hub (library/postgres)         | 14.12                                   | Not reported                    | Database (PostgreSQL)                    |
+| docker.io/library/redis:6.2.14-bookworm     | Docker Hub (library/redis)            | 6.2.14-bookworm                          | Not reported                    | In-memory Data Store (Redis)             |
+| quay.io/prometheus-operator/prometheus-config-reloader:v0.75.2 | Prometheus Operator               | v0.75.2                                  | Not reported                    | Config Reloading for Prometheus          |
+| docker.io/grafana/loki:2.9.3                | Grafana                               | 2.9.3                                   | Not reported                    | Log Aggregation (Loki)                   |
+| docker.io/grafana/promtail:2.9.3            | Grafana                               | 2.9.3                                   | Not reported                    | Log Collection (Promtail)                |
+| quay.io/kiwigrid/k8s-sidecar:1.27.4         | Kiwigrid                              | 1.27.4                                  | Not reported                    | Sidecar for Monitoring/Logging           |
+| docker.io/grafana/grafana:11.1.4            | Grafana                               | 11.1.4                                  | Not reported                    | Monitoring and Visualization Tool        |
+| quay.io/prometheus-operator/prometheus-operator:v0.75.2 | Prometheus Operator               | v0.75.2                                  | Not reported                    | Prometheus Operator                      |
+| registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.13.0 | Kubernetes State Metrics          | v2.13.0                                  | Not reported                    | Metrics for Kubernetes Objects           |
+| quay.io/prometheus/prometheus:v2.54.0       | Prometheus                            | v2.54.0                                 | Not reported                    | Metrics Collection and Monitoring        |
+| quay.io/prometheus/node-exporter:v1.8.2     | Prometheus                            | v1.8.2                                  | Not reported                    | Hardware and OS Metrics Exporter         |
+| registry.k8s.io/ingress-nginx/kube-webhook-certgen:v20221220-controller-v1.5.1-58-g787ea74b6 | Kubernetes Ingress NGINX          | v20221220-controller-v1.5.1-58-g787ea74b6 | Not reported                    | Certificate Management for Webhooks      |
+| quay.io/prometheus/alertmanager:v0.27.0     | Prometheus                            | v0.27.0                                 | Not reported                    | Alert Management for Prometheus          |
 
