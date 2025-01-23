@@ -94,10 +94,6 @@ sequenceDiagram
 
 6. **x.509 Certificate**:
 
-<div align="center">
-<img alt="X.509" src="Images/x509_dia.png">
-</div> 
-
 ```mermaid
 graph LR
     A[Sender]-->B(Encrypt);
