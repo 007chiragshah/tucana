@@ -12,33 +12,33 @@
 
 ```mermaid
 classDiagram
-    class "RKE2 Server Node" {
+    class RKE2_Server_Node {  <-- Changed name to avoid special characters
         RKE Supervisor
         kubelet
         etcd
-        "api-server"
-        "controller-manager"
-        "cloud-controller-manager"
+        api-server
+        controller-manager
+        cloud-controller-manager
         scheduler
     }
 
-    class "RKE2 Agent Node" {
+    class RKE2_Agent_Node {  <-- Changed name to avoid special characters
         RKE Supervisor
         kubelet
         "CRI: containerd"
         "RKE2 K8s Deployments"
-        "kube-proxy"
+        kube-proxy
         "CNI: canal"
         CoreDNS
-        "metric-server"
+        metric-server
         Ingress
         "Service Mesh"
         "Other Apps"
     }
 
-    "RKE2 Server Node" ..> "RKE2 Agent Node" : "Static pods"
+    RKE2_Server_Node ..> RKE2_Agent_Node : "Static pods"
 
-    note right of "RKE2 Agent Node"
+    note right of RKE2_Agent_Node
         Managed processes
     end note
 
