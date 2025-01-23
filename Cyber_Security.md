@@ -176,14 +176,6 @@ graph LR
 - There is a particularity for Kafka. Since Kafka is managed by “Strimzi” we will have to make use of it to create a new user. This will take care of creating all required secrets for the new user, though the 
   way credentials are provided as a secret is inconvenient for key rotation. For this reason we will need to create an intermediate secret which will take care of handling current Kafka keys.
 
-  
-<div align="center">
-<img alt="secret_update" src="Images/secret_update.png">
-</div>
-
-<div align="center">
-<img alt="seecret_replace" src="Images/secret_replace.png">
-</div>
 
 ```mermaid
 sequenceDiagram
