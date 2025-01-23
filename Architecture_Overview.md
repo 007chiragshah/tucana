@@ -18,37 +18,8 @@
   1. **Kube-API server**
 
   <div align="center">
-  <img alt="kube-api-server" src="Images/Kube-API-Server.png">
+  <img alt="kube-api-server" src="Images/Infrastructure_Kube-API-Server.png">
   </div>
-  
-  ```mermaid 
-  graph BT
-    H[Applications using K8s SDK] --> A
-    I[Monitoring Solutions] --> A
-    J[External Services] --> A
-
-    subgraph "Control Plane"
-        direction TB
-        A[kube-apiserver]
-        B[kube-scheduler]
-        C[etcd database]
-        D[kube-controller-manager]
-    end
-
-    subgraph "Worker Node"
-        direction TB
-        E[Kubelet] 
-        F[kube-proxy]
-        G[kubectl CLI]
-    end
-
-    A --> B
-    A --> C
-    A --> D
-    A --> E
-    A --> F
-    A --> G
-  ```
 
   - The kube-API server acts as the central communication hub for users, components, and the Kubernetes cluster. When using tools like kubectl, it communicates via HTTP REST APIs, while internal components such 
     as the scheduler and controllers use gRPC for interactions. The API server ensures secure communication through TLS, validating data for API objects, managing API requests, and authenticating and 
@@ -59,14 +30,8 @@
 
   2. **ETCD**:
   <div align="center">
-  <img alt="ETCD" src="Images/ETCD.png">
+  <img alt="ETCD" src="Images/Infrastructure_etcd.png">
   </div>
-  
-  ```mermaid 
-  graph TD
-    A[kube-API server]-->|gRPC|B(etcd)
-    B --> C[ /registry/APIregistration.k8s.io/apiservices/* \n /registry/certificatesigningrequests/* \n /registry/clusterrolebindings/* \n /registry/clusterroles/* \n /registry/configmaps/* \n /registry/daemonsets/* \n /registry/events/* \n /registry/namespaces/* \n /registry/pods/* \n /registry/secrets/* \n /registry/serviceaccounts/* \n /registry/services/* \n registry/* ]
-  ```
   
   - etcd is a distributed key-value store designed to securely store Kubernetes cluster data, such as pod information, states, and namespaces. It is accessible only by the Kubernetes API server to ensure 
     security. Kubernetes interacts with etcd through its key-value API using gRPC, storing all objects in the /registry directory in key-value format.
@@ -82,7 +47,7 @@
   4. **kube-controller-manager**:
 
   <div align="center">
-  <img alt="Kubernetes-control-manage" src="Images/Kubernetes-control-manage.png">
+  <img alt="Kubernetes-control-manager" src="Images/Infrastructure_Kubernetes-control-manager.png">
   </div>
 
   - The kube-controller-manager manages various controllers to maintain the cluster's desired state. For instance, it ensures deployments specified in a YAML manifest, such as replicas, volume mounts, and 
@@ -96,7 +61,7 @@
   5. **cloud-controller-manager**
 
   <div align="center">
-  <img alt="cloud-controller-manager" src="Images/cloud-controller-manager.png">
+  <img alt="cloud-controller-manager" src="Images/Infrastructure_cloud-controller-manager.png">
   </div>
 
   - The cloud controller manager bridges Cloud Platform APIs and the Kubernetes cluster, enabling seamless integration between Kubernetes and cloud providers via plugins. It allows core Kubernetes components to 
@@ -118,7 +83,7 @@
   1. **Kubelet**:
 
   <div align="center">
-  <img alt="kubelet" src="Images/kubelet.png">
+  <img alt="kubelet" src="Images/Infrastructure_kubelet.png">
   </div>
 
   - The kubelet is a vital Kubernetes component running on every node, responsible for node registration with the API server and managing pods based on the podSpec. It creates, modifies, and deletes containers, 
@@ -129,7 +94,7 @@
  2. **kube-proxy**:
 
   <div align="center">
-  <img alt="kubeproxy" src="Images/kubeproxy.png">
+  <img alt="kubeproxy" src="Images/Infrastructure_kubeproxy.png">
   </div>
 
   - Kube-proxy is a key component in Kubernetes that implements Services for exposing pods to traffic. It works in conjunction with Kubernetes Service and Endpoint objects, where Services expose pods, and 
@@ -141,7 +106,7 @@
  3. **Container runtime**:
 
   <div align="center">
-  <img alt="container-runtime-architecture" src="Images/container-runtime-architecture.png">
+  <img alt="container-runtime-architecture" src="Images/Infrastructure_container-runtime-architecture.png">
   </div>
 
   - Just like the Java Runtime (JRE) is needed to run Java programs, a container runtime is essential for running containers. It handles tasks like pulling images from registries, allocating resources, 
@@ -160,7 +125,7 @@
  5. **Kafka**:
 
   <div align="center">
-  <img alt="kafka" src="Images/kafka.drawio.png">
+  <img alt="kafka" src="Images/Infrastructure_kafka.drawio.png">
   </div>
   
   - We are using kafka in our infra for collecting and storing real time data from the different sources like alerts, event-authentication, technical alerts, sdc events etc.
