@@ -20,7 +20,6 @@
   ```mermaid 
   graph TD
     subgraph "Control Plane" 
-        direction TB
         A[kube-API-server]
         B[kube-scheduler]
         D[etcd]
@@ -28,7 +27,6 @@
     end
 
     subgraph "Worker Node" 
-        direction TB
         F[Kubelet]
         G[kube-proxy]
         H[kubectl]
@@ -44,6 +42,11 @@
     J[apps using k8s SDK] --> A
     K[Monitoring Systems] --> A
     L[Third Party Apps] --> A
+
+    %% Other Apps below both Control Plane and Worker Node
+    J -->|Connected to| A
+    K -->|Connected to| A
+    L -->|Connected to| A
   ```
 
   - The kube-API server acts as the central communication hub for users, components, and the Kubernetes cluster. When using tools like kubectl, it communicates via HTTP REST APIs, while internal components such 
