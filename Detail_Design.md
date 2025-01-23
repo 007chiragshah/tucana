@@ -28,70 +28,59 @@
 </div>
 
 ```mermaid
-graph LR
-    subgraph "Kafka Architecture"
-        subgraph "A Topic"
-            Partition1["Partition 1"]
-            Partition2["Partition 2"]
-            Partition3["Partition 3"]
-        end
-
-        subgraph "Broker-0 Server"
-            P1R2["Partition 2 (Replica 2)"]
-            P2R1["Partition 1 (Replica 1)"]
-        end
-        
-        subgraph "Broker-1 Server"
-            P1R3["Partition 1 (Replica 3)"]
-            P3R1["Partition 3 (Replica 1)"]
-        end
-
-        subgraph "Broker-2 Server"
-            P2R3["Partition 2 (Replica 3)"]
-            P3R2["Partition 3 (Replica 2)"]
-        end
-
-        subgraph "ZooKeeper Ensemble"
-            Node1["Node 1"]
-            Node2["Node 2"]
-            Node3["Node 3"]
-        end
-
-        subgraph "Consumer Group"
-            Consumer1["Consumer"]
-            Consumer2["Consumer"]
-            Consumer3["Consumer"]
-        end
-
-        subgraph Producers
-            Producer1["Producer"]
-            Producer2["Producer"]
-            Producer3["Producer"]
-        end
+graph TD
+    subgraph Producers
+        Producer1["Producer"]
+        Producer2["Producer"]
+        Producer3["Producer"]
     end
 
-    %% Connections between Producers and Partitions
+    subgraph "A Topic"
+        Partition1["Partition 1"]
+        Partition2["Partition 2"]
+        Partition3["Partition 3"]
+    end
+
+    subgraph Brokers
+        Broker0["Broker-0 Server"]
+        Broker1["Broker-1 Server"]
+        Broker2["Broker-2 Server"]
+    end
+
+    subgraph "ZooKeeper Ensemble"
+        Node1["Node 1"]
+        Node2["Node 2"]
+        Node3["Node 3"]
+    end
+
+    subgraph "Consumer Group"
+        Consumer1["Consumer"]
+        Consumer2["Consumer"]
+        Consumer3["Consumer"]
+    end
+
+    %% Producers to Partitions
     Producer1 --> Partition1
     Producer2 --> Partition2
     Producer3 --> Partition3
 
     %% Partitions to Brokers
-    Partition1 --> P1R2
-    Partition1 --> P1R3
-    Partition2 --> P2R1
-    Partition2 --> P2R3
-    Partition3 --> P3R1
-    Partition3 --> P3R2
+    Partition1 -.-> Broker0
+    Partition1 -.-> Broker1
+    Partition2 -.-> Broker0
+    Partition2 -.-> Broker2
+    Partition3 -.-> Broker1
+    Partition3 -.-> Broker2
 
-    %% Consumers to Partitions
+    %% Brokers to ZooKeeper
+    Broker0 --> Node1
+    Broker1 --> Node2
+    Broker2 --> Node3
+
+    %% Partitions to Consumers
     Partition1 --> Consumer1
     Partition2 --> Consumer2
     Partition3 --> Consumer3
-
-    %% ZooKeeper Ensemble
-    Node1 --> Node2
-    Node2 --> Node3
-    Node3 --> Node1 
 ```
 - We are using kafka in our infra for collecting and storing real time data from the different sources like alerts, event-autheProducers and Consumers Work Independently:ntication, technical alerts, sdc events 
   etc.
