@@ -121,6 +121,23 @@ graph LR
 <img alt="ssh_dia" src="Images/ssh_diagram.png">
 </div>
 
+```mermaid
+graph LR
+    A[SSH Client]-->B(Encrypt);
+    B-->C{ks81*n};
+    C-->D(Decrypt);
+    D-->E[SSH Server];
+
+    B-->F[Public Key Exchange];
+    F-->D;
+
+    subgraph Asymmetric Encryption
+        B
+        C
+        D
+    end
+```
+
 - We are using ssh private key to login into different nodes on which we have stored the same public key.
 - A SSH key is a cryptographic key used for secure communication between a client and a server over the Secure Shell (SSH) protocol. It is primarily used for authentication and establishing encrypted 
   connections.
