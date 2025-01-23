@@ -6,7 +6,7 @@
 ## High Level System Architecture
 
 <div align="center">
-<img alt="k8s_infra" src="/Images/K8s_Infra.drawio.png">
+<img alt="k8s_infra" src="Images/Infrastructure_K8s_Infra.drawio.png">
 </div>
 
   ### Control Plane Node:
