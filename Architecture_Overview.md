@@ -63,7 +63,7 @@
   graph TD
     A[kube-API server] -->|gRPC| B(etcd)
     B --> Registry[/registry/*]
-    subgraph Registry
+    subgraph "Registry"
         C[/registry/replicasets/*]
         D[/registry/persistentvolumes/*]
         E[/registry/networkpolicies/*]
