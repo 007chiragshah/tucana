@@ -32,7 +32,7 @@
     end
 
     subgraph "Worker Node"
-        direction TB
+        direction LR
         E[Kubelet]
         F[kube-proxy]
         G[kubectl CLI]
