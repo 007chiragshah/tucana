@@ -64,6 +64,33 @@
 <img alt="TLS" src="Images/TLS_Dia.png">
 </div>  
 
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Server
+
+    Client->>Server: SYN
+    activate Server
+    Server-->>Client: SYN ACK
+    Client-->>Server: ACK
+    deactivate Server
+
+    Client->>Server: ClientHello
+    activate Server
+    Server-->>Client: ServerHello
+    Server-->>Client: Certificate
+    Server-->>Client: ServerHelloDone
+    Client->>Server: ClientKeyExchange
+    Client->>Server: ChangeCipherSpec
+    Client->>Server: Finished
+    Server-->>Client: ChangeCipherSpec
+    Server-->>Client: Finished
+    deactivate Server
+
+    note over Client,Server: TCP: 50ms
+    note over Client,Server: TLS: 110ms
+```
+
 - We have used TLS cert for ingres domain because When deploying services in Kubernetes, Ingress resources are often used to expose HTTP and HTTPS routes from outside the cluster to services within it. To 
   secure these connections using HTTPS, a TLS certificate is required.
 - TLS is an encryption and authentication protocol designed to secure Internet communications. A TLS handshake is the process that kicks off a communication session that uses TLS. During a TLS handshake, 
