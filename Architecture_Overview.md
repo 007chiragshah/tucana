@@ -34,8 +34,8 @@
     subgraph "Worker Node"
         direction TB
         E[Kubelet] 
-        F[kube-proxy]  E
-        G[kubectl CLI]  F
+        F[kube-proxy]
+        G[kubectl CLI]
     end
 
     A --> B
