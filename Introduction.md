@@ -1,5 +1,5 @@
 <div align="center">
-<img alt="Infrastructure_centrla_server_logo" src="/Images/Infrastructure_centrla_server.png">
+<img alt="centrla_server" src="Images/Infrastructure_centrla_server_logo.png">
 <h1>Central Hub Infrastructure</h1>
 <h2> 🎯 Introduction </h2>
 </div>
