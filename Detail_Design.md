@@ -27,6 +27,39 @@
 <img alt="kafka_arch" src="Images/kafka_arch.png">
 </div>
 
+```mermaid
+graph TD
+    A[A topic] --> B{Partition 1};
+    B --> C[Broker-0 Server];
+    A --> D{Partition 2};
+    D --> E[Broker-1 Server];
+    A --> F{Partition 3};
+    F --> G[Broker-2 Server];
+    B --> H[Replica 1];
+    D --> I[Replica 1];
+    F --> J[Replica 2];
+    K[Producer]-->B;
+    K-->D;
+    K-->F;
+    L[Producer]-->B;
+    L-->D;
+    L-->F;
+    M[Producer]-->B;
+    M-->D;
+    M-->F;
+    N[Consumer group]-->C;
+    N-->E;
+    N-->G;
+    O[Consumer]-->C;
+    P[Consumer]-->E;
+    Q[Consumer]-->G;
+    R[ZooKeeper Ensemble]-->B;
+    R-->D;
+    R-->F;
+    S[Node 1]-.->R;
+    T[Node 2]-.->R;
+    U[Node 3]-.->R;
+```
 - We are using kafka in our infra for collecting and storing real time data from the different sources like alerts, event-autheProducers and Consumers Work Independently:ntication, technical alerts, sdc events 
   etc.
 - Kafka is a distributed event streaming platform designed to handle high-throughput, fault-tolerant, and low-latency messaging. Here's a simplified overview of how it works:
