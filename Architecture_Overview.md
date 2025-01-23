@@ -196,7 +196,7 @@
     A[Client]-->B(Ingress-managed Load Balancer);
     subgraph Cluster
         B-->C{Ingress};
-        B-->D[routing rules];
+        C-->D[routing rules];
         D-->E[Service];
         E-->F[Pod];
         E-->G[Pod];
