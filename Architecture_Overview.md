@@ -61,8 +61,7 @@
 
   ```mermaid 
   graph TD
-    A[kube-API server] -->|gRPC| B(etcd)
-    
+    A[kube-API server] -->|gRPC| --> B(etcd)
     subgraph "Registry"
         C[/registry/replicasets/*]
         D[/registry/persistentvolumes/*]
@@ -76,7 +75,9 @@
         L[/registry/secrets/*]
         M[/registry/serviceaccounts/*]
         N[/registry/services/*]
-        O[/registry/*]
+        O[.]
+        P[.]
+        Q[/registry/*]
     end
   ```
   
