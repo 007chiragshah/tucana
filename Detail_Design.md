@@ -11,52 +11,58 @@
 </div>
 
 ```mermaid
-graph TB
+graph LR
+    %% Define the RKE2 Server Node
     subgraph RKE2_Server_Node ["RKE2 Server Node"]
         RKESupervisorServer["RKE Supervisor*"]
-        KubeletServer["kubelet"]
-        Etcd["etcd"]
-        APIServer["api-server"]
-        ControllerManager["controller-manager"]
-        CloudControllerManager["cloud-controller-manager"]
-        Scheduler["scheduler"]
-        StaticPods["Static pods"]
-
-        RKESupervisorServer --> KubeletServer
-        KubeletServer --> APIServer
-        APIServer --> Etcd
-        APIServer --> ControllerManager
-        APIServer --> CloudControllerManager
-        APIServer --> Scheduler
-        KubeletServer --> StaticPods
+        kubeletServer["kubelet"]
+        etcd["etcd"]
+        apiserver["api-server"]
+        controllerManager["controller-manager"]
+        cloudControllerManager["cloud-controller-manager"]
+        scheduler["scheduler"]
+        staticPods["Static pods"]
+        
+        %% Connections within the Server Node
+        RKESupervisorServer --> kubeletServer
+        kubeletServer --> staticPods
+        kubeletServer --> apiserver
+        apiserver --> etcd
+        apiserver --> controllerManager
+        apiserver --> cloudControllerManager
+        apiserver --> scheduler
     end
 
+    %% Define the RKE2 Agent Node
     subgraph RKE2_Agent_Node ["RKE2 Agent Node"]
         RKESupervisorAgent["RKE Supervisor"]
-        KubeletAgent["kubelet"]
-        CRIContainerd["CRI: containerd"]
-        ManagedProcesses["Managed processes"]
+        kubeletAgent["kubelet"]
+        containerd["CRI: containerd"]
+        managedProcesses["Managed processes"]
 
         subgraph RKE2_K8s_Deployments ["RKE2 K8s Deployments"]
-            KubeProxy["kube-proxy"]
-            CNI["CNI: canal"]
-            HelmController["helm-controller"]
-            CoreDNS["CoreDNS"]
-            MetricServer["metric-server"]
-            Ingress["Ingress"]
+            kubeProxy["kube-proxy"]
+            cniCanal["CNI: canal"]
+            helmController["helm-controller"]
+            coreDNS["CoreDNS"]
+            metricServer["metric-server"]
+            ingress["Ingress"]
         end
 
         subgraph User_Defined_Workloads ["User-defined workloads"]
-            ServiceMesh["Service Mesh"]
-            OtherApps["Other Apps"]
+            serviceMesh["Service Mesh"]
+            otherApps["Other Apps"]
         end
 
-        RKESupervisorAgent --> KubeletAgent
-        KubeletAgent --> CRIContainerd
-        KubeletAgent --> ManagedProcesses
-        ManagedProcesses --> RKE2_K8s_Deployments
-        ManagedProcesses --> User_Defined_Workloads
+        %% Connections within the Agent Node
+        RKESupervisorAgent --> kubeletAgent
+        kubeletAgent --> containerd
+        managedProcesses --> RKE2_K8s_Deployments
+        managedProcesses --> User_Defined_Workloads
     end
+
+    %% Connection between Server and Agent Node
+    RKE2_Server_Node --> RKE2_Agent_Node
 ```
 
 - We are using Rancher in our infra for creating and managing the kubernetes cluster of one master node, three worker nodes, and one load balancer.
