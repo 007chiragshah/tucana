@@ -19,35 +19,33 @@
 
   ```mermaid 
   graph TD
-    A[kube-API-server] --> B[Control Plane]
-    B --> C[kube-scheduler]
-    B --> D[etcd]
-    B --> E[kube-controller manager]
+    subgraph "Control Plane"
+        A[kube-API-server]
+        B[kube-scheduler]
+        D[etcd]
+        E[kube-controller manager]
+    end
+
+    A --> B
+    A --> D
+    A --> E
 
     F[Worker Node] --> G[kube-proxy]
     F --> H[Kubelet]
     F --> I[kubectl]
 
-    subgraph "External Components"
-        J[apps using k8s SDK]
-        K[Monitoring Systems]
-        L[Third Party Apps]
+    A --> F
+    A --> J[apps using k8s SDK]
+    A --> K[Monitoring Systems]
+    A --> L[Third Party Apps]
+    
+    subgraph "Worker Node"
+        F
+        G
+        H
+        I
     end
 
-    A --> F
-    A --> J
-    A --> K
-    A --> L
-    
-    style A fill:#f9f,stroke:#333,stroke-width:4px
-    style B fill:#ccf,stroke:#333,stroke-width:2px
-    style F fill:#cfc,stroke:#333,stroke-width:2px
-    style G fill:#cfc,stroke:#333,stroke-width:1px
-    style H fill:#cfc,stroke:#333,stroke-width:1px
-    style I fill:#cfc,stroke:#333,stroke-width:1px
-    style J fill:#fcf,stroke:#333,stroke-width:1px
-    style K fill:#fcf,stroke:#333,stroke-width:1px
-    style L fill:#fcf,stroke:#333,stroke-width:1px
   ```
 
   - The kube-API server acts as the central communication hub for users, components, and the Kubernetes cluster. When using tools like kubectl, it communicates via HTTP REST APIs, while internal components such 
