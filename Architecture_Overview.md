@@ -162,6 +162,29 @@
   <div align="center">
   <img alt="kafka" src="Images/kafka.drawio.png">
   </div>
+
+  ```mermaid 
+  graph LR
+    A[Broker] --> B[Zookeeper]
+    subgraph Kafka Cluster
+        A[Broker]
+        C[Broker]
+    end
+    A -.- B
+    A -.- C
+    note right of B
+        TLS/
+        Encryption
+    end note
+    note left of C
+        TLS/
+        Encryption
+    end note
+    note bottom of A
+        TLS
+        Certificate
+    end note
+  ```
   
   - We are using kafka in our infra for collecting and storing real time data from the different sources like alerts, event-authentication, technical alerts, sdc events etc.
   - Kafka is a distributed event platform which uses producers to sent messages to different topics, where consumer can read that message by subscribing the relevant topics. We are using zookeepr for managing 
@@ -186,10 +209,6 @@
       - We are using Grafana dashboard to show color coded visulisation of the different alerts coming from the prometheus with the different views of the current alert. its status, also with the table formate.
      
  8. **Ingres Loadbalancer**:
-
-  <div align="center">
-  <img alt="Ingres" src="Images/ingres.png">
-  </div>
 
   ```mermaid 
   graph LR
