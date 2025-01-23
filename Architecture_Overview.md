@@ -62,6 +62,7 @@
   ```mermaid 
   graph TD
     A[kube-API server] -->|gRPC| B(etcd)
+    B --> Registry[/registry/*]
     
   ```
   
