@@ -38,14 +38,9 @@ classDiagram
 
     RKE2_Server_Node ..> RKE2_Agent_Node : "Static pods"
 
-    %% Notes must be outside the classes
-    note right of RKE2_Agent_Node
-        Managed processes
-    end note
-
-    note right of "RKE2 K8s Deployments"
-        Helm or raw manifests
-    end note
+    %% Correct note syntax
+    RKE2_Agent_Node : "Managed processes"
+    "RKE2 K8s Deployments" : "Helm or raw manifests"
 ```
 
 - We are using Rancher in our infra for creating and managing the kubernetes cluster of one master node, three worker nodes, and one load balancer.
