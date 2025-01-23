@@ -62,8 +62,8 @@
   ```mermaid 
   graph TD
     A[kube-API server] -->|gRPC| B(etcd)
-    B --> Registry[/registry/*]
-    subgraph Registry
+    B -->|gRPC| Registry
+    subgraph Registry [/registry/*]
         C[/registry/replicasets/*]
         D[/registry/persistentvolumes/*]
         E[/registry/networkpolicies/*]
@@ -78,6 +78,7 @@
         N[/registry/services/*]
         O[/registry/*]
     end
+
   ```
   
   - etcd is a distributed key-value store designed to securely store Kubernetes cluster data, such as pod information, states, and namespaces. It is accessible only by the Kubernetes API server to ensure 
