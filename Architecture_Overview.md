@@ -194,12 +194,13 @@
   ```mermaid 
   graph LR
     A[Client]-->B(Ingress-managed Load Balancer);
-    B-->C{Ingress};
-    C-->D[routing rules];
-    D-->E[Service];
-    E-->F[Pod];
-    E-->G[Pod];
-    H[Cluster]-->E;
+    subgraph Cluster
+        B-->C{Ingress};
+        B-->D|routing rules|;
+        D-->E[Service];
+        E-->F[Pod];
+        E-->G[Pod];
+    end
   ```
   
   - We used ingres loadbalancer in our infra setup to route the traffic to appropriate backend services based on the routing rules we have provided such as URL path, http, https, hostname etc.
