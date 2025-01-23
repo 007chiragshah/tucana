@@ -12,7 +12,7 @@
 
 ```mermaid
 classDiagram
-    class RKE2_Server_Node {  <-- Changed name to avoid special characters
+    class RKE2_Server_Node {
         RKE Supervisor
         kubelet
         etcd
@@ -22,7 +22,7 @@ classDiagram
         scheduler
     }
 
-    class RKE2_Agent_Node {  <-- Changed name to avoid special characters
+    class RKE2_Agent_Node {
         RKE Supervisor
         kubelet
         "CRI: containerd"
@@ -38,7 +38,8 @@ classDiagram
 
     RKE2_Server_Node ..> RKE2_Agent_Node : "Static pods"
 
-    note right RKE2_Agent_Node  # Removed extra space before 'right'
+    %% Notes must be outside the classes
+    note right of RKE2_Agent_Node
         Managed processes
     end note
 
