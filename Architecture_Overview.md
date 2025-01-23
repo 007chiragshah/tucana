@@ -191,6 +191,17 @@
   <img alt="Ingres" src="Images/ingres.png">
   </div>
 
+  ```mermaid 
+  graph LR
+    A[Client]-->B(Ingress-managed Load Balancer);
+    B-->C{Ingress};
+    C-->D[routing rules];
+    D-->E[Service];
+    E-->F[Pod];
+    E-->G[Pod];
+    H[Cluster]-->E;
+  ```
+  
   - We used ingres loadbalancer in our infra setup to route the traffic to appropriate backend services based on the routing rules we have provided such as URL path, http, https, hostname etc.
   - We choose ingres as a loadbalancer because it offers centralized traffic management, path-based routing, and SSL termination. we can use the same ingress loadbalancer for different application with single 
     yaml file just with the routing rules.
