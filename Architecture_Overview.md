@@ -27,17 +27,26 @@
     F[Worker Node] --> G[kube-proxy]
     F --> H[Kubelet]
     F --> I[kubectl]
+
+    A --> F
+    A --> J[apps using k8s SDK]
+    A --> K[Monitoring Systems]
+    A --> L[Third Party Apps]
     
-    subgraph "External Entities"
-        J[apps using k8s SDK]
-        K[Monitoring Systems]
-        L[Third Party Apps]
+    subgraph "Control Plane"
+        B
+        C
+        D
+        E
     end
     
-    J --> A
-    K --> A
-    L --> A
-    F --> A
+    subgraph "Worker Node"
+        F
+        G
+        H
+        I
+    end
+
   ```
 
   - The kube-API server acts as the central communication hub for users, components, and the Kubernetes cluster. When using tools like kubectl, it communicates via HTTP REST APIs, while internal components such 
