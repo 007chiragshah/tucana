@@ -117,10 +117,6 @@ graph LR
 
 7. **ssh keys**:
 
-<div align="center">
-<img alt="ssh_dia" src="Images/ssh_diagram.png">
-</div>
-
 ```mermaid
 graph LR
     A[SSH Client]-->B(Encrypt);
