@@ -79,24 +79,26 @@
   </div>
 
   ```mermaid 
-  flowchart LR
-    A[kube-controller-manager] --> B{Create/Modify Object}
+  graph TD
+    A[kube-controller-manager] -->|Create/Modify Object| B[API Server]
     B --> C[Kubernetes Objects]
     C --> D[Pod.yaml]
     C --> E[Deployment.yaml]
-    C --> F[job.yaml]
-    C --> G[namespace.yaml]
-    B --> H[API Server]
-    H --> I[Controllers]
-    I --> J[Watch]
-    J --> K[Pods]
-    I --> L[Watch]
-    L --> M[Deployments]
-    I --> N[Update]
-    N --> O[Jobs]
-    I --> P[Update]
-    P --> Q[Namespaces]
-    K,M,O,Q --> R[Kubernetes Objects Desired State]
+    C --> F[Job.yaml]
+    C --> G[Namespace.yaml]
+    B --> H[Controllers]
+    H --> I[Watch Pods]
+    H --> J[Watch Deployments]
+    H --> K[Watch Jobs]
+    H --> L[Watch Namespaces]
+    I --> M[Pods Desired State]
+    J --> N[Deployments Desired State]
+    K --> O[Jobs Desired State]
+    L --> P[Namespaces Desired State]
+    M --> Q[Kubernetes Objects Desired State]
+    N --> Q[Kubernetes Objects Desired State]
+    O --> Q[Kubernetes Objects Desired State]
+    P --> Q[Kubernetes Objects Desired State]
   ```
 
   - The kube-controller-manager manages various controllers to maintain the cluster's desired state. For instance, it ensures deployments specified in a YAML manifest, such as replicas, volume mounts, and 
