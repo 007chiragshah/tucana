@@ -18,7 +18,7 @@
   1. **Kube-API server**
 
   ```mermaid 
-  graph TD
+  graph LR
     A[kube-API-server] --> B{Control Plane}
     B --> C[kube-scheduler]
     B --> D[etcd]
@@ -32,6 +32,10 @@
     J[apps using k8s SDK] --> A
     K[Monitoring Systems] --> A
     L[Third Party Apps] --> A
+
+    B -.->|Handles| J
+    B -.->|Handles| K
+    B -.->|Handles| L
   ```
 
   - The kube-API server acts as the central communication hub for users, components, and the Kubernetes cluster. When using tools like kubectl, it communicates via HTTP REST APIs, while internal components such 
@@ -48,21 +52,42 @@
   </div>
 
   ```mermaid 
-  graph TD
-    A[kube-API server] -->|gRPC| B(etcd)
-    B --> C[APIServiceRegistration]
-    B --> D[CertificateSigningRequests]
-    B --> E[ClusterRoleBindings]
-    B --> F[ClusterRoles]
-    B --> G[ConfigMaps]
-    B --> H[DaemonSets]
-    B --> I[Events]
-    B --> J[Namespaces]
-    B --> K[Pods]
-    B --> L[Secrets]
-    B --> M[ServiceAccounts]
-    B --> N[Services]
-    B --> O[Other Resources]
+  classDiagram
+    class KubeAPI_Server {
+        +gRPC etcd
+    }
+
+    class Etcd {
+        +APIServiceRegistration
+        +CertificateSigningRequests
+        +ClusterRoleBindings
+        +ClusterRoles
+        +ConfigMaps
+        +DaemonSets
+        +Events
+        +Namespaces
+        +Pods
+        +Secrets
+        +ServiceAccounts
+        +Services
+        +OtherResources
+    }
+
+    KubeAPI_Server --> Etcd
+
+    Etcd : +APIServiceRegistration
+    Etcd : +CertificateSigningRequests
+    Etcd : +ClusterRoleBindings
+    Etcd : +ClusterRoles
+    Etcd : +ConfigMaps
+    Etcd : +DaemonSets
+    Etcd : +Events
+    Etcd : +Namespaces
+    Etcd : +Pods
+    Etcd : +Secrets
+    Etcd : +ServiceAccounts
+    Etcd : +Services
+    Etcd : +OtherResources
   ```
   
   - etcd is a distributed key-value store designed to securely store Kubernetes cluster data, such as pod information, states, and namespaces. It is accessible only by the Kubernetes API server to ensure 
