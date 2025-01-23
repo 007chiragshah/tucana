@@ -17,6 +17,10 @@
 
   1. **Kube-API server**
 
+  <div align="center">
+  <img alt="kube-api-server" src="Images/Kube-API-Server.png">
+  </div>
+  
   ```mermaid 
   graph BT
     H[Applications using K8s SDK] --> A
@@ -54,7 +58,10 @@
 
 
   2. **ETCD**:
-
+  <div align="center">
+  <img alt="ETCD" src="Images/ETCD.png">
+  </div>
+  
   ```mermaid 
   graph TD
     A[kube-API server]-->|gRPC|B(etcd)
