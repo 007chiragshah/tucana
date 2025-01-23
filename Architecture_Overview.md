@@ -1,4 +1,4 @@
-<div align="center">
+  <div align="center">
 <h1>Central Hub Infrastructure</h1>
 <h2> 🏛️ System Architecture </h2>
 </div>
@@ -80,8 +80,8 @@
 
   ```mermaid 
   graph TD
-    |Create/Modify Object| --> C[Kubernetes Objects]
-    C --> B[API Server]
+    |Create/Modify Object| B[API Server]
+    B --> C[Kubernetes Objects]
     C --> D[Pod.yaml]
     C --> E[Deployment.yaml]
     C --> F[Job.yaml]
