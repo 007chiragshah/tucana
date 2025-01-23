@@ -99,23 +99,20 @@ sequenceDiagram
 </div> 
 
 ```mermaid
-flowchart LR
-    A[Sender] --> B{Encrypt}
-    B --> C[Ciphertext]
-    C --> D{Decrypt}
-    D --> E[Recipient]
+graph LR
+    A[Sender]-->B(Encrypt);
+    B-->C{Ciphertext};
+    C-->D(Decrypt);
+    D-->E[Recipient];
 
-    subgraph Public Key
-        F[Recipient's Public Key] --> B
+    B-->F[Recipient's Public Key];
+    D-->G[Recipient's Private Key];
+
+    subgraph Asymmetric Encryption
+        B
+        C
+        D
     end
-
-    subgraph Private Key
-        D --> G[Recipient's Private Key]
-    end
-
-    note right of B, D
-        Different keys are used to
-        encrypt and decrypt message
 ```
 
 - We have used x.509 certificate to encrypt the communication between the central hub and patient monitor and this certificates should be generated with the trusted certificate authority.
