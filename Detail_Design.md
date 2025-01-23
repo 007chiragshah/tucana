@@ -11,58 +11,40 @@
 </div>
 
 ```mermaid
-graph LR
-    %% Define the RKE2 Server Node
-    subgraph RKE2_Server_Node ["RKE2 Server Node"]
-        RKESupervisorServer["RKE Supervisor*"]
-        kubeletServer["kubelet"]
-        etcd["etcd"]
-        apiserver["api-server"]
-        controllerManager["controller-manager"]
-        cloudControllerManager["cloud-controller-manager"]
-        scheduler["scheduler"]
-        staticPods["Static pods"]
-        
-        %% Connections within the Server Node
-        RKESupervisorServer --> kubeletServer
-        kubeletServer --> staticPods
-        kubeletServer --> apiserver
-        apiserver --> etcd
-        apiserver --> controllerManager
-        apiserver --> cloudControllerManager
-        apiserver --> scheduler
-    end
+classDiagram
+    class "RKE2 Server Node" {
+        RKE Supervisor
+        kubelet
+        etcd
+        "api-server"
+        "controller-manager"
+        "cloud-controller-manager"
+        scheduler
+    }
 
-    %% Define the RKE2 Agent Node
-    subgraph RKE2_Agent_Node ["RKE2 Agent Node"]
-        RKESupervisorAgent["RKE Supervisor"]
-        kubeletAgent["kubelet"]
-        containerd["CRI: containerd"]
-        managedProcesses["Managed processes"]
+    class "RKE2 Agent Node" {
+        RKE Supervisor
+        kubelet
+        "CRI: containerd"
+        "RKE2 K8s Deployments"
+        "kube-proxy"
+        "CNI: canal"
+        CoreDNS
+        "metric-server"
+        Ingress
+        "Service Mesh"
+        "Other Apps"
+    }
 
-        subgraph RKE2_K8s_Deployments ["RKE2 K8s Deployments"]
-            kubeProxy["kube-proxy"]
-            cniCanal["CNI: canal"]
-            helmController["helm-controller"]
-            coreDNS["CoreDNS"]
-            metricServer["metric-server"]
-            ingress["Ingress"]
-        end
+    "RKE2 Server Node" ..> "RKE2 Agent Node" : "Static pods"
 
-        subgraph User_Defined_Workloads ["User-defined workloads"]
-            serviceMesh["Service Mesh"]
-            otherApps["Other Apps"]
-        end
+    note right of "RKE2 Agent Node"
+        Managed processes
+    end note
 
-        %% Connections within the Agent Node
-        RKESupervisorAgent --> kubeletAgent
-        kubeletAgent --> containerd
-        managedProcesses --> RKE2_K8s_Deployments
-        managedProcesses --> User_Defined_Workloads
-    end
-
-    %% Connection between Server and Agent Node
-    RKE2_Server_Node --> RKE2_Agent_Node
+    note right of "RKE2 K8s Deployments"
+        Helm or raw manifests
+    end note
 ```
 
 - We are using Rancher in our infra for creating and managing the kubernetes cluster of one master node, three worker nodes, and one load balancer.
