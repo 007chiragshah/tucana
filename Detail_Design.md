@@ -38,7 +38,7 @@ classDiagram
 
     RKE2_Server_Node ..> RKE2_Agent_Node : "Static pods"
 
-    note right of RKE2_Agent_Node
+    note right RKE2_Agent_Node  # Removed extra space before 'right'
         Managed processes
     end note
 
