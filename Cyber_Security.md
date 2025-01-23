@@ -58,11 +58,7 @@
   persistentvolumeclaims, and configmaps; another grants full access (*) to endpoints, persistentvolumes, and pods; a third allows creating and patching events; and the last one grants read-only access to 
   storageclasses from the storage.k8s.io API group.
 
-5. **TLS Cert for Ingres**:
-
-<div align="center">
-<img alt="TLS" src="Images/TLS_Dia.png">
-</div>  
+5. **TLS Cert for Ingres**:  
 
 ```mermaid
 sequenceDiagram
