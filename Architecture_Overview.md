@@ -55,10 +55,6 @@
 
   2. **ETCD**:
 
-  <div align="center">
-  <img alt="ETCD" src="Images/ETCD.png">
-  </div>
-
   ```mermaid 
   graph TD
     A[kube-API server]-->|gRPC|B(etcd)
