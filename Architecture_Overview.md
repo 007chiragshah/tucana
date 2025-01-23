@@ -162,15 +162,6 @@
   <div align="center">
   <img alt="kafka" src="Images/kafka.drawio.png">
   </div>
-
-  ```mermaid 
-  graph LR
-    A[Broker<br/>TLS Certificate] --> B[Zookeeper<br/>TLS/Encryption]
-    subgraph Kafka Cluster
-        A[Broker]
-        C[Broker<br/>TLS/Encryption]
-    end;
-  ```
   
   - We are using kafka in our infra for collecting and storing real time data from the different sources like alerts, event-authentication, technical alerts, sdc events etc.
   - Kafka is a distributed event platform which uses producers to sent messages to different topics, where consumer can read that message by subscribing the relevant topics. We are using zookeepr for managing 
