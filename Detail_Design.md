@@ -7,7 +7,7 @@
 ### Rancher:
 
 <div align="center">
-<img alt="Rancher_Arch" src="Images/Rancher_Archi.png">
+<img alt="Rancher_Arch" src="Images/Infrastructure_Rancher_Architecture.png">
 </div>
 
 - We are using Rancher in our infra for creating and managing the kubernetes cluster of one master node, three worker nodes, and one load balancer.
@@ -100,7 +100,7 @@ graph TD
 ### Istio:
 
 <div align="center">
-<img alt="Istio" src="Images/istio.drawio.png">
+<img alt="Istio" src="Images/Infrastructure_Istio Architecture.png">
 </div>
 
 
