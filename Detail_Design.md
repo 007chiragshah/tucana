@@ -29,36 +29,52 @@
 
 ```mermaid
 graph TD
-    A[A topic] --> B{Partition 1};
-    B --> C[Broker-0 Server];
-    A --> D{Partition 2};
-    D --> E[Broker-1 Server];
-    A --> F{Partition 3};
-    F --> G[Broker-2 Server];
-    B --> H[Replica 1];
-    D --> I[Replica 1];
-    F --> J[Replica 2];
-    K[Producer]-->B;
-    K-->D;
-    K-->F;
-    L[Producer]-->B;
-    L-->D;
-    L-->F;
-    M[Producer]-->B;
-    M-->D;
-    M-->F;
-    N[Consumer group]-->C;
-    N-->E;
-    N-->G;
-    O[Consumer]-->C;
-    P[Consumer]-->E;
-    Q[Consumer]-->G;
-    R[ZooKeeper Ensemble]-->B;
-    R-->D;
-    R-->F;
-    S[Node 1]-.->R;
-    T[Node 2]-.->R;
-    U[Node 3]-.->R;
+    A[Producer] --> B{Kafka Broker 1};
+    B --> C[Partition 1];
+    B --> D[Partition 2];
+    E[Producer] --> B;
+    F[Producer] --> B;
+    G[Kafka Broker 2] --> H[Partition 3];
+    G --> I[Partition 4];
+    J[Producer] --> G;
+    K[Producer] --> G;
+    L[Kafka Broker 3] --> M[Partition 5];
+    L --> N[Partition 6];
+    O[Producer] --> L;
+    P[Producer] --> L;
+    C --> Q[Consumer Group 1];
+    D --> R[Consumer Group 2];
+    H --> S[Consumer Group 3];
+    I --> T[Consumer Group 4];
+    M --> U[Consumer Group 5];
+    N --> V[Consumer Group 6];
+    W[Zookeeper] -.-> B;
+    W -.-> G;
+    W -.-> L;
+
+    subgraph Brokers
+        B
+        G
+        L
+    end
+
+    subgraph Partitions
+        C
+        D
+        H
+        I
+        M
+        N
+    end
+
+    subgraph Consumer Groups
+        Q
+        R
+        S
+        T
+        U
+        V
+    end
 ```
 - We are using kafka in our infra for collecting and storing real time data from the different sources like alerts, event-autheProducers and Consumers Work Independently:ntication, technical alerts, sdc events 
   etc.
