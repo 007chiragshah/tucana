@@ -44,6 +44,11 @@
     H[Applications using K8s SDK] --> A
     I[Monitoring Solutions] --> A
     J[External Services] --> A
+
+    H -->|Below Control Plane| A
+    I -->|Below Control Plane| A
+    J -->|Below Control Plane| A
+
   ```
 
   - The kube-API server acts as the central communication hub for users, components, and the Kubernetes cluster. When using tools like kubectl, it communicates via HTTP REST APIs, while internal components such 
