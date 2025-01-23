@@ -11,40 +11,63 @@
 </div>
 
 ```mermaid
-classDiagram
-    class "RKE2 Server Node" {
-        RKE Supervisor
-        kubelet
-        etcd
-        "api-server"
-        controller-manager
-        "cloud-controller-manager"
-        scheduler
-    }
+flowchart LR
+    subgraph "RKE2 Server Node"
+        direction TB
+        RKESupervisorServer["RKE Supervisor*"]
+        KubeletServer["kubelet"]
+        Etcd["etcd"]
+        APIServer["api-server"]
+        ControllerManager["controller-manager"]
+        CloudControllerManager["cloud-controller-manager"]
+        Scheduler["scheduler"]
 
-    class "RKE2 Agent Node" {
-        RKE Supervisor
-        kubelet
-        "CRI: containerd"
-        "RKE2 K8s Deployments"
-        "kube-proxy"
-        "CNI: canal"
-        CoreDNS
-        "metric-server"
-        Ingress
-        "Service Mesh"
-        "Other Apps"
-    }
+        RKESupervisorServer --> KubeletServer
+        KubeletServer --> APIServer
+        APIServer --> Etcd
+        APIServer --> ControllerManager
+        APIServer --> CloudControllerManager
+        APIServer --> Scheduler
+        KubeletServer --> StaticPods["Static pods"]
+    end
 
-    "RKE2 Server Node" ..> "RKE2 Agent Node" : "Static pods" 
+    subgraph "RKE2 Agent Node"
+        direction TB
+        RKESupervisorAgent["RKE Supervisor"]
+        KubeletAgent["kubelet"]
+        CRIContainerd["CRI: containerd"]
+        ManagedProcesses["Managed processes"]
+        
+        subgraph "RKE2 K8s Deployments"
+            direction TB
+            KubeProxy["kube-proxy"]
+            CNI["CNI: canal"]
+            HelmController["helm-controller"]
+            CoreDNS["CoreDNS"]
+            MetricServer["metric-server"]
+            Ingress["Ingress"]
+        end
 
-    note right of "RKE2 Agent Node"
-        Managed processes
-    end note
+        subgraph "User-defined workloads"
+            direction TB
+            ServiceMesh["Service Mesh"]
+            OtherApps["Other Apps"]
+        end
 
-    note right of "RKE2 K8s Deployments"
-        Helm or raw manifests
-    end note
+        RKESupervisorAgent --> KubeletAgent
+        KubeletAgent --> CRIContainerd
+        KubeletAgent --> ManagedProcesses
+        ManagedProcesses --> RKE2K8sDeployments[RKE2 K8s Deployments]
+        RKE2K8sDeployments --> KubeProxy
+        RKE2K8sDeployments --> CNI
+        RKE2K8sDeployments --> HelmController
+        RKE2K8sDeployments --> CoreDNS
+        RKE2K8sDeployments --> MetricServer
+        RKE2K8sDeployments --> Ingress
+        ManagedProcesses --> UserDefinedWorkloads[User-defined workloads]
+        UserDefinedWorkloads --> ServiceMesh
+        UserDefinedWorkloads --> OtherApps
+    end
 ```
 
 - We are using Rancher in our infra for creating and managing the kubernetes cluster of one master node, three worker nodes, and one load balancer.
