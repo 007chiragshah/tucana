@@ -19,14 +19,14 @@
 
   ```mermaid 
   graph TD
-    subgraph "Control Plane"
+    subgraph "Control Plane" 
         A[kube-API-server]
         B[kube-scheduler]
         D[etcd]
         E[kube-controller manager]
     end
 
-    subgraph "Worker Node"
+    subgraph "Worker Node" 
         F[Kubelet]
         G[kube-proxy]
         H[kubectl]
