@@ -106,47 +106,41 @@ graph TD
 
 ```mermaid
 graph TD
-    A[Bedside monitor] --> B{SDC Gateway};
-    B --> C{Kafka Cluster};
-    A --> D{Realtime Gateway};
-    D --> C;
-    A --> E{Web Gateway};
-    E --> F{Central Hub};
-    F --> C;
-    C --> G{Authentication};
-    C --> H{Microservices};
-    C --> I{Postgres};
-    C --> J{Redis};
-    F --> K{User Interface};
-    F --> L{Clinician};
-    F --> M{Admin};
-    F --> N{Event Detection/Logging/Audit Trail};
-    N --> O{Grafana};
-    N --> P{k8s Dashboard};
-    N --> Q{Troubleshooting};
-    F --> R{HAProxy};
-    R --> S{Load Balancer};
-    F --> T{K8s Cluster};
-    T --> U{EHR};
-    T --> V{IT Admin};
-    subgraph Central Hub[Central Hub<br/>[Namespace]]
-        F
-        R
-        T
+    subgraph Gateways
+        A1[Bedside Monitor] -->|TLS| A2[HL7/Mirth]
+        A1 -->|TLS| A3[SDC Gateway]
+        A3 -->|mTLS| A4[Realtime Gateway]
+        A4 -->|mTLS| A5[Web Gateway]
     end
 
-    linkStyle 0..1 C:mTLS
-    linkStyle 0..1 B:mTLS
-    linkStyle 0..1 D:mTLS
-    linkStyle 0..1 E:mTLS
-    linkStyle 0..1 G:mTLS
-    linkStyle 0..1 H:mTLS
-    linkStyle 0..1 I:mTLS
-    linkStyle 0..1 J:mTLS
-    linkStyle 0..1 A:TLS
-    linkStyle 0..1 K:mTLS
-    linkStyle 0..1 E:TLS
-    linkStyle 0..1 I:TLS
+    subgraph User_Interface
+        A5 -->|mTLS| B1[Central Hub]
+        A5 -->|mTLS| B2[Central IT]
+    end
+
+    subgraph Central_Hub_Namespace
+        B1 -->|mTLS| C1[Authentication]
+        B1 -->|mTLS| C2[Patient]
+        B1 -->|mTLS| C3[Microservices]
+        B1 -->|mTLS| C4[Audit Trail]
+        C1 -->|mTLS| D1[Postgres]
+        C1 -->|mTLS| D2[Redis]
+        C3 -->|mTLS| D1
+        C4 -->|mTLS| D2
+    end
+
+    subgraph K8s_Cluster_Ecosystem
+        B1 -->|mTLS| E1[HAProxy Load Balancer]
+        E1 --> F1[Event Detection / Logging / Audit Trail]
+        E1 --> F2[Grafana]
+        E1 --> F3[K8s Dashboard]
+        E1 --> F4[Troubleshooting]
+    end
+
+    Admin -->|Access| E1
+    Clinician -->|Access| E1
+    IT_Admin -->|Access| E1
+    E1 --> EHR[Electronic Health Record]
 ```
 
 - We are using istio in our infra to encrypt the communication between service to service by enabling the mTLS (mutual TLS) protocol, where authentication required from both the end which makes communication 
