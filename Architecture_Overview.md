@@ -18,7 +18,7 @@
   1. **Kube-API server**
 
   ```mermaid 
-  graph TB
+  graph BT
     H[Applications using K8s SDK] --> A
     I[Monitoring Solutions] --> A
     J[External Services] --> A
