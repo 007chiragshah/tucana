@@ -80,8 +80,8 @@
 
   ```mermaid 
   graph TD
-    A[kube-controller-manager] -->|Create/Modify Object| B[API Server]
-    B --> C[Kubernetes Objects]
+    |Create/Modify Object| --> C[Kubernetes Objects]
+    C --> B[API Server]
     C --> D[Pod.yaml]
     C --> E[Deployment.yaml]
     C --> F[Job.yaml]
