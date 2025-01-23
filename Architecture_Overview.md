@@ -18,8 +18,8 @@
   1. **Kube-API server**
 
   ```mermaid 
-  graph LR
-    subgraph Control_Plane["Control Plane"]
+  graph TB
+    subgraph "Control Plane"
         A[kube-API-server]
         B[kube-scheduler]
         D[etcd]
@@ -30,8 +30,9 @@
     A --> D
     A --> E
 
-    subgraph Worker_Node["Worker Node"]
-        F[Worker Node] --> G[kube-proxy]
+    subgraph "Worker Node"
+        F[Worker Node]
+        F --> G[kube-proxy]
         F --> H[Kubelet]
         F --> I[kubectl]
     end
@@ -40,7 +41,6 @@
     A --> J[apps using k8s SDK]
     A --> K[Monitoring Systems]
     A --> L[Third Party Apps]
-
   ```
 
   - The kube-API server acts as the central communication hub for users, components, and the Kubernetes cluster. When using tools like kubectl, it communicates via HTTP REST APIs, while internal components such 
