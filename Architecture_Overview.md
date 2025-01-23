@@ -78,29 +78,6 @@
   <img alt="Kubernetes-control-manage" src="Images/Kubernetes-control-manage.png">
   </div>
 
-  ```mermaid 
-  graph TD
-    A[Create/Modify Object] --> C[Kubernetes Objects]
-    C --> B[API Server]
-    C --> D[Pod.yaml]
-    C --> E[Deployment.yaml]
-    C --> F[Job.yaml]
-    C --> G[Namespace.yaml]
-    B --> H[Controllers]
-    H --> I[Watch Pods]
-    H --> J[Watch Deployments]
-    H --> K[Watch Jobs]
-    H --> L[Watch Namespaces]
-    I --> M[Pods Desired State]
-    J --> N[Deployments Desired State]
-    K --> O[Jobs Desired State]
-    L --> P[Namespaces Desired State]
-    M --> Q[Kubernetes Objects Desired State]
-    N --> Q[Kubernetes Objects Desired State]
-    O --> Q[Kubernetes Objects Desired State]
-    P --> Q[Kubernetes Objects Desired State]
-  ```
-
   - The kube-controller-manager manages various controllers to maintain the cluster's desired state. For instance, it ensures deployments specified in a YAML manifest, such as replicas, volume mounts, and 
     configmaps, remain consistent.
   - Key controllers include:
