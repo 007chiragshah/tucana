@@ -10,7 +10,7 @@
 <img alt="Rancher_Arch" src="Images/Infrastructure_Rancher_Architecture.png">
 </div>
 
-- We are using Rancher in our infra for creating and managing the kubernetes cluster of one master node, three worker nodes, and one load balancer.
+- Central Hub uses Rancher in our infra for creating and managing the kubernetes cluster of one master node, three worker nodes, and one load balancer.
 - Rancher is a complete container management platform for Kubernetes, giving you the tools to successfully run Kubernetes anywhere
 - In our setup we are deploying rke2 service using helm chart and installing the service on each node by using ansible, where on master node we are installing the "rke2-server" service, and on the worker nodes 
   we are installing "rke2-agent" service.
@@ -78,7 +78,7 @@ graph TD
     Partition2 --> Consumer2
     Partition3 --> Consumer3
 ```
-- We are using kafka in our infra for collecting and storing real time data from the different sources like alerts, event-autheProducers and Consumers Work Independently:ntication, technical alerts, sdc events 
+- Central Hub uses kafka in our infra for collecting and storing real time data from the different sources like alerts, event-autheProducers and Consumers Work Independently:ntication, technical alerts, sdc events 
   etc.
 - Kafka is a distributed event streaming platform designed to handle high-throughput, fault-tolerant, and low-latency messaging. Here's a simplified overview of how it works:
 
@@ -103,7 +103,7 @@ graph TD
 <img alt="Rancher_Arch" src="Images/Infrastrucutre_istio.drawio.png">
 </div>
 
-- We are using istio in our infra to encrypt the communication between service to service by enabling the mTLS (mutual TLS) protocol, where authentication required from both the end which makes communication 
+- Central Hub uses istio in our infra to encrypt the communication between service to service by enabling the mTLS (mutual TLS) protocol, where authentication required from both the end which makes communication 
   more secured.
 - As you can see in the image all the central hub components are communicating with each other using mTLS (mutual TLS) protocol.
 - Istio is a powerful service mesh that provides advanced traffic management, security, and observability for microservices architectures. It simplifies the management of communication between services by 
