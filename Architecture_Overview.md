@@ -66,11 +66,11 @@
 
   - The cloud controller manager bridges Cloud Platform APIs and the Kubernetes cluster, enabling seamless integration between Kubernetes and cloud providers via plugins. It allows core Kubernetes components to 
     function independently while supporting cloud-specific functionality.
-  - As in our setup we are using on-premise setup so CCM is not required for on-prem setup.
+  - As in our setup Central Hub uses on-premise setup so CCM is not required for on-prem setup.
 
   6. **Promtail agent**:
 
-  - On Controlplane node we are using promtail agent to collect logs and forward them to Loki for centralized log management. Promtail is responsible for discovering log sources, attaching metadata (such as pod 
+  - On Controlplane node Central Hub uses promtail agent to collect logs and forward them to Loki for centralized log management. Promtail is responsible for discovering log sources, attaching metadata (such as pod 
     name, namespace, and labels), and forward logs to Loki. It can collect logs from system components like the kube-apiserver, kube-scheduler, and kube-controller-manager.
 
 
@@ -117,8 +117,8 @@
 
  4. **Postgres SQL**:
 
-  - We are using postgres in our infra as a database to store the data of different central-hub applications with AES-256 encryption algorithm.
-  - In our infra we are using kubegres to manage the posrgres, as kubegres is a kuberntes operator who manages the deployment, scaling etc of the postgres.
+  - Central Hub uses postgres in our infra as a database to store the data of different central-hub applications with AES-256 encryption algorithm.
+  - In our infra Central Hub uses kubegres to manage the posrgres, as kubegres is a kuberntes operator who manages the deployment, scaling etc of the postgres.
   - We used postgres in our infra because of its advanced features like supports SQL and JSON, able to manage structured and unstructured data, provides strong security with encrypted data by using AES-256 
     encryption algorithm.
 
@@ -128,10 +128,10 @@
   <img alt="kafka" src="Images/Infrastructure_kafka.drawio.png">
   </div>
   
-  - We are using kafka in our infra for collecting and storing real time data from the different sources like alerts, event-authentication, technical alerts, sdc events etc.
-  - Kafka is a distributed event platform which uses producers to sent messages to different topics, where consumer can read that message by subscribing the relevant topics. We are using zookeepr for managing 
+  - Central Hub uses kafka in our infra for collecting and storing real time data from the different sources like alerts, event-authentication, technical alerts, sdc events etc.
+  - Kafka is a distributed event platform which uses producers to sent messages to different topics, where consumer can read that message by subscribing the relevant topics. Central Hub uses zookeepr for managing 
     kafka cluster state and its high availability.
-  - We are using **Strimzi Operator** in our infra for managing the apache kafka on the kubernetes where strimzi is a kubernetes operator which simplifies the deployment and management of the kafka.
+  - Central Hub uses **Strimzi Operator** in our infra for managing the apache kafka on the kubernetes where strimzi is a kubernetes operator which simplifies the deployment and management of the kafka.
   - We used kafka as it is known for high throughput with real time data stream, fault tolerance. It make sures of data reliability and low letency communication and easy to integrate.
 
  6. **Redis**:
@@ -142,13 +142,13 @@
 
  7. **Monitoring**:
 
-  - We are using different dashboards like kubernetes dashboard, Grafana Dashboard, Loki Dashboard for different monitoring purpose.
+  - Central Hub uses different dashboards like kubernetes dashboard, Grafana Dashboard, Loki Dashboard for different monitoring purpose.
     - **Kubernetes Dashboard**:
       - We used kubernetes dashboard in our infra setup to monitor the health, cluster state, logs, performance of all the kubernetes resources like pods, jobs, deployment, replicaset, services etc. 
     - **Loki Dashboard**:
-      - We are using loki dashboard to display the audit related logs and pod related logs.
+      - Central Hub uses loki dashboard to display the audit related logs and pod related logs.
     - **Grafana Dashboard**:
-      - We are using Grafana dashboard to show color coded visulisation of the different alerts coming from the prometheus with the different views of the current alert. its status, also with the table formate.
+      - Central Hub uses Grafana dashboard to show color coded visulisation of the different alerts coming from the prometheus with the different views of the current alert. its status, also with the table formate.
      
  8. **Ingres Loadbalancer**:
 
@@ -171,7 +171,7 @@
 
  9. **Istio**:
 
-  - We are using istio in our infra to encrypt the communication between service to service by enabling the mTLS (mutual TLS) protocol, where authentication required from both the end which makes communication 
+  - Central Hub uses istio in our infra to encrypt the communication between service to service by enabling the mTLS (mutual TLS) protocol, where authentication required from both the end which makes communication 
     more secured.
   - We used istio for this becaue it provides a great features like advanced traffice management, secured communication using mTLS protocol, supports both kubernetes and VM-based environment, more flexible for 
     large scale and multi node cluster.
@@ -204,15 +204,15 @@
      variables, or feature flags, making it easier to manage and update configurations without modifying the application.
 
  - **Cluster role and role binding**:
-   - We are using clusterrole and rolebinding to restrict the access of service account to limited resoueces with limited rights.
+   - Central Hub uses clusterrole and rolebinding to restrict the access of service account to limited resoueces with limited rights.
    - Where A ClusterRole is a set of permissions that can be applied across the entire cluster, granting access to resources like nodes, namespaces, or persistent volumes. ClusterRoles are often used for 
      cluster-wide access or in cases where the same role needs to be applied to multiple namespaces and A RoleBinding is used to bind a Role or ClusterRole to a user, service account, or group, granting them 
      the specified permissions within a particular namespace (RoleBinding) or across the entire cluster (ClusterRoleBinding).
 
  - **StatefulSet**:
-   - We are using statefulset for the postgressql in our setup as statefulset is used when you want to manage the state of the any application also It ensures stable, unique identities and persistent storage 
+   - Central Hub uses statefulset for the postgressql in our setup as statefulset is used when you want to manage the state of the any application also It ensures stable, unique identities and persistent storage 
      for each pod, which is useful for databases and distributed systems.
 
  - **Namespace**:
-   - We are using different different namespaces in our setup to isolate the different resources like for central-hub application we are using central-hub namespace, for k8s dashboard we are using dashboard 
-     namespace, for ingress-nginx we are using ingres-nginx namespace etc.
+   - Central Hub uses different different namespaces in our setup to isolate the different resources like for central-hub application Central Hub uses central-hub namespace, for k8s dashboard Central Hub uses dashboard 
+     namespace, for ingress-nginx Central Hub uses ingres-nginx namespace etc.
