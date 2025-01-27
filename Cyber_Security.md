@@ -32,11 +32,11 @@
 
 ### 
 
-1. **kubernetes secret**:
+1. **Kubernetes secret**:
 
-- We used secret in our infra to store the sensitive information like password, key, certificate, tokens in a encryption form, which use by the pods or a service to access the credentials or other sensitive data 
-  without exposing it in a plain text. By using this we can secured our sensitive data.
-- Secret are encrypting data with base64 encryption algorithm.
+- We used secrets in our infra to store sensitive information like passwords, keys, certificates, and  tokens in an encryption form, which is used by the pods or service to access the credentials or other 
+  sensitive data without exposing it in plain text. By using this we can secure our sensitive data.
+- Secret are encrypting data with the base64 encryption algorithm.
 
 2. **AES-256 encryption**:
 
@@ -46,7 +46,7 @@
 
 3. **JSON Web Tokens (JWT)**:
 
-- In our setup we used JWT for secure data transmission between the Central Hub web portal and backend services. These tokens have a validity of 24 hours, with a 7-day refresh token.
+- In our setup, Central Hub used JWT for secure data transmission between the Central Hub web portal and backend services. These tokens have a validity of 24 hours, with a 7-day refresh token.
 - JWT are compact, URL-safe tokens used for authentication and authorization. They consist of three parts: a header (with token type and algorithm), a payload (containing claims or data), and a signature (to 
   ensure integrity and verify the sender). JWTs are self-contained, stateless, and commonly used to securely transmit user information between clients and servers in modern web applications.
 
@@ -54,8 +54,8 @@
 
 - We have used Role-Based Access Control (RBAC) in our setup to regulate the access to resources within a Kubernetes cluster. It defines permissions for different users, groups, or service accounts. A 
   ClusterRole defines a set of permissions that apply across the entire cluster, while a ClusterRoleBinding associates a specific ClusterRole with a subject (e.g., a service account, user, or group).
-- In our setup we have created the cluster role for the service account "local-path-provisioner-service-account" with multiple rules like one grants read-only access (get, list, watch) to resources like nodes, 
-  persistentvolumeclaims, and configmaps; another grants full access (*) to endpoints, persistentvolumes, and pods; a third allows creating and patching events; and the last one grants read-only access to 
+- In our setup, we have created the cluster role for the service account "local-path-provisioner-service-account" with multiple rules one grants read-only access (get, list, watch) to resources like nodes, 
+  persistent volume claims, and configmaps; another grants full access (*) to endpoints, persistent volumes, and pods; a third allows creating and patching events; and the last one grants read-only access to 
   storageclasses from the storage.k8s.io API group.
 
 5. **TLS Cert for Ingres**:  
@@ -87,7 +87,7 @@ sequenceDiagram
     note over Client,Server: TLS: 110ms
 ```
 
-- We have used TLS cert for ingres domain because When deploying services in Kubernetes, Ingress resources are often used to expose HTTP and HTTPS routes from outside the cluster to services within it. To 
+- We have used TLS cert for the ingres domain because When deploying services in Kubernetes, Ingress resources are often used to expose HTTP and HTTPS routes from outside the cluster to services within it. To 
   secure these connections using HTTPS, a TLS certificate is required.
 - TLS is an encryption and authentication protocol designed to secure Internet communications. A TLS handshake is the process that kicks off a communication session that uses TLS. During a TLS handshake, 
   the two communicating sides exchange messages to acknowledge each other, verify each other, establish the cryptographic algorithms they will use, and agree on session keys.
@@ -111,7 +111,7 @@ graph LR
     end
 ```
 
-- We have used x.509 certificate to encrypt the communication between the central hub and patient monitor and this certificates should be generated with the trusted certificate authority.
+- We have used x.509 certificates to encrypt the communication between the central hub and patient monitor and these certificates should be generated with the trusted certificate authority.
 - An X.509 certificate is a digital certificate that uses the X.509 public key infrastructure (PKI) standard to verify the ownership of a public key. It is widely used to secure communications over networks 
   such as the internet by enabling authentication, encryption, and data integrity.
 
@@ -134,47 +134,47 @@ graph LR
     end
 ```
 
-- Central Hub uses ssh private key to login into different nodes on which we have stored the same public key.
-- A SSH key is a cryptographic key used for secure communication between a client and a server over the Secure Shell (SSH) protocol. It is primarily used for authentication and establishing encrypted 
+- Central Hub uses the SSH private key to log into different nodes on which we have stored the same public key.
+- An SSH key is a cryptographic key used for secure communication between a client and a server over the Secure Shell (SSH) protocol. It is primarily used for authentication and establishing encrypted 
   connections.
 
-### Central Hub Automatic Secret Rotationn
+### Central Hub Automatic Secret Rotation
 
 #### **Problem**:
 - We need to be able to rotate multiple kinds of secrets on a different schedule. The secrets will include:
   - Application secret: random strings required by an application for different uses
   - Asymmetric key pairs: used for encryption, signatures and validations
-  - Service secrets: used to connect between different services (kafka, redis, postgres, etc)
-- Depending on the purpose of the secret the handling of an update to the secret will need to be implemented differently on each application. Ideally the proposed solution should propose a no downtime solution
+  - Service secrets: used to connect between different services (Kafka, redis, postgres, etc)
+- Depending on the purpose of the secret the handling of an update to the secret will need to be implemented differently on each application. Ideally, the proposed solution should propose a no-downtime solution
 
 #### **Solution**:
 
 **Secret Storage**:
 
 - Secrets are currently stored in K8s. In order to allow zero downtime secret rotation we need to inject this secret in a way that the running pods can be updated without the need of restarting the service. For 
-  this end, we are going to inject secrets in each pod by mounting a volume with a .env file containing all the required secrets for the application. 
+  this we are going to inject secrets in each pod by mounting a volume with a .env file containing all the required secrets for the application. 
 - If secrets are updated in the background, K8s will update the secret file in the volume. It’s important to notice that in order for this update to work without restarting the service, we must only update 
   secret values and not create new secrets (adding/renaming/deleting secrets would result in a pod restart).
-- When required we might need to keep more that one valid secret for the same use (for example for live services like Postgres or Kafka), in order to be able to swap them without downtime
+- When required we might need to keep more than one valid secret for the same use (for example for live services like Postgres or Kafka), in order to be able to swap them without downtime
 
 
 **Application Secret Update**:
 
-- Each application should be monitoring the file injected in the volume by K8s. If this file changes, we can reload application settings and refresh existing configuration. This will mainly work for application 
-  secrets, but still need additional work in case of any ongoing connections to other secrets.
-- When a change is detected the application will have to take care of swapping ongoing connections with new ones. For services like Redis, Kafka and Postgres, we will have multiple valid users at the same time 
+- Each application should be monitoring the file injected in the volume by K8s. If this file changes, we can reload the application settings and refresh the existing configuration. This will mainly work for 
+  application secrets, but still need additional work in case of any ongoing connections to other secrets.
+- When a change is detected the application will have to take care of swapping ongoing connections with new ones. For services like Redis, Kafka, and Postgres, we will have multiple valid users at the same time 
   in a way that when the secret is rotated, we can still use the previous secret for some time. This will give the application time to gracefully swap ongoing connections.
-- In the case of Kafka, we have both consumer and producer clients. For consumers we can make use of the singleton pattern to replace the current consumer client with the new one. Any messages that were not 
+- In the case of Kafka, we have both consumer and producer clients. For consumers, we can make use of the singleton pattern to replace the current consumer client with the new one. Any messages that were not 
   consumed, will be processed after the swap (delay should be really small). For producers, we also swap clients and then flush any pending old messages, any new messages are published into the new producer.
 - The approach for Postgres and Redis is similar, we make the clients run inside a singleton and when there is an update to the settings, we replace the clients with new ones.
 
 
 **Infra Secret Update**:
 
-- From the infra side we need to run a cron job which will be in charge of rotating secrets. The implementation will change from secret to secret, depending on secret type.
+- From the infra side we need to run a cron job which will be in charge of rotating secrets. The implementation will change from secret to secret, depending on the secret type.
 - After a certain time window we will have to make the old secrets invalid and just keep the new secrets.
 - There is a particularity for Kafka. Since Kafka is managed by “Strimzi” we will have to make use of it to create a new user. This will take care of creating all required secrets for the new user, though the 
-  way credentials are provided as a secret is inconvenient for key rotation. For this reason we will need to create an intermediate secret which will take care of handling current Kafka keys.
+  way credentials are provided as a secret is inconvenient for key rotation. For this reason, we will need to create an intermediate secret that will take care of handling current Kafka keys.
 
 
 ```mermaid
