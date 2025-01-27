@@ -10,10 +10,10 @@
 <img alt="Rancher_Arch" src="Images/Infrastructure_Rancher_Architecture.png">
 </div>
 
-- Central Hub uses Rancher in our infra for creating and managing the kubernetes cluster of one master node, three worker nodes, and one load balancer.
+- Central Hub uses Rancher in our infra for creating and managing the Kubernetes cluster of one master node, three worker nodes, and one load balancer.
 - Rancher is a complete container management platform for Kubernetes, giving you the tools to successfully run Kubernetes anywhere
-- In our setup we are deploying rke2 service using helm chart and installing the service on each node by using ansible, where on master node we are installing the "rke2-server" service, and on the worker nodes 
-  we are installing "rke2-agent" service.
+- In our setup, we are deploying the rke2 service using helm chart and installing the service on each node by using ansible, where on the master node we are installing the "rke2-server" service and on the 
+  worker nodes we are installing the "rke2-agent" service.
 
 **How it works**
 - Rancher uses Kubernetes as its core and manages cluster configurations via the Kubernetes API.
@@ -78,11 +78,11 @@ graph TD
     Partition2 --> Consumer2
     Partition3 --> Consumer3
 ```
-- Central Hub uses kafka in our infra for collecting and storing real time data from the different sources like alerts, event-autheProducers and Consumers Work Independently:ntication, technical alerts, sdc events 
-  etc.
+- Central Hub uses Kafka in our infra for collecting and storing real-time data from different sources like alerts, event-autheProducers, and Consumers Work Independently. notification, technical alerts, SDC 
+  events etc.
 - Kafka is a distributed event streaming platform designed to handle high-throughput, fault-tolerant, and low-latency messaging. Here's a simplified overview of how it works:
 
-    * **Topic**: Data is organized into categories called topics. Producers write messages to these topics, and consumers read them.
+    * **Topic**: Data is organized into categories called topics. Producers write messages on these topics, and consumers read them.
     * **Producers**: Producers are applications that send data (events) to Kafka topics. They push messages in a serialized format.
     * **Consumers**: Consumers are applications that subscribe to topics and read messages. They can read at their own pace, and Kafka retains messages for a configurable time.
     * **Partitions**: Topics are divided into partitions for scalability. Each partition can reside on a different Kafka broker, allowing for parallel processing.
@@ -103,8 +103,8 @@ graph TD
 <img alt="Rancher_Arch" src="Images/Infrastrucutre_istio.drawio.png">
 </div>
 
-- Central Hub uses istio in our infra to encrypt the communication between service to service by enabling the mTLS (mutual TLS) protocol, where authentication required from both the end which makes communication 
-  more secured.
+- Central Hub uses istio in our infra to encrypt the communication between service to service by enabling the mTLS (mutual TLS) protocol, where authentication is required from both ends which makes 
+  communication more secure.
 - As you can see in the image all the central hub components are communicating with each other using mTLS (mutual TLS) protocol.
 - Istio is a powerful service mesh that provides advanced traffic management, security, and observability for microservices architectures. It simplifies the management of communication between services by 
   offering features like load balancing, traffic routing, service discovery, and fault tolerance. Istio enhances security by enabling mTLS (mutual TLS) for service-to-service encryption.
@@ -133,15 +133,15 @@ graph TD
 | docker.io/rancher/rke2-cloud-provider:v1.28.2-build20231016 | Rancher                            | v1.28.2-build20231016                    | Not reported                    | Cloud Provider Integration for RKE2      |
 | docker.io/rancher/hardened-etcd:v3.5.9-k3s1-build20230802 | Rancher                            | v3.5.9-k3s1-build20230802                | Not reported                    | Cluster State Management (etcd)          |
 | docker.io/rancher/klipper-helm:v0.8.2-build20230815 | Rancher                            | v0.8.2-build20230815                     | Not reported                    | Helm Chart Manager                       |
-| docker.io/rancher/hardened-kubernetes:v1.29.0-rke2r1-build20231213 | Rancher                            | v1.29.0-rke2r1-build20231213             | Not reported                    | Hardened Kubernetes Core                 |
+| docker.io/rancher/hardened-Kubernetes:v1.29.0-rke2r1-build20231213 | Rancher                            | v1.29.0-rke2r1-build20231213             | Not reported                    | Hardened Kubernetes Core                 |
 | docker.io/rancher/hardened-coredns:v1.10.1-build20231009 | Rancher                            | v1.10.1-build20231009                    | Not reported                    | DNS Resolution                           |
 | docker.io/rancher/hardened-cluster-autoscaler:v1.8.6-build20231009 | Rancher                            | v1.8.6-build20231009                     | Not reported                    | Cluster Autoscaling                      |
 | docker.io/rancher/hardened-k8s-metrics-server:v0.6.3-build20231009 | Rancher                            | v0.6.3-build20231009                     | Not reported                    | Metrics Collection (K8s)                 |
 | docker.io/rancher/mirrored-sig-storage-snapshot-controller:v6.2.1 | Rancher (mirrored)                | v6.2.1                                   | Not reported                    | Snapshot Controller for Storage          |
 | docker.io/rancher/mirrored-sig-storage-snapshot-validation-webhook:v6.2.2 | Rancher (mirrored)                | v6.2.2                                   | Not reported                    | Storage Snapshot Validation              |
 | gcr.io/kubebuilder/kube-rbac-proxy:v0.13.0  | Kubebuilder                           | v0.13.0                                  | Not reported                    | RBAC (Role-Based Access Control) Proxy   |
-| docker.io/kubernetesui/dashboard:v2.7.0     | Kubernetes UI                         | v2.7.0                                   | Not reported                    | Web UI for Kubernetes                    |
-| docker.io/kubernetesui/metrics-scraper:v1.0.9 | Kubernetes UI                        | v1.0.9                                   | Not reported                    | Scraper for Kubernetes Dashboard Metrics |
+| docker.io/Kubernetesui/dashboard:v2.7.0     | Kubernetes UI                         | v2.7.0                                   | Not reported                    | Web UI for Kubernetes                    |
+| docker.io/Kubernetesui/metrics-scraper:v1.0.9 | Kubernetes UI                        | v1.0.9                                   | Not reported                    | Scraper for Kubernetes Dashboard Metrics |
 | quay.io/strimzi/kafka:0.42.0-kafka-3.7.1    | Strimzi                               | 0.42.0-kafka-3.7.1                       | Not reported                    | Apache Kafka for Data Streaming          |
 | quay.io/strimzi/operator:0.42.0             | Strimzi                               | 0.42.0                                   | Not reported                    | Kafka Operator                           |
 | docker.io/rancher/local-path-provisioner:v0.0.24 | Rancher                            | v0.0.24                                  | Not reported                    | Local Storage Provisioner                |
