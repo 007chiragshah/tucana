@@ -1,4 +1,4 @@
-  <div align="center">
+<div align="center">
 <h1>Central Hub Infrastructure</h1>
 <h2> 🏛️ System Architecture </h2>
 </div>
@@ -126,17 +126,18 @@
 
  6. **Redis**:
 
-  - We used Redis in our infra for caching, session management, and storing the user state of our different central hub applications.
-  - We choose Redis because it provides features like high performance as an in-memory data store, supports complex data structure, is faster and more scalable for caching, flexible. It supports pub/sub 
-    messaging, ensuring fast, scalable, and reliable performance.
+  - Central Hub uses Redis in our infra for caching, session management, and storing the user state of our different central hub applications.
+  - Central Hub choose Redis because it provides features like high performance as an in-memory data store, supports complex data structure, is faster and more scalable for caching, flexible. It supports 
+    pub/sub messaging, ensuring fast, scalable, and reliable performance.
 
  7. **Monitoring**:
 
   - Central Hub uses different dashboards like the Kubernetes dashboard, Grafana Dashboard, and Loki Dashboard for different monitoring purposes.
     - **Kubernetes Dashboard**:
-      - We used the Kubernetes dashboard in our infra setup to monitor the health, cluster state, logs, and performance of all the Kubernetes resources like pods, jobs, deployment, replicaset, services, etc. 
-    - **Loki Dashboard**:
-      - Central Hub uses the Loki dashboard to display the audit-related logs and pod-related logs.
+      - Central Hub uses the Kubernetes dashboard in our infra setup to monitor the health, cluster state, logs, and performance of all the Kubernetes resources like pods, jobs, deployment, replicaset, 
+        services, etc. 
+    - **Loki**:
+      - Central Hub uses the Loki to display the audit-related logs and pod-related logs.
     - **Grafana Dashboard**:
       - Central Hub uses the Grafana dashboard to show color-coded visualization of the different alerts coming from the Prometheus with the different views of the current alert. its status, also with the table 
         format.
