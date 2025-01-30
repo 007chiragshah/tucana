@@ -58,17 +58,7 @@
      - StatefulSet Controllers: Provide persistent storage, unique network identities, and controlled scaling for stateful applications.
      - DaemonSet Controllers: Ensure specific pods run on every node or selected nodes based on labels.
 
-  5. **cloud-controller-manager**
-
-  <div align="center">
-  <img alt="cloud-controller-manager" src="Images/Infrastructure_cloud-controller-manager.png">
-  </div>
-
-  - The cloud controller manager bridges Cloud Platform APIs and the Kubernetes cluster, enabling seamless integration between Kubernetes and cloud providers via plugins. It allows core Kubernetes components to 
-    function independently while supporting cloud-specific functionality.
-  - As in our setup Central Hub uses on-premise setup so CCM is not required for on-prem setup.
-
-  6. **Promtail agent**:
+  5. **Promtail agent**:
 
   - On the Controlplane node Central Hub uses a promtail agent to collect logs and forward them to Loki for centralized log management. Promtail is responsible for discovering log sources, attaching metadata 
     (such as pod name, namespace, and labels), and forwarding logs to Loki. It can collect logs from system components like the kube-apiserver, kube-scheduler, and kube-controller-manager.
