@@ -69,22 +69,22 @@ In this section, we will provide a brief introduction to key components of the i
 
 3. **Kubernetes Cluster**:
 - Central Hub uses a Kubernetes cluster of one controlplane node, three worker nodes, and one load balancer node, for deploying and managing our different central hub applications with high reliability and 
-  availability    with seamless deployment and management of the application.
-- Central Hub used Kubernetes as an orchestration tool as it provides features like multi-node support, High availability, advanced orchestration features like canary deployment and rolling updates, etc, 
+  availability with seamless deployment and management of the application.
+- Central Hub chose Kubernetes as an orchestration tool as it provides features like multi-node support, High availability, advanced orchestration features like canary deployment and rolling updates, etc, 
   resource efficiency, ease of scaling the application, etc.
 
 
 4. **Ansible**:
 - Central Hub uses Ansible for the automation and deploying our whole infrastructure on multiple nodes by dividing it into five main tasks, which further broken down into smaller sub-tasks, where all the tasks 
   are consist of simple yaml files.
-- Central Hub used Ansible for automation in our infra as it is a powerful agentless automation tool, which means it doesn't require installation on the target machines so it reduces its complexity also it uses 
-  a simple yaml file consisting of different tasks. It simplifies automation with its modular structure where task, variable, and value are in separate files which provides easy management and reusability. It 
-  defines the desired states, ensuring idempotency and reducing errors.
+- Central Hub chosee Ansible for automation in our infra as it is a powerful agentless automation tool, which means it doesn't require installation on the target machines so it reduces its complexity also it 
+  uses a simple yaml file consisting of different tasks. It simplifies automation with its modular structure where task, variable, and value are in separate files which provides easy management and reusability. 
+  It defines the desired states, ensuring idempotency and reducing errors.
 
 
 5. **Helm Chart**
 - Central Hub uses a helm chart in our infra to deploy and manage the different central-hub applications.
-- The advantage of using helmchart is it simplifies the Kubernetes resource management by automating dependency handling and resource creation with a helmchart we do not have to create different resources like 
+- Central Hub chose helmchart because it simplifies the Kubernetes resource management by automating dependency handling and resource creation with a helmchart we do not have to create different resources like 
   service, deployment, pods, or replicasets unlike Kubernetes clusters as all these things are automatically taken care by the helm chart by using the templates, charts, and values.yaml files. It enables easy 
   deployment, upgrades, and rollback with version control.
 
@@ -92,7 +92,7 @@ In this section, we will provide a brief introduction to key components of the i
 6. **Istio**:
 - Central Hub uses istio in our infra to encrypt the communication between service to service by enabling the mTLS (mutual TLS) protocol, where authentication is required from both ends which makes 
   communication more secure.
-- Central Hub used istio for this because it provides great features like advanced traffic management, secured communication using mTLS protocol, supports both Kubernetes and VM-based environments, more 
+- Central Hub chose istio for this because it provides great features like advanced traffic management, secured communication using mTLS protocol, supports both Kubernetes and VM-based environments, more 
   flexibility for large-scale and multi-node clusters.
 
 
