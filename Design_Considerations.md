@@ -54,17 +54,17 @@
 In this section, we will provide a brief introduction to key components of the infrastructure.
 
 1. **Docker**:
-- Central Hub uses docker in our infra as a docker runtime and also we are transforming our code into a Docker image, and when we need to set up the Central Hub deployment, use the latest image 
+- Central Hub uses docker in the infra as a docker runtime and also we are transforming our code into a Docker image, and when we need to set up the Central Hub deployment, use the latest image 
   and run a Docker container with it to deploy the entire infrastructure.
-- Central Hub used Docker as a runtime in our infrastructure because of its ease of use, also it provides a complete set of tools for container management, including Docker compose we can manage the 
-  multicontainer applications within a single configuration file. Additionally, Docker can create multistage Dockerfiles which helps us to build lightweight Docker images by separating the build environment 
+- Central Hub chose Docker as a runtime in the infrastructure because of its ease of use, also it provides a complete set of tools for container management, including Docker compose we can manage the 
+  multi-container applications within a single configuration file. Additionally, Docker can create multistage Dockerfiles which helps us to build lightweight Docker images by separating the build environment 
   from the runtime environment. This reduces the image size and improves the performance.
 
 
 2. **Rancher**:
-- Central Hub uses Rancher in our infra for creating and managing the Kubernetes cluster of one master node, three worker nodes, and one load balancer.
-- Central Hub used Rancher in our infra for Kubernetes cluster because of its user-friendly interface, ability to handle multi-cluster environments, ease of use, and simplified application deployment making it 
-  an ideal choice for our infrastructure.
+- Central Hub uses Rancher in the infra for creating and managing the Kubernetes cluster of one master node, three worker nodes, and one load balancer.
+- Central Hub chose Rancher in our infra for Kubernetes cluster because of its user-friendly interface, ability to handle multi-cluster environments, ease of use, and simplified application deployment making 
+  it is an ideal choice for our infrastructure.
 
 
 3. **Kubernetes Cluster**:
