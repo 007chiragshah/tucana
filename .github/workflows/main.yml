@@ -1,0 +1,275 @@
+name: Tagged Release
+
+on:
+  push:
+    tags:
+      - v*.*.*
+
+permissions: write-all
+
+jobs:
+  projects-to-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: |
+            3.11.9
+
+      - name: Install Poetry
+        run: pip3 install poetry
+
+      - name: Install build tools
+        run: poetry install
+        working-directory: ./scripts/buildtools
+
+      - name: Detect existing projects - Dispatch
+        run: |
+          poetry run buildtools get-projects changed-projects.json \
+          --deployable
+        working-directory: ./scripts/buildtools
+
+      - name: Setup Matrix environment
+        id: set_matrix
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: ./scripts/buildtools/changed-projects.json
+
+      - name: Get tag name
+        id: current_tag_name
+        run: |
+          echo "CURRENT_TAG_NAME=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
+
+    outputs:
+      matrix: ${{ steps.set_matrix.outputs.content }}
+      tag_name: ${{ steps.current_tag_name.outputs.CURRENT_TAG_NAME }}
+
+  build-projects:
+    runs-on: ubuntu-latest
+    environment: prod
+    needs:
+      - projects-to-build
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      IMAGE_TAG: ${{needs.projects-to-build.outputs.tag_name}}
+    strategy:
+      matrix: ${{ fromJson(needs.projects-to-build.outputs.matrix) }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: |
+            3.11.9
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-2
+          role-to-assume: ${{ secrets.DEPLOYMENT_ROLE_ARN }}
+          role-session-name: AWS-DEPLOYMENT-SESSION
+
+      - name: Login to Amazon ECR
+        id: login_ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image to Amazon ECR
+        working-directory: ${{ matrix.path }}
+        env:
+          REGISTRY: ${{ steps.login_ecr.outputs.registry }}
+          REPOSITORY: ${{ matrix.name }}
+        run: |
+          echo $REGISTRY/$REPOSITORY
+          echo $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          echo SIBEL_VERSION=$IMAGE_TAG
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG --build-arg REGISTRY_NAME=$REGISTRY --build-arg SIBEL_VERSION=$IMAGE_TAG -f Dockerfile ../../.
+          docker push --all-tags $REGISTRY/$REPOSITORY
+
+      - name: Save image artifact
+        working-directory: ${{ matrix.path }}
+        env:
+          REGISTRY: sibel.health
+          REPOSITORY: ${{ matrix.name }}
+        run: |
+          echo $REGISTRY/$REPOSITORY
+          echo $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG --build-arg REGISTRY_NAME=$REGISTRY --build-arg SIBEL_VERSION=$IMAGE_TAG -f Dockerfile ../../.
+          mkdir -p images
+          docker save $REGISTRY/$REPOSITORY:$IMAGE_TAG | gzip > deploy/${REPOSITORY}-${IMAGE_TAG}.tar.gz
+
+      - name: Upload Helm charts to artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}
+          path: ${{ matrix.path }}/deploy
+
+  build-online-installation-image:
+    needs:
+      - projects-to-build
+      - build-projects
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ github.workspace }}/infra/setup/installation-pack/central-hub/chart/charts
+
+      - name: Cleanup values files
+        run: |
+          rm -rfv ${{ github.workspace }}/infra/setup/installation-pack/central-hub/chart/charts/*/values.*.yaml
+
+      - name: Copy images
+        run: |
+          mkdir -p ${{ github.workspace }}/infra/setup/installation-pack/images
+          mv -v ${{ github.workspace }}/infra/setup/installation-pack/central-hub/chart/charts/*/*.tar.gz ${{ github.workspace }}/infra/setup/installation-pack/images
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-2
+          role-to-assume: ${{ secrets.DEPLOYMENT_ROLE_ARN }}
+          role-session-name: AWS-DEPLOYMENT-SESSION
+
+      - name: Login to Amazon ECR
+        id: login_ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image to Amazon ECR
+        working-directory: infra/setup/
+        env:
+          REGISTRY: ${{ steps.login_ecr.outputs.registry }}
+          REPOSITORY: install
+          IMAGE_TAG: ${{ needs.projects-to-build.outputs.tag_name }}
+        run: |
+          echo $REGISTRY/$REPOSITORY
+          echo $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG --build-arg SCI_CHART_SERVER_KEY=${{ secrets.SCI_CHART_SERVER_KEY }} --build-arg CENTRAL_HUB_RELEASE_TAG=$IMAGE_TAG -f Dockerfile ./
+          docker push --all-tags $REGISTRY/$REPOSITORY
+
+  build-offline-installation-image:
+    needs:
+      - projects-to-build
+      - build-projects
+    runs-on:
+      - self-hosted
+      - k8s
+      - prod
+    environment: prod
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ github.workspace }}/infra/setup/installation-pack/central-hub/chart/charts
+
+      - name: Cleanup values files
+        run: |
+          rm -rfv ${{ github.workspace }}/infra/setup/installation-pack/central-hub/chart/charts/*/values.*.yaml
+
+      - name: Copy images
+        run: |
+          mkdir -p ${{ github.workspace }}/infra/setup/installation-pack/images
+          mv -v ${{ github.workspace }}/infra/setup/installation-pack/central-hub/chart/charts/*/*.tar.gz ${{ github.workspace }}/infra/setup/installation-pack/images
+
+      - name: Prepare infrastructure images for offline installation
+        run: |
+          while read f;
+            do docker pull ${f};
+            docker save ${f} | gzip > ${{ github.workspace }}/infra/setup/installation-pack/images/${f##*/}.tar.gz;
+          done < infra/offline-infra-images.lst
+
+      - name: Prepare RKE2 components for offline installation
+        run: |
+          mkdir -p ${{ github.workspace }}/infra/setup/installation-pack/rke2/artifacts
+          # Get RKE2 checksum file and artifacts
+          RKE_VERSION=$(cat infra/setup/installation-pack/ansible/k8s-install-vars-offline.yml | grep rke2_version | awk '{print $2}' | sed 's/\"//g')
+          RKE_ARCH=$(cat infra/setup/installation-pack/ansible/k8s-install-vars-offline.yml | grep "rke2_architecture:" | awk '{print $2}' | sed 's/\"//g')
+          curl -sL https://github.com/rancher/rke2/releases/download/${RKE_VERSION}/sha256sum-${RKE_ARCH}.txt -o ${{ github.workspace }}/infra/setup/installation-pack/rke2/artifacts/sha256sum-${RKE_ARCH}.txt
+          curl -sL https://github.com/rancher/rke2/releases/download/${RKE_VERSION}/rke2.linux-${RKE_ARCH}.tar.gz -o ${{ github.workspace }}/infra/setup/installation-pack/rke2/artifacts/rke2.linux-${RKE_ARCH}.tar.gz
+          curl -sL https://github.com/rancher/rke2/releases/download/${RKE_VERSION}/rke2-images.linux-${RKE_ARCH}.tar.zst -o ${{ github.workspace }}/infra/setup/installation-pack/rke2/artifacts/rke2-images.linux-${RKE_ARCH}.tar.zst
+          cd ${{ github.workspace }}/infra/setup/installation-pack/rke2/artifacts
+          echo $(grep rke2.linux-${RKE_ARCH}.tar.gz sha256sum-${RKE_ARCH}.txt) | sha256sum --check
+          echo $(grep rke2-images.linux-${RKE_ARCH}.tar.zst sha256sum-${RKE_ARCH}.txt) | sha256sum --check
+          # Get RKE2 install script
+          curl -sL https://get.rke2.io -o ${{ github.workspace }}/infra/setup/installation-pack/rke2/artifacts/rke2.sh
+          chmod +x ${{ github.workspace }}/infra/setup/installation-pack/rke2/artifacts/rke2.sh
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-2
+          role-to-assume: ${{ secrets.DEPLOYMENT_ROLE_ARN }}
+          role-session-name: AWS-DEPLOYMENT-SESSION
+
+      - name: Login to Amazon ECR
+        id: login_ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image to Amazon ECR
+        working-directory: infra/setup/
+        env:
+          REGISTRY: ${{ steps.login_ecr.outputs.registry }}
+          REPOSITORY: install
+          IMAGE_TAG: ${{ needs.projects-to-build.outputs.tag_name }}-offline
+        run: |
+          echo $REGISTRY/$REPOSITORY
+          echo $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG --build-arg SCI_CHART_SERVER_KEY=${{ secrets.SCI_CHART_SERVER_KEY }} --build-arg CENTRAL_HUB_RELEASE_TAG=${IMAGE_TAG%"-offline"} -f Dockerfile ./
+          docker push --all-tags $REGISTRY/$REPOSITORY
+
+  compile-and-sign-cli-installer:
+    runs-on: ubuntu-latest
+    environment: prod
+    needs:
+      - projects-to-build
+      - build-projects
+    steps:
+      - uses: ./.github/workflows/build-installer.yaml
+        with:
+          sibel_version: ${{ needs.projects-to-build.outputs.tag_name }}
+
+  create-github-release:
+    name: Create GitHub Release
+    needs:
+      - build-projects
+      - build-online-installation-image
+      - build-offline-installation-image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - uses: softprops/action-gh-release@v1
+        with:
+          generate_release_notes: true
+          prerelease: true
+          draft: true
+          token: ${{ secrets.GITHUB_TOKEN }}
