@@ -34,7 +34,6 @@ jobs:
   build-offline-installation-image:
     needs:
       - projects-to-build
-      - build-projects
     runs-on:
       - self-hosted
       - k8s
