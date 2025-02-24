@@ -53,3 +53,8 @@ jobs:
           docker run --restart=always -d -p 5000:5000 --name image-registry registry:2
           docker buildx create --name mybuilder --use --driver docker-container
           docker buildx inspect --bootstrap
+
+      - name: push to resistry
+        run: |
+          docker pull hardened-kubernetes:v1.29.1-rke2r1-build20240117
+          docker buildx imagetools create -t localhost:5000/hardened-kubernetes:v1.29.1-rke2r1-build20240117 hardened-kubernetes:v1.29.1-rke2r1-build20240117
