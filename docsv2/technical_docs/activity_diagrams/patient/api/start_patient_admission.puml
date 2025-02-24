@@ -1,0 +1,19 @@
+@startuml Start patient admission
+start
+:Get patient;
+:Get device;
+:Get current patient-device encounter;
+if (Does an encounter exist for the pair patient-device selected?) is (yes) then
+    if (Is the encounter in progress?) is (yes) then
+        :Return an error;
+        stop
+    else (no)
+        :Remove existing encounter;
+        :Notify existing encounter cancelled;
+    endif
+else (no)
+endif
+    :Create an encounter for the pair patient-device as planned;
+    :Notify patient admission planned;
+stop
+@enduml

@@ -1,0 +1,23 @@
+@startuml EHR Quick Admit Patient
+!include <C4/C4_Component>
+
+actor       "Clinical User"  as user
+participant "Central Monitoring Site" as cms
+participant "Web Gateway" as web
+participant "Web Worker" as worker
+participant "Realtime Gateway" as realtime
+
+cms -> web : Requests beds data
+web -> cms : Returns beds data with rejected admission information
+user -> cms : Selects bed with rejected admission for detailed view
+cms -> user : Shows admission request rejected modal
+user -> cms : Selects back to admit
+cms -> web : Sends data for rejection acknowledged
+web -> cms : Returns success
+cms -> cms : Invalidates local bed data
+realtime -> worker : Sends event for new bed information
+worker -> cms : Passes event for new bed information
+cms -> user : Shows submitted request message
+
+
+@enduml

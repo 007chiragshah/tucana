@@ -1,0 +1,26 @@
+@startuml Display Alarm Limits
+!include <C4/C4_Component>
+
+actor "User" as user
+participant "Central Monitoring Site" as cms
+participant "Web Gateway" as web
+participant "Web Worker" as worker
+participant "Realtime Gateway" as realtime
+
+cms -> web : Request current groups patients
+web -> cms : Returns current groups patients
+par
+    cms -> worker : Starts worker with group patients
+    worker -> realtime : Establishes realtime connection
+    realtime -> worker : Sends realtime vitals data for selected patients (including units)
+else
+    cms -> web : Request patient monitors data
+    web -> cms : Retun patient monitors data
+end
+
+cms -> user : Display patient details
+user -> cms : Change to alarm limits
+cms -> user : Displays alarm limits data
+
+
+@enduml

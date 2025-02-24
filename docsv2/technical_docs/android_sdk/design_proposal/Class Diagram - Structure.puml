@@ -1,0 +1,214 @@
+@startuml Android SDK - Class diagram (Structure)
+
+skinparam groupInheritance 2
+
+interface Client {
+    + auth() : AuthApi
+    + patients() : PatientApi
+    + beds() : BedApi
+    + bedGroups() : BedGroupApi
+    + audit() : AuditApi
+    + devices() : DeviceApi
+    + realtime() : RealtimeApi
+}
+
+class ClientImpl
+Client <|.. ClientImpl
+
+' ---------------------------------------------
+' APIs
+' ---------------------------------------------
+
+together {
+    interface AuthApi {
+        + login(user : String, password : String)
+        + technicalLogin(user : String, password : String)
+        + changePassword(oldPassword : String, newPassword : String)
+        + logout(user : String, password : String)
+    }
+
+    class AuthApiImpl
+    AuthApi <|.. AuthApiImpl
+    AuthApiImpl <-- ClientImpl
+}
+
+together {
+    interface PatientApi {
+        + getAll() : Patient[]
+        + get(patientId : String) : Patient
+        + create(patient : Patient) : Patient
+        + upsert(patient : Patient) : Patient
+        + delete(patient : Patient)
+
+        + searchEhr(filter: EhrPatientFilter) : Patient[]
+        + admit(patient : Patient, bedId : String, admissionType : AdmissionType)
+        + deleteAdmission(patientId : String)
+
+        ' TODO: MOVE THIS TO ALERTS?
+        + getPatientAlerts(patientId : String) : Alert[]
+    }
+
+    class PatientApiImpl
+    PatientApi <|.. PatientApiImpl
+    PatientApiImpl <-- ClientImpl
+
+
+    class EhrPatientFilter <<DataType>> {
+        - primaryIdentifier : String
+        - givenName : String
+        - familyName : String
+        - birthDate : String
+    }
+
+    EhrPatientFilter <.. PatientApi::searchEhr
+
+    enum AdmissionType {
+        QUICK_ADMIT
+        EHR_ADMIT
+    }
+
+    AdmissionType <.. PatientApi::admit
+}
+
+together {
+    interface BedApi {
+        + getAll() : FullBed[]
+        + batchCreate(bedList : Bed[]) : FullBed[]
+        + batchUpsert(bedList : Bed[]) : FullBed[]
+        + batchDelete(bedList : Bed[])
+    }
+
+    class BedApiImpl
+    BedApi <|.. BedApiImpl
+    BedApiImpl <-- ClientImpl
+}
+
+together {
+    interface BedGroupApi {
+        + getAll() : BedGroup[]
+        + batchCreate(bedGroupList : BedGroup[]) : BedGroup[]
+        + batchUpsert(bedGroupList : BedGroup[]) : BedGroup[]
+        + batchDelete(bedGroupList : BedGroup[])
+
+        + assignBeds(bedGroupId : String, beds : Bed[])
+        + batchAssignBeds(assignments: BedGroupBedAssignment[])
+
+        + getBedGroupBeds(bedGroupId : String): Bed[]
+        '  TODO: MOVE TO ALERTS?
+        + getBedGroupAlerts(bedGroupId : String) : Alert[]
+    }
+
+    class BedGroupApiImpl
+    BedGroupApi <|.. BedGroupApiImpl
+    BedGroupApiImpl <-- ClientImpl
+
+    class BedGroupBedAssignment <<DataType>> {
+        - groupId : String
+        - bedIdList : String[]
+    }
+
+    BedGroupBedAssignment <.. BedGroupApi::batchAssignBeds
+}
+
+together {
+    interface AuditApi {
+        + get(entityId : String) : AuditEntry[]
+    }
+
+    class AuditApiImpl
+    AuditApi <|.. AuditApiImpl
+    AuditApiImpl <-- ClientImpl
+}
+
+together {
+    interface DeviceApi {
+        + getAll() : Device[]
+        + upsert(device : Device) : Device
+        + batchAssignBeds(assignments : DeviceBedAssignment[])
+        + getDeviceAlerts(deviceId : String) : Alert[]
+    }
+
+    class DeviceApiImpl
+    DeviceApi <|.. DeviceApiImpl
+    DeviceApiImpl <-- ClientImpl
+
+    class DeviceBedAssignment <<DataType>> {
+        - bedId : String
+        - deviceId : String
+    }
+
+    DeviceBedAssignment <.. DeviceApi::batchAssignBeds
+}
+
+together {
+    interface ConfigApi {
+        + getAll() : SystemConfiguration[]
+        + batchUpsert(configurations : SystemConfiguration[])
+    }
+
+    class ConfigApiImpl
+    ConfigApi <|.. ConfigApiImpl
+    ConfigApiImpl <-- ClientImpl
+}
+
+abstract class BaseApiImpl
+note top: This class will contain all common methods\nthat will be used by all API handlers,\nlike handling the token authentication
+
+BaseApiImpl <|-- AuthApiImpl
+BaseApiImpl <|-- PatientApiImpl
+BaseApiImpl <|-- BedApiImpl
+BaseApiImpl <|-- BedGroupApiImpl
+BaseApiImpl <|-- AuditApiImpl
+BaseApiImpl <|-- DeviceApiImpl
+BaseApiImpl <|-- ConfigApiImpl
+BaseApiImpl <|-- RealtimeApiImpl
+
+BaseApiImpl --> StorageManager
+
+interface StorageManager {
+    + store(key : string, value : String)
+    + get(key : String) : String
+}
+
+class StorageManagerImpl
+StorageManager <|.. StorageManagerImpl
+
+' ---------------------------------------------
+' Realtime
+' ---------------------------------------------
+
+together {
+    interface RealtimeApi {
+        + initializeConnection()
+        + configureConnection(config : RealtimeConfiguration)
+        + registerEventListener(listener : RealtimeEventListener)
+        + unregisterEventListener(listener : RealtimeEventListener)
+    }
+
+    class RealtimeApiImpl
+    RealtimeApi <|.. RealtimeApiImpl
+
+    interface RealtimeEventListener {
+        + onEventReceived(event: RealtimeEvent)
+    }
+
+    RealtimeEventListener <.. RealtimeApi::registerEventListener
+    RealtimeEventListener <.. RealtimeApi::unregisterEventListener
+
+    class RealtimeConfiguration <<DataType>> {
+        - patientIdentifiers : String[]
+        - sendCache : Boolean
+        - codes : String[]
+    }
+
+    class RealtimePatientFilters <<DataType>> {
+        - patientIdentifier : String
+        - codes : String[]
+    }
+
+    RealtimeConfiguration --> RealtimePatientFilters
+    RealtimeConfiguration <.. RealtimeApi::configureConnection
+}
+
+
+@enduml

@@ -1,0 +1,9 @@
+@startuml PM configuration updated event received
+start
+:Get existing device;
+if (Does the device exist?) is (yes) then
+    :Update the device information;
+    :Notify device updated to event bus;
+endif
+stop
+@enduml

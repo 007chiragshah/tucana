@@ -1,0 +1,86 @@
+@startuml C3 CentralMonitoringSite
+!include <C4/C4_Component>
+
+Component_Ext(web_gateway, "Web Gateway", "Container: Python Web Gateway")
+Component_Ext(realtime_gateway, "Realtime Gateway", "Container: Python Realtime Gateway")
+Component_Ext(desktop_cms_app, "Desktop CMS App", "Container: Electron CMS Desktop App")
+
+Boundary(central_monitoring_site, "Central Monitoring Site", "Container: Typescript/Frontend Web Application") {
+
+  Component( \
+    technical_login, \
+    "Technical Login Page", \
+    "Component: typescript/react", \
+    "Provides a Webpage to allow technical users to login"\
+  )
+
+  Component( \
+    root_screen, \
+    "Root Screen", \
+    "Component: typescript/react", \
+    "Automatically redirects the user to the corresponding screen depending on prior sessions and token validity"\
+  )
+
+  Component( \
+    technical_user_module, \
+    "Technical User Module", \
+    "Component: typescript/react", \
+    "Allows technical user to configure EHR integration"\
+  )
+
+  Component( \
+    clinical_login, \
+    "Clinical Login Page", \
+    "Component: typescript/react", \
+    "Provides a Webpage to allow clinical users to login"\
+  )
+
+
+  Component( \
+    clinical_user_module, \
+    "Clinical User Module", \
+    "Component: typescript/react", \
+    "Allows clinical user to visualize realtime information for vitals and sensors"\
+  )
+
+  Component( \
+    vitals_worker, \
+    "Vitals Worker", \
+    "Component: typescript", \
+    "Handles realtime data connection and parsing"\
+  )
+
+  Rel(clinical_login, clinical_user_module, "Allows access to")
+  Rel(vitals_worker, clinical_user_module, "Sends realtime info")
+
+  Component( \
+    local_Storage, \
+    "Local Storage", \
+    "Component: javascript", \
+    "Handles storage of information about current user session, current audio configuration, and multi-screen support data"\
+  )
+
+  Component( \
+    hooks_module, \
+    "Hooks Module", \
+    "Component: typescript", \
+    "Handles communication with API endpoints"\
+  )
+
+  Rel(technical_login, technical_user_module, "Allows access to")
+  Rel(hooks_module, technical_user_module, "Provides API data")
+  Rel(local_Storage, technical_user_module, "Provides session data")
+  Rel(root_screen, technical_user_module, "Redirects to")
+  Rel(local_Storage, root_screen, "Provides session data")
+  Rel(local_Storage, clinical_login, "Provides session data")
+  Rel(local_Storage, clinical_user_module, "Provides session, screen and audio data")
+  Rel(hooks_module, clinical_user_module, "Provides API data")
+  Rel(root_screen, clinical_login, "Redirects to")
+  Rel(root_screen, clinical_user_module, "Redirects to")
+}
+
+Rel(hooks_module, web_gateway, "Makes API calls", "JSON/HTTPS")
+Rel(vitals_worker, realtime_gateway, "Establishes Websocket Connections", "JSON/WSS")
+Rel(desktop_cms_app, central_monitoring_site, "Hosts webpage", "HTTPS")
+
+@enduml

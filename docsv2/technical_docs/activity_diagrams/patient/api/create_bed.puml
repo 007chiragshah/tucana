@@ -1,0 +1,10 @@
+@startuml Create bed
+start
+if (Are there 64 beds?) is (yes) then
+    :Return an error;
+else (no)
+    :Create bed;
+    :Notify bed created to event bus;
+endif
+stop
+@enduml

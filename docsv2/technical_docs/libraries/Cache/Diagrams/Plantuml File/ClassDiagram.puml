@@ -1,0 +1,57 @@
+@startuml
+
+skinparam componentStyle uml2
+skinparam defaultFontName Arial
+skinparam defaultTextAlignment center
+skinparam shadowing true
+skinparam arrowThickness 2
+skinparam componentBorderColor Black
+skinparam queueBackgroundColor LightGray
+
+class RedisCache {
+  - client: Redis
+  - _instance: RedisCache
+  + connected: bool
+  + get_redis(): Redis
+  + check_connection(): bool
+  + get(key: str, parse: bool): Any
+  + scan(pattern: str): Iterable
+  + set(key: str, value: Any, ttl: int)
+  + delete(key: str)
+}
+
+class Decorators {
+  + add_cache(name: str): decorator
+  + remove_cache(name: str): decorator
+}
+
+class Redis {
+  + from_url(): Redis
+  + get()
+  + set()
+  + delete()
+  + scan_iter()
+  + ping()
+}
+
+class Settings {
+  + REDIS_HOST
+  + REDIS_PORT
+  + ENVIRONMENT
+  + REDIS_USERNAME
+  + REDIS_PASSWORD
+  + CACHE_ENABLED
+  + REDIS_CACHE_TTL
+}
+
+class Request {
+  + url
+}
+
+RedisCache --> Redis : uses
+RedisCache --> Settings : reads config
+Decorators --> RedisCache : uses
+Decorators --> Request : processes
+RedisCache --> Request : creates keys
+
+@enduml

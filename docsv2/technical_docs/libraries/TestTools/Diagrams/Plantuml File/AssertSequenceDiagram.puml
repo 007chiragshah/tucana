@@ -1,0 +1,24 @@
+@startuml
+
+skinparam componentStyle uml2
+skinparam defaultFontName Arial
+skinparam defaultTextAlignment center
+skinparam shadowing true
+skinparam arrowThickness 2
+skinparam componentBorderColor Black
+skinparam queueBackgroundColor LightGray
+
+participant "Test Suite" as T
+participant "assert_contains" as A
+participant "common_items" as C
+participant "assert_deep_equal" as E
+
+T -> A: Call assert_contains(actual, expected)
+A -> C: Extract common keys
+C -> A: Return filtered actual values
+A -> E: Call assert_deep_equal(filtered actual, expected)
+E -> E: Perform DeepDiff
+E -> E: Raise AssertionError if different
+E -> A: Return result
+A -> T: Assertion completed
+@enduml

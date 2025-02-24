@@ -1,0 +1,31 @@
+@startuml
+
+skinparam componentStyle uml2
+skinparam defaultFontName Arial
+skinparam defaultTextAlignment center
+skinparam shadowing true
+skinparam arrowThickness 2
+skinparam componentBorderColor Black
+skinparam queueBackgroundColor LightGray
+
+actor "KafkaHealthcheckService" as Service
+participant "Watchdog Task" as Watchdog
+participant "KafkaHealthcheckService.run()" as RunMethod
+participant Kafka
+
+Service -> Watchdog: Start watchdog
+Watchdog -> RunMethod: Call KafkaHealthcheckService.run()
+RunMethod -> Kafka: Send PING to Kafka
+Kafka -> RunMethod: Update health status
+
+Watchdog -> Service: Check is_healthy()
+
+alt Healthy
+    Watchdog -> Watchdog: Continue monitoring
+else Unhealthy
+    Watchdog -> RunMethod: Stop KafkaHealthcheckService
+    Watchdog -> Service: Restart KafkaHealthcheckService
+    Service -> RunMethod: Start new run() loop
+end
+
+@enduml

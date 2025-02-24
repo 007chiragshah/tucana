@@ -1,0 +1,34 @@
+@startuml
+
+skinparam componentStyle uml2
+skinparam defaultFontName Arial
+skinparam defaultTextAlignment center
+skinparam shadowing true
+skinparam arrowThickness 2
+skinparam componentBorderColor Black
+skinparam queueBackgroundColor LightGray
+
+actor Client as C
+participant "API" as API
+participant "Schemas" as S
+participant "Broker" as B
+participant "Message Queue" as MQ
+
+== Reject Patient Admission ==
+
+C -> API: POST /RejectAdmission
+activate API
+API -> S: Validate RejectPatientAdmissionSchema
+activate S
+S --> API: Validated data
+deactivate S
+API -> B: Publish reject patient admission event
+activate B
+B -> MQ: Send rejection message
+MQ --> B: Acknowledgment
+B --> API: Published
+deactivate B
+API --> C: HTTP 204 No Content
+deactivate API
+
+@enduml

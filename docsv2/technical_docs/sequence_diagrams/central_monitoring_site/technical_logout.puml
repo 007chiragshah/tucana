@@ -1,0 +1,17 @@
+@startuml Technical Logout
+!include <C4/C4_Component>
+
+actor       "Technical User"  as user
+participant "Central Monitoring Site" as cms
+participant "Web Gateway" as web
+
+cms -> user : Shows technical module
+user -> cms : Clicks on logout button
+cms -> user : Prompts user for password
+user -> cms : Enters password and accepts
+cms -> web : Requests password validation
+web -> cms : Returns password is validated and de-authenticates the user
+cms -> cms : Deletes user session information
+cms -> user : Displays technical login page
+
+@enduml

@@ -1,0 +1,60 @@
+@startuml C3 Realtime
+!include  <C4/C4_Component>
+
+
+ComponentQueue_Ext(kafka, "Event bus", "Component: Kafka")
+ComponentDb_Ext(redis, "Cache", "Component: Redis")
+Component_Ext(frontend, "Frontend", "JS/React app")
+Component_Ext(kubernetes, "Kubernetes", "Container: Kubernetes")
+
+Boundary(patient_ms, "Realtime", "Container: Python/FastAPI microservice") {
+
+    Component( \
+        cache_service, \
+        "Metrics Cache Service", \
+        "Component: python", \
+        "Provides functionalities to store and retrieve metrics"\
+    )
+    Component( \
+        connection_manager, \
+        "Connection Manager", \
+        "Component: python", \
+        "Provides functionalities to handle live websocket connections and filter messages sent to them"\
+    )
+    Component( \
+        vitals_consumer, \
+        "Vitals Consumer", \
+        "Component: python", \
+        "Provides functionalities to create new websocket connections"\
+    )
+
+    Rel(frontend, vitals_consumer, "Connect and send messages", "WSS/JSON")
+    Rel(vitals_consumer, connection_manager, "Uses")
+    Rel(connection_manager, frontend, "Send messages", "WSS/JSON")
+    Rel(kafka, connection_manager, "Receives messages", "TCP/JSON")
+    Rel(vitals_consumer, cache_service, "Uses")
+    Rel(cache_service, redis, "Set/Retrieve data")
+
+
+    ' -------------------------------------------
+    ' Health check
+    ' -------------------------------------------
+
+    Component( \
+        health_check_api, \
+        "Health Check API", \
+        "Component: python", \
+        "Provides a REST API interfacte to check the service health"\
+    )
+    Component( \
+        health_check_service, \
+        "Health Check Service", \
+        "Component: python", \
+        "Verifies the external services are working"\
+    )
+
+    Rel(health_check_api, health_check_service, "Uses")
+    Rel(kubernetes, health_check_api, "Makes API calls", "JSON/HTTPS")
+}
+
+@enduml

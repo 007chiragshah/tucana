@@ -1,0 +1,12 @@
+@startuml Batch create beds
+start
+if (Including the beds being created, are there more than 64 beds?) is (yes) then
+    :Return an error;
+else (no)
+    while (Is there a bed to be created?) is (yes)
+        :Create bed;
+        :Notify bed created to event bus;
+    endwhile (no)
+endif
+stop
+@enduml

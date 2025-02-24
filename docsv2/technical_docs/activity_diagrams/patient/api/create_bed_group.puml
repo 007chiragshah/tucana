@@ -1,0 +1,6 @@
+@startuml Create bed group
+start
+:Create bed group;
+:Notify bed group created to event bus;
+stop
+@enduml

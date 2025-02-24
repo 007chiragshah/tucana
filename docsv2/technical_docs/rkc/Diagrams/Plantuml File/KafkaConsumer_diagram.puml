@@ -1,0 +1,74 @@
+@startuml
+
+skinparam componentStyle uml2
+skinparam defaultFontName Arial
+skinparam defaultTextAlignment center
+skinparam shadowing true
+skinparam arrowThickness 2
+skinparam componentBorderColor Black
+skinparam queueBackgroundColor LightGray
+
+participant "Main Process" as Main
+participant "KafkaConsumer" as KC
+participant "StreamConsumer" as SC
+participant "MessageChannel" as Chan
+participant "CommitChannel" as CChan
+participant "HealthCheck" as Health
+participant "KafkaCluster" as Kafka
+
+group Initialization
+    Main -> KC: kafka_consumer()
+    activate KC
+    KC -> KC: create_consumer()
+    KC -> SC: new(config)
+    SC --> KC: Consumer instance
+    KC -> SC: subscribe(topics)
+    SC --> KC: Subscription confirmed
+    KC -> Main: "Subscription success"
+end
+
+group Message Consumption
+    loop Continuous Polling
+        KC -> SC: stream().next()
+        SC -> Kafka: Poll messages
+        Kafka --> SC: Message stream
+        alt Message Received
+            SC --> KC: OwnedMessage
+            KC -> Chan: send(message)
+            Chan --> KC: Ack
+        else Error Received
+            SC --> KC: Error
+            KC -> Health: send(Unhealthy)
+            Health --> KC: Ack
+        end
+    end
+end
+
+group Offset Committing
+    loop Commit Processing
+        CChan -> KC: recv_async()
+        KC -> SC: store_offset(topic, partition, offset)
+        alt Commit Success
+            SC --> KC: Offset stored
+        else Commit Failure
+            SC --> KC: Error
+            KC -> Main: Log error
+        end
+    end
+end
+
+group Shutdown Sequence
+    Main -> KC: cancellation_token.cancel()
+    alt Pending Commits Exist
+        loop While commits remain
+            KC -> CChan: recv_async()
+            CChan --> KC: Commit
+            KC -> SC: store_offset()
+            SC --> KC: Ack
+        end
+    end
+    KC -> Main: "Shutdown complete"
+    deactivate KC
+end
+
+@enduml

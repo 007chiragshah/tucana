@@ -1,0 +1,7 @@
+@startuml Update device
+start
+:Get device;
+:Update device info;
+:Notify device updated to event bus;
+stop
+@enduml

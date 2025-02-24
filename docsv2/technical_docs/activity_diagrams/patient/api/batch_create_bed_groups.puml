@@ -1,0 +1,8 @@
+@startuml Batch create bed groups
+start
+while (Is there a bed group to be created?) is (yes)
+    :Create bed group;
+    :Notify bed group created to event bus;
+endwhile (no)
+stop
+@enduml

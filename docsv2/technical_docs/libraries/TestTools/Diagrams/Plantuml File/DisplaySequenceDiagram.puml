@@ -1,0 +1,25 @@
+@startuml
+
+skinparam componentStyle uml2
+skinparam defaultFontName Arial
+skinparam defaultTextAlignment center
+skinparam shadowing true
+skinparam arrowThickness 2
+skinparam componentBorderColor Black
+skinparam queueBackgroundColor LightGray
+
+participant "Test Suite" as T
+participant "dict_diff" as D
+participant "CoolConsoleDiff" as C
+participant "PrettyTable" as P
+
+T -> D: Call dict_diff(actual, expected)
+D -> C: Create CoolConsoleDiff instance
+D -> C: Call make_table(actual_json, expected_json)
+C -> C: Compare JSON lines using _mdiff
+C -> C: Generate colored diff output
+C -> D: Return diff results
+D -> P: Create PrettyTable
+D -> P: Add formatted rows
+D -> T: Return final table output
+@enduml

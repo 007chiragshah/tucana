@@ -1,0 +1,55 @@
+@startuml
+
+skinparam componentStyle uml2
+skinparam defaultFontName Arial
+skinparam defaultTextAlignment center
+skinparam shadowing true
+skinparam arrowThickness 2
+skinparam componentBorderColor Black
+skinparam queueBackgroundColor LightGray
+
+participant "VitalsFlusher" as Flusher
+participant "HTTP Client" as HTTP
+participant "Commit Sender" as Sender
+participant "CancellationToken" as Token
+participant "VitalsRecords" as Records
+
+Flusher -> Flusher: Start process()
+
+loop until cancelled
+    group Message Processing
+        alt Sleep Timer Completes
+            Flusher -> Flusher: generate_payloads()
+            Flusher -> Records: Lock and read records
+            Records --> Flusher: Return records data
+            
+            opt Records Not Empty
+                Flusher -> HTTP: POST /endpoint with payloads
+                alt HTTP Success
+                    HTTP --> Flusher: 200 OK
+                    Flusher -> Flusher: commit()
+                    loop For each Commit
+                        Flusher -> Sender: send_async(Commit)
+                    end
+                    Flusher -> Records: clear()
+                else HTTP Failure
+                    HTTP --> Flusher: Error
+                    Flusher -> Flusher: Log error (retain records)
+                end
+            end
+        else Cancellation Triggered
+            Token -> Flusher: cancellation signal
+            Flusher -> Flusher: commit()
+            loop For each Commit
+                Flusher -> Sender: send_async(Commit)
+            end
+            Flusher -> Records: clear()
+            Flusher --> Token: Acknowledge shutdown
+            break
+        end
+    end
+end
+
+Flusher -> Flusher: Shutdown complete
+
+@enduml

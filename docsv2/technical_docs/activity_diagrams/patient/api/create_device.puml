@@ -1,0 +1,10 @@
+@startuml Create device
+start
+    :Create device;
+    :Notify device created to event bus;
+    if (Is the device a PM?) is (yes) then
+        :Create default list of vital ranges;
+    else (no)
+    endif
+stop
+@enduml

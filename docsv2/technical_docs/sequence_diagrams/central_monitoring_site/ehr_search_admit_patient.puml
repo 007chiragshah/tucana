@@ -1,0 +1,32 @@
+@startuml EHR Search Admit Patient
+!include <C4/C4_Component>
+
+actor       "Clinical User"  as user
+participant "Central Monitoring Site" as cms
+participant "Web Gateway" as web
+participant "Web Worker" as worker
+participant "Realtime Gateway" as realtime
+
+cms -> user : Shows Bed connected to PM without active session
+user -> cms : Select Search option
+cms -> user : Shows search form
+user -> cms : Enters desired patient info
+cms -> web : Requests patients matching entered info
+web -> cms : Returns patients matching entered info
+cms -> user : Shows found patients
+user -> cms : Selectes desired patient to assign
+cms -> user : Shows confirmation message with data
+user -> cms : Confirms request
+alt dob was entered and patient is less than 12 years Old
+    cms -> user : Shows age warning modal
+    user -> cms : Confirms patient
+end
+cms -> web : Sends data for patient assignation
+web -> cms : Returns success
+cms -> cms : Invalidates local bed data
+realtime -> worker : Sends event for new bed information
+worker -> cms : Passes event for new bed information
+cms -> user : Shows submitted request message
+
+
+@enduml

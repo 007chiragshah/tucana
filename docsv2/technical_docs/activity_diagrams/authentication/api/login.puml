@@ -1,0 +1,23 @@
+@startuml Login
+start
+if (Is the user's account locked?) is (yes) then
+    :Return an error;
+else (no)
+    if (Are the user's credentials correct?) is (no) then
+        :Increment the user's auth attempts;
+        if (Max auth attempts reached?) is (yes) then
+            :Temporarily lock user account;
+            :Notify user locked to event bus;
+        else (no)
+            :Notify user auth attempt to event bus;
+        endif
+        :Return an error;
+    else (yes)
+        :Return a JWT and Refresh token;
+        :Notify user logged in to event bus;
+    endif
+    
+endif
+
+stop
+@enduml

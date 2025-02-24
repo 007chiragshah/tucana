@@ -1,0 +1,16 @@
+@startuml Update selected group
+!include <C4/C4_Component>
+
+actor       "Clinical User"  as user
+participant "Central Monitoring Site" as cms
+participant "Web Gateway" as web
+
+cms -> cms : Loads Clinical Module
+cms -> web : Requests groups data
+web -> cms : Returns groups data
+cms -> user : Display groups list on the Clinical Module
+user -> cms : Clicks any unselected group
+cms -> cms : Saves new selected group
+cms -> user : Shows beds in the newly selected group
+
+@enduml

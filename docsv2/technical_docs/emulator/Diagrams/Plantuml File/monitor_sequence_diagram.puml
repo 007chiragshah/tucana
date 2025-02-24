@@ -1,0 +1,109 @@
+@startuml
+
+skinparam componentStyle uml2
+skinparam defaultFontName Arial
+skinparam defaultTextAlignment center
+skinparam shadowing true
+skinparam arrowThickness 2
+skinparam componentBorderColor Black
+skinparam queueBackgroundColor LightGray
+
+actor Client as C
+participant "API" as API
+participant "Schemas" as S
+participant "Data Manager" as DM
+participant "Models" as M
+participant "Broker" as B
+participant "Message Queue" as MQ
+
+== Fetch Emulated Patient Monitors ==
+
+C -> API: GET /monitor
+activate API
+API -> DM: Fetch patient monitors
+activate DM
+DM --> API: Return list of patient monitors
+API --> C: HTTP 200 OK
+
+== Connect Patient Monitor ==
+
+C -> API: POST /monitor/ConnectPatientMonitor
+activate API
+API -> S: Validate DeviceMonitorSchema
+activate S
+S --> API: Validated data
+deactivate S
+API -> M: Create PatientMonitor instance
+activate M
+M --> API: Instance created
+deactivate M
+API -> DM: connect_patient_monitor()
+activate DM
+DM -> B: Publish device discovery event
+activate B
+B -> MQ: Send device discovered message
+MQ --> B: Acknowledgment
+B --> DM: Published
+deactivate B
+DM --> API: Monitor connected
+deactivate DM
+API --> C: HTTP 204 No Content
+deactivate API
+
+== Disconnect Patient Monitor ==
+
+C -> API: POST /monitor/DisconnectMonitor
+activate API
+API -> DM: Validate patient monitor identifier
+activate DM
+DM -> M: Stop monitor emulation
+DM -> DM: Remove associated sensors, patient and monitor
+DM --> API: Monitor disconnected
+deactivate DM
+API --> C: HTTP 204 No Content
+deactivate API
+
+== Open Patient Session ==
+
+C -> API: POST /monitor/OpenPatientSession
+activate API
+API -> S: Validate PatientSessionOpenedPayload
+activate S
+S --> API: Validated data
+deactivate S
+API -> DM: open_patient_session()
+activate DM
+DM -> DM: Check if session is already active
+DM -> DM: Check if patient is assigned elsewhere
+DM -> DM: Update patient and monitor registry
+DM -> B: Send patient session opened message
+activate B
+B -> MQ: Send patient session opened message
+MQ --> B: Acknowledgment
+B --> DM: Published
+deactivate B
+DM --> API: Patient session opened
+deactivate DM
+API --> C: HTTP 204 No Content
+deactivate API
+
+== Close Patient Session ==
+
+C -> API: POST /monitor/ClosePatientSession
+activate API
+API -> DM: close_patient_session()
+activate DM
+DM -> DM: Check if session is active
+DM -> DM: Remove associated patient sensors and monitor
+DM -> B: Publish patient session close event
+activate B
+B -> MQ: Send patient session closed message
+MQ --> B: Acknowledgment
+B --> DM: Published
+deactivate B
+DM --> API: Patient session closed
+deactivate DM
+API --> C: HTTP 204 No Content
+deactivate API
+
+@enduml

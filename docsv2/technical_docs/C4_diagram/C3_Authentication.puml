@@ -1,0 +1,122 @@
+@startuml C3 Authentication
+!include  <C4/C4_Component>
+
+
+ComponentQueue_Ext(kafka, "Event bus", "Component: Kafka")
+ComponentDb_Ext(db, "Database", "Component: Postgres")
+ComponentDb_Ext(redis, "Cache", "Component: Redis")
+Component_Ext(gateway, "Web", "Python/FastAPI microservice")
+Component_Ext(kubernetes, "Kubernetes", "Container: Kubernetes")
+
+
+Boundary(authentication_ms, "Authentication", "Container: Python/Django microservice") {
+    ' ------------------------------------------------------
+    ' User authentication and user management
+    ' ------------------------------------------------------
+    
+    Component( \
+        user_api, \
+        "Users API", \
+        "Component: python", \
+        "Provides a REST API interface to manage users, user privileges, and authentication functionalities"\
+    )
+    Component( \
+        user_serializers, \
+        "User Serializers", \
+        "Component: python", \
+        "Allows the creation and modification of users and privileges"\
+    )
+    Component( \
+        user_models, \
+        "User Models", \
+        "Component: python", \
+        "Provides functionalities to create, retrieve, and modify users and privileges from the database"\
+    )
+
+    Component( \
+        user_stream, \
+        "User Event Stream", \
+        "Component: python", \
+        "Notifies the system about user changes and authentication events"\
+    )
+
+
+    Rel(gateway, user_api, "Makes API calls", "JSON/HTTPS")
+    
+    Rel(user_api, user_serializers, "Uses")
+    Rel(user_api, redis, "Reads/Writes")
+    
+    Rel(user_serializers, user_models, "Uses")
+    
+    Rel(user_models, db, "Reads/Writes", "SQL")
+    Rel(user_models, user_stream, "Uses", "Django Signals")
+    
+    Rel(user_stream, kafka, "Writes", "TCP")
+
+    ' ------------------------------------------------------
+    ' App settings
+    ' ------------------------------------------------------
+    
+    Component( \
+        config_api, \
+        "Config API", \
+        "Component: python", \
+        "Provides a REST API interface to manage app settings"\
+    )
+    Component( \
+        config_serializers, \
+        "App settings Serializers", \
+        "Component: python", \
+        "Allows the creation, modification, and list of app settings"\
+    )
+    Component( \
+        config_models, \
+        "App Settings Models", \
+        "Component: python", \
+        "Provides functionalities to create, retrieve, and modify app settings from the database"\
+    )
+
+    Component( \
+        config_stream, \
+        "App Settings Event Stream", \
+        "Component: python", \
+        "Notifies the system about app settings changes"\
+    )
+
+
+    Rel(gateway, config_api, "Makes API calls", "JSON/HTTPS")
+    
+    Rel(config_api, config_serializers, "Uses")
+    Rel(config_api, redis, "Reads/Writes")
+    
+    Rel(config_serializers, config_models, "Uses")
+    
+    Rel(config_models, db, "Reads/Writes", "SQL")
+    Rel(config_models, config_stream, "Uses", "Django Signals")
+    
+    Rel(config_stream, kafka, "Writes", "TCP")
+
+    ' ------------------------------------------------------
+    ' Health check
+    ' ------------------------------------------------------
+
+    Component( \
+        health_check_api, \
+        "Health Check API", \
+        "Component: python", \
+        "Provides a REST API interfacte to check the service health"\
+    )
+    Component( \
+        health_check_service, \
+        "Health Check Service", \
+        "Component: python", \
+        "Verifies the external services are working"\
+    )
+
+    Rel(health_check_api, health_check_service, "Uses")
+    Rel(health_check_service, db, "Reads", "SQL")
+    Rel(kubernetes, health_check_api, "Makes API calls", "JSON/HTTPS")
+}
+
+
+@enduml

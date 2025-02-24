@@ -1,0 +1,7 @@
+@startuml Delete bed group
+start
+:Get the bed group;
+:Delete the bed group;
+:Notify bed group deleted to event bus;
+stop
+@enduml

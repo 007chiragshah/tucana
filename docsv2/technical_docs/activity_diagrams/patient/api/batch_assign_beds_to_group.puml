@@ -1,0 +1,16 @@
+@startuml Batch assing beds to groups
+start
+if (Beds assigned are more than 16?) is (yes) then
+    :Return an error;
+else (no)
+    while (Bed group has a previous bed assigned?) is (yes)
+        :Unassign bed from group;
+        :Notify bed unassigned to event bus;
+    endwhile (no)
+    while (Is there a bed to assign?) is (yes)
+        :Assign bed to group;
+        :Notify bed assigned to event bus;
+    endwhile (no)
+endif
+end
+@enduml

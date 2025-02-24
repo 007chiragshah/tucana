@@ -1,0 +1,8 @@
+@startuml Batch assign beds to device
+start
+while (Is there a device to assign to a bed?) is (yes)
+    :Assign device to bed;
+    :Notify device assigned to event bus;
+endwhile (no)
+stop
+@enduml

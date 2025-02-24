@@ -1,0 +1,39 @@
+@startuml 
+
+skinparam componentStyle uml2
+skinparam defaultFontName Arial
+skinparam defaultTextAlignment center
+skinparam shadowing true
+skinparam arrowThickness 2
+skinparam componentBorderColor Black
+skinparam queueBackgroundColor LightGray
+
+start
+  :Initialize Service;
+  :Create Producer & Consumer;
+  :Start Ping/Pong Tasks;
+
+repeat
+  :Producer sends "PING";
+  :Consumer waits for message;
+
+  if (Message Received?) then (yes)
+    :Update health timestamp;
+  else (no)
+    :Check timestamp tolerance;
+  endif
+
+  :Watchdog verifies health;
+
+  if (Unhealthy) then (yes)
+    :Cancel current tasks;
+    :Retry connection;
+  else (no)
+    :Continue normal operation;
+  endif
+
+repeat while (Running?) is (yes)
+
+stop
+
+@enduml

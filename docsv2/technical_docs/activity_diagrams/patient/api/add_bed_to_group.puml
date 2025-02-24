@@ -1,0 +1,10 @@
+@startuml Add beds to bedgroup
+start
+if (Bed group has 16 beds already?) is (yes) then
+    :Return an error;
+else (no)
+    :Assign the bed to the group;
+    :Notify bed assigned to event bus;
+endif
+stop
+@enduml

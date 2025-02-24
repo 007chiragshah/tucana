@@ -1,0 +1,14 @@
+@startuml Event bus consumer
+start
+while (Wait for event bus message) is (message received)
+    :Receive the message from the event bus;
+    :Cache the received message;
+    while (Is there an open connection to notify?) is (yes)
+        if (Does the message matches the connection filters?) is (yes) then
+            :Send the message to the client;
+        else (no)
+        endif
+    end while (no)
+end while (application error/stopped)
+stop
+@enduml

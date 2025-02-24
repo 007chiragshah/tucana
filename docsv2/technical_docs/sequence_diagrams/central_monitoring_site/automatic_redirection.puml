@@ -1,0 +1,29 @@
+@startuml Automatic Redirection
+!include <C4/C4_Component>
+
+actor       "User"  as user
+participant "Central Monitoring Site" as cms
+
+user -> cms : Opens root page (optionally with group id)
+cms -> cms : Retrieves stored user information
+
+alt no user information stored
+    cms -> user : Shows user clinical login
+else has stored user information
+    cms -> cms : Checks token is valid
+    alt token is invalid
+        cms -> user: Shows user clinical login
+    else token is valid
+        alt user is technical
+            cms -> user : Shows user technical module
+        else user is clinical
+            alt group is provided
+                cms -> user : Shows user clincial module with selected group
+            else group is not provided
+                cms -> user : Shows user default clinical module
+            end
+        end
+    end
+end
+
+@enduml

@@ -1,0 +1,7 @@
+@startuml Delete device
+start
+:Get the device;
+:Delete the device;
+:Notify device deleted to event bus;
+stop
+@enduml

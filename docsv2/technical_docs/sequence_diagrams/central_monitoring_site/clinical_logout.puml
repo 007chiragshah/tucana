@@ -1,0 +1,19 @@
+@startuml Clinical Logout
+!include <C4/C4_Component>
+
+actor       "Clinical User"  as user
+participant "Central Monitoring Site" as cms
+participant "Web Gateway" as web
+
+cms -> user : Shows clinical module
+user -> cms : Clicks on settings button
+cms -> user : Shows settings sidebar
+user -> cms : Clicks logout button
+cms -> user : Prompts user for password
+user -> cms : Enters password and accepts
+cms -> web : Requests password validation
+web -> cms : Returns password is validated and de-authenticates the user
+cms -> cms : Deletes user session information
+cms -> user : Displays clinical login page
+
+@enduml

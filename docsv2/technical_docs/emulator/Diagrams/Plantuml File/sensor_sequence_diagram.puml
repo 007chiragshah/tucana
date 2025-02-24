@@ -1,0 +1,76 @@
+@startuml
+
+skinparam componentStyle uml2
+skinparam defaultFontName Arial
+skinparam defaultTextAlignment center
+skinparam shadowing true
+skinparam arrowThickness 2
+skinparam componentBorderColor Black
+skinparam queueBackgroundColor LightGray
+
+actor Client as C
+participant "API" as API
+participant "Data Manager" as DM
+participant "Models" as M
+participant "Broker" as B
+participant "Message Queue" as MQ
+
+== Connect Sensor ==
+
+C -> API: POST /sensor/ConnectSensor
+activate API
+API -> DM: Validate DeviceSensorSchema
+activate DM
+DM -> M: Create Sensor instance
+activate M
+M --> DM: Sensor instance created
+deactivate M
+DM -> DM: Validate patient monitor
+DM -> DM: Check active patient session
+DM -> DM: Add sensor to monitor
+DM -> B: Publish device discovered event
+activate B
+B -> MQ: Send device discovered message
+MQ --> B: Acknowledgment
+B --> DM: Published
+deactivate B
+DM --> API: Sensor connected
+deactivate DM
+API --> C: HTTP 204 No Content
+deactivate API
+
+== Disconnect Sensor ==
+
+C -> API: POST /sensor/DisconnectSensor
+activate API
+API -> DM: Validate DisconnectSensorSchema
+activate DM
+DM -> DM: Check if sensor exists
+DM -> DM: Remove sensor from monitor
+DM -> DM: Remove sensor from registry
+DM -> B: Publish sensor removed event
+activate B
+B -> MQ: Send sensor removed message
+MQ --> B: Acknowledgment
+B --> DM: Published
+deactivate B
+DM --> API: Sensor disconnected
+deactivate DM
+API --> C: HTTP 204 No Content
+deactivate API
+
+== Update Sensor Mode ==
+
+C -> API: POST /sensor/UpdateSensorMode
+activate API
+API -> DM: Validate UpdateSensorModeWebSchema
+activate DM
+DM -> DM: Fetch sensor by identifier
+DM -> M: Update sensor emulation mode
+M --> DM: Mode updated
+DM --> API: Sensor mode updated
+deactivate DM
+API --> C: HTTP 204 No Content
+deactivate API
+
+@enduml

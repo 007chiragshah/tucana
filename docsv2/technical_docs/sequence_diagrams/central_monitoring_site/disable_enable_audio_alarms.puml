@@ -1,0 +1,22 @@
+@startuml Disable/enable audio alarms
+!include <C4/C4_Component>
+
+actor       "Clinical User"  as user
+participant "Central Monitoring Site" as cms
+participant "Web Gateway" as web
+
+cms -> cms : Loads Clinical Module
+user -> cms : Clicks on Settings button
+cms -> user : Shows Settings Sidebar
+user -> cms : Clicks Manage Audio Alarm
+cms -> user : Shows Manage Audio Alarm Modal
+user -> cms : Updates audio alarms to desired state and clicks save
+cms -> user : Prompts user to enter password
+user -> cms : Enters password and confirms
+cms -> web : Requests password validation
+web -> cms : Returns password is valid
+cms -> cms : Saves new audio alarms state
+cms -> user : Shows settings updated modal
+user -> cms : Acknowledges the change by clicking "OK"
+
+@enduml

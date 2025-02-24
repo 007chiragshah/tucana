@@ -1,0 +1,330 @@
+@startuml C3 Patient
+!include  <C4/C4_Component>
+
+
+ComponentQueue_Ext(kafka, "Event bus", "Component: Kafka")
+ComponentDb_Ext(db, "Database", "Component: Postgres")
+ComponentDb_Ext(redis, "Cache", "Component: Redis")
+Component_Ext(frontend, "Web", "Python/FastAPI microservice")
+Component_Ext(kubernetes, "Kubernetes", "Container: Kubernetes")
+
+Boundary(patient_ms, "Patient", "Container: Python/FastAPI microservice") {
+    ' ------------------------------------------------------
+    ' Beds and bed groups
+    ' ------------------------------------------------------
+    
+    Component( \
+        bed_api, \
+        "Bed API", \
+        "Component: python", \
+        "Provides a REST API interfacte to edit beds and bed groups as well as caching query responses"\
+    )
+    Component( \
+        bed_service, \
+        "Bed Service", \
+        "Component: python", \
+        "Allows the creation and modification of beds and bed groups"\
+    )
+    Component( \
+        bed_repository, \
+        "Bed Repository", \
+        "Component: python", \
+        "Provides functionalities to query for beds from the database"\
+    )
+    Component( \
+        bed_group_repository, \
+        "Bed Group Repository", \
+        "Component: python", \
+        "Provides functionalities to query for bed groups from the database"\
+    )
+    Component( \
+        bed_stream, \
+        "Bed Event Stream", \
+        "Component: python", \
+        "Provides functionalities to create or update beds on the database as well as notifying the system of those changes"\
+    )
+    Component( \
+        bed_group_stream, \
+        "Bed Group Event Stream", \
+        "Component: python", \
+        "Provides functionalities to create or update bed groups on the database as well as notifying the system of those changes"\
+    )
+
+    Rel(frontend, bed_api, "Makes API calls", "JSON/HTTPS")
+    Rel(bed_api, bed_service, "Uses")
+    Rel(bed_api, redis, "Reads/Writes")
+
+    Rel(bed_service, bed_repository, "Uses")
+    Rel(bed_service, bed_group_repository, "Uses")
+    Rel(bed_service, bed_stream, "Uses")
+    Rel(bed_service, bed_group_stream, "Uses")
+
+    Rel(bed_repository, db, "Reads", "SQL")
+    Rel(bed_group_repository, db, "Reads", "SQL")
+
+    Rel(bed_stream, kafka, "Writes", "TCP")
+    Rel(bed_stream, db, "Writes", "SQL")
+    Rel(bed_group_stream, kafka, "Writes", "TCP")
+    Rel(bed_group_stream, db, "Writes", "SQL")
+
+    ' ------------------------------------------------------
+    ' Devices, vital ranges and device alerts
+    ' ------------------------------------------------------
+
+    Component( \
+        device_api, \
+        "Device API", \
+        "Component: python", \
+        "Provides a REST API interfacte to get device and its vital ranges as well as caching query responses"\
+    )
+    Component( \
+        device_service, \
+        "Device Service", \
+        "Component: python", \
+        "Allows the creation and modification of devices and vital ranges"\
+    )
+    Component( \
+        device_processor, \
+        "Device Processor", \
+        "Component: python", \
+        "Handles all incoming events that create or modify devices, vital ranges and/or device alerts"\
+    )
+    Component( \
+        device_repository, \
+        "Device Repository", \
+        "Component: python", \
+        "Provides functionalities to query for devices from the database"\
+    )
+    Component( \
+        vital_range_repository, \
+        "Vital Range Repository", \
+        "Component: python", \
+        "Provides functionalities to query and modify vital ranges from the database"\
+    )
+    Component( \
+        device_alert_repository, \
+        "Device Alert Repository", \
+        "Component: python", \
+        "Provides functionalities to query for device alerts from the database"\
+    )
+    Component( \
+        device_stream, \
+        "Device Event Stream", \
+        "Component: python", \
+        "Provides functionalities to create or update devices on the database as well as notifying the system of those changes"\
+    )
+    Component( \
+        vital_range_stream, \
+        "Vital Range Event Stream", \
+        "Component: python", \
+        "Provides functionalities to create or update vital ranges on the database as well as notifying the system of those changes"\
+    )
+    Component( \
+        device_alert_stream, \
+        "Device Alert Event Stream", \
+        "Component: python", \
+        "Provides functionalities to create or update device alerts on the database as well as notifying the system of those changes"\
+    )
+
+    Rel(frontend, device_api, "Makes API calls", "JSON/HTTPS")
+    Rel(device_api, device_service, "Uses")
+    Rel(device_api, redis, "Reads/Writes")
+
+    Rel(device_service, device_repository, "Uses")
+    Rel(device_service, device_stream, "Uses")
+    Rel(device_service, bed_repository, "Uses")
+    Rel(device_service, vital_range_repository, "Uses")
+    Rel(device_service, vital_range_stream, "Uses")
+
+    Rel(device_processor, kafka, "Reads", "TCP")
+    Rel(device_processor, device_repository, "Uses")
+    Rel(device_processor, device_stream, "Uses")
+    Rel(device_processor, device_alert_repository, "Uses")
+    Rel(device_processor, device_alert_stream, "Uses")
+    Rel(device_processor, vital_range_repository, "Uses")
+
+    Rel(device_repository, db, "Reads", "SQL")
+    Rel(vital_range_repository, db, "Reads/Writes", "SQL")
+    Rel(device_alert_repository, db, "Reads", "SQL")
+
+    Rel(device_stream, kafka, "Writes", "TCP")
+    Rel(device_stream, db, "Writes", "SQL")
+    Rel(vital_range_stream, kafka, "Writes", "TCP")
+    Rel(vital_range_stream, db, "Writes", "SQL")
+    Rel(device_alert_stream, kafka, "Writes", "TCP")
+    Rel(device_alert_stream, db, "Writes", "SQL")
+
+    ' ------------------------------------------------------
+    ' Patients and physiological alerts
+    ' ------------------------------------------------------
+
+    Component( \
+        patient_api, \
+        "Patient API", \
+        "Component: python", \
+        "Provides a REST API interfacte to get patients and physiological alerts as well as caching query responses"\
+    )
+    Component( \
+        patient_service, \
+        "Patient Service", \
+        "Component: python", \
+        "Allows the creation and modification of patients, physiological alerts and alert logs"\
+    )
+    Component( \
+        patient_repository, \
+        "Patient Repository", \
+        "Component: python", \
+        "Provides functionalities to query for patients, physiological alerts and alert logs from the database"\
+    )
+    Component( \
+        patient_stream, \
+        "Patient Event Stream", \
+        "Component: python", \
+        "Provides functionalities to create or update patients on the database as well as notifying the system of those changes"\
+    )
+    Component( \
+        physiological_alert_stream, \
+        "Physiological Alert Event Stream", \
+        "Component: python", \
+        "Provides functionalities to create or update physiological alerts on the database as well as notifying the system of those changes"\
+    )
+
+    Rel(frontend, patient_api, "Makes API calls", "JSON/HTTPS")
+    Rel(patient_api, patient_service, "Uses")
+    Rel(patient_api, redis, "Reads/Writes")
+
+    Rel(patient_service, patient_repository, "Uses")
+    Rel(patient_service, patient_stream, "Uses")
+
+    Rel(patient_repository, db, "Reads", "SQL")
+
+    Rel(patient_stream, kafka, "Writes", "TCP")
+    Rel(patient_stream, db, "Writes", "SQL")
+
+    ' ------------------------------------------------------
+    ' Encounters
+    ' ------------------------------------------------------
+
+    Component( \
+        encounter_service, \
+        "Encounter Service", \
+        "Component: python", \
+        "Allows the creation and modification of encounters"\
+    )
+    Component( \
+        encounter_repository, \
+        "Encounter Repository", \
+        "Component: python", \
+        "Provides functionalities to query for encounters from the database"\
+    )
+    Component( \
+        encounter_stream, \
+        "Encounter Event Stream", \
+        "Component: python", \
+        "Provides functionalities to create or update encounters on the database as well as notifying the system of those changes"\
+    )
+
+    Rel(encounter_service, encounter_repository, "Uses")
+    Rel(encounter_service, device_repository, "Uses")
+    Rel(encounter_service, patient_repository, "Uses")
+    Rel(encounter_service, encounter_stream, "Uses")
+
+    Rel(encounter_repository, db, "Reads", "SQL")
+
+    Rel(encounter_stream, kafka, "Writes", "TCP")
+    Rel(encounter_stream, db, "Writes", "SQL")
+
+    Rel(device_service, encounter_repository, "Uses")
+
+    ' ------------------------------------------------------
+    ' Alerts logs and Physiological alerts
+    ' ------------------------------------------------------
+
+    Component( \
+        alert_log_repository, \
+        "Alert Log Repository", \
+        "Component: python", \
+        "Provides functionalities to query for alert logs from the database"\
+    )
+    Component( \
+        physiological_alert_repository, \
+        "Physiological Alert Repository", \
+        "Component: python", \
+        "Provides functionalities to write physiological alerts to the database"\
+    )
+    Component( \
+        alert_log_stream, \
+        "Alert Log Event Stream", \
+        "Component: python", \
+        "Provides functionalities to create or update alert logs on the database as well as notifying the system of those changes"\
+    )
+
+    Rel(alert_log_repository, db, "Reads", "SQL")
+    Rel(physiological_alert_repository, db, "Write", "SQL")
+
+    Rel(alert_log_stream, kafka, "Writes", "TCP")
+    Rel(alert_log_stream, db, "Writes", "SQL")
+
+    ' ------------------------------------------------------
+    ' SDC and alert processors
+    ' ------------------------------------------------------
+
+    Component( \
+        sdc_processor, \
+        "SDC Processor", \
+        "Component: python", \
+        "Handles all incoming events that create or modify patients, encounters and/or physiological alerts"\
+    )
+    Component( \
+        alert_processor, \
+        "Alert Processor", \
+        "Component: python", \
+        "Handles all incoming events that create or modify physiological alerts and alert logs"\
+    )
+
+    Rel(sdc_processor, kafka, "Reads", "TCP")
+    Rel(alert_processor, kafka, "Reads", "TCP")
+
+    Rel(sdc_processor, encounter_service, "Uses")
+
+    Rel(sdc_processor, encounter_stream, "Uses")
+    Rel(sdc_processor, device_stream, "Uses")
+    Rel(sdc_processor, vital_range_stream, "Uses")
+    Rel(sdc_processor, patient_stream, "Uses")
+    Rel(sdc_processor, physiological_alert_stream, "Uses")
+    Rel(alert_processor, alert_log_stream, "Uses")
+    Rel(alert_processor, physiological_alert_stream, "Uses")
+
+    Rel(sdc_processor, alert_log_repository, "Uses")
+    Rel(sdc_processor, physiological_alert_repository, "Uses")
+    Rel(sdc_processor, device_alert_repository, "Uses")
+    Rel(sdc_processor, device_repository, "Uses")
+    Rel(sdc_processor, encounter_repository, "Uses")
+    Rel(sdc_processor, patient_repository, "Uses")
+    Rel(alert_processor, alert_log_repository, "Uses")
+    Rel(alert_processor, physiological_alert_repository, "Uses")
+
+    ' ------------------------------------------------------
+    ' Health check
+    ' ------------------------------------------------------
+
+    Component( \
+        health_check_api, \
+        "Health Check API", \
+        "Component: python", \
+        "Provides a REST API interfacte to check the service health"\
+    )
+    Component( \
+        health_check_service, \
+        "Health Check Service", \
+        "Component: python", \
+        "Verifies the external services are working"\
+    )
+
+    Rel(health_check_api, health_check_service, "Uses")
+    Rel(health_check_service, db, "Reads", "SQL")
+    Rel(kubernetes, health_check_api, "Makes API calls", "JSON/HTTPS")
+}
+
+
+@enduml

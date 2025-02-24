@@ -1,0 +1,129 @@
+@startuml Device discovered event received
+start
+
+group Process device
+    :Get existing device;
+    if (Does a device already exist?) is (yes) then
+        :Update device;
+        :Notify device updated to event bus;
+    else (no)
+        :Create device;
+        :Notify device updated to event bus;
+        if (Is the device a PM?) is (yes) then
+            :Create default vital ranges;
+        else (no)
+        endif
+    endif
+
+    group Process connected sensors
+        if (Is the device a PM?) is (yes) then
+            :Get existing connected sensors;
+            while (Is there an existing connected sensor no longer connected?) is (yes)
+                :Delete existing connected sensor;
+                :Notify sensor deleted to event bus;
+            end while (no)
+            while (Is there an existing connected sensor still connected?) is (yes)
+                :Update existing connected sensor;
+                :Notify sensor updated to event bus;
+            end while (no)
+            while (Is there an incomming connected sensor not existing?) is (yes)
+                :Create sensor;
+                :Notify sensor created to event bus;
+            end while (no)
+        else (no)
+        endif
+    end group
+
+    group Process technical alerts
+        :Get existing technical alerts for the device;
+        while (Is there an incoming active alert not created?) is (yes)
+            :Create technical alert;
+            :Notify technical alert created to event bus;
+        end while (no)
+        while (Is there an existing alert no longer active?) is (yes)
+            :Delete technical alert;
+            :Notify technical alert deleted to event bus;
+        end while (no)
+        :Notify multiple alerts modified;
+        note right
+            This is used to avoid calling
+            the alerts fetch API multiple times
+        end note
+    end group
+
+    group Process techinal alert logs
+        while (Is there an incomming alert not processed yet?) is (yes)
+            :Process the alert log;
+            note left
+                Here it calls the same procedure as when
+                an alert event is received (process alert log).
+                It is not copied to this diagram to avoid too much confusion.
+            end note
+        end while (no)
+    end group
+end group
+
+group Process patient
+    if (Does the device contain patient information?) is (yes) then
+        :Get existing patient information;
+        if (Does the patient already exist?) is (yes) then
+            :Update patient information;
+            :Notify patient updated to the event bus;
+        else (no)
+            :Create patient;
+            :Notify patient created to the the event bus;
+        endif
+
+        group Process physiological alerts
+            :Get existing physiological alerts for the device;
+            while (Is there an incoming active alert not created?) is (yes)
+                :Create physiological alert;
+                :Notify physiological alert created to event bus;
+            end while (no)
+            while (Is there an existing alert no longer active?) is (yes)
+                :Delete physiological alert;
+                :Notify physiological alert deleted to event bus;
+            end while (no)
+            :Notify multiple alerts modified;
+            note right
+                This is used to avoid calling
+                the alerts fetch API multiple times
+            end note
+        end group
+
+        group Process physiological alert logs
+            while (Is there an incomming alert not processed yet?) is (yes)
+                :Process the alert log;
+                note left
+                    Here it calls the same procedure as when
+                    an alert event is received (process alert log).
+                    It is not copied to this diagram to avoid too much confusion.
+                end note
+            end while (no)
+        end group
+    endif
+end group
+
+group Process patient encounter
+    if (Does the device contain patient information and the device is a PM?) is (yes) then
+        :Get existing encounters for the device or the patient;
+        while (Is there an encounter that belongs to the patient or device but not both?) is (yes)
+            if (Is the existing encounter in progress) is (yes) then
+                :Return an error;
+                stop
+            else (no)
+                :Delete existing encounter;
+                :Notify encounter cancelled to event bus;
+            endif
+        end while
+        if (Does an encounter exist for both patient and device?) is (yes) then
+            :Set existing encounter as started;
+        else (no)
+            :Create an started encounter;
+        endif
+        :Notify encounter started to event bus;
+    endif
+end group
+
+stop
+@enduml

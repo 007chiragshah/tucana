@@ -1,0 +1,220 @@
+export const translationFile = {
+  en: {
+    translation: {
+      LoginPage: {
+        title: 'Log In',
+        subtitle: 'Welcome to Central Hub',
+        passwordPlaceholder: 'Password',
+        logInButton: 'Log in',
+        copyright: 'Copyright © {{year}} Sibel Inc. All rights reserved.',
+        UDI: 'UDI: {{UDI}}',
+      },
+      BedManagementModal: {
+        title: 'Bed Management',
+        firstStepTitle: 'Step 1. Add beds to the system ({{count}})',
+        firstStepConfirmButton: 'Next: Assign patient monitors to beds.',
+        firstStepInstructionText: 'Add beds and assign ID to each bed.',
+        firstStepBedIdLabel: 'Bed ID',
+        secondStepTitle: 'Step 2. Assign patient monitors to beds',
+        secondStepConfirmButton: 'Finish bed setup',
+        secondStepGoBackButton: 'Back to step 1',
+        secondStepMonitorIdLabel: 'Patient monitor ID',
+      },
+      NetworkManagementModal: {
+        networkDisconnectedTitle: 'Network disconnected',
+        networkDisconnectedDescription:
+          'Unable to detect a network connection. Please check your network settings. If the problem persists, contact support.',
+        serverDisconnectedTitle: 'Something went wrong',
+        serverDisconnectedDescription:
+          'The system has detected an error during operation. If the problem persists, contact support and restart the central server.',
+      },
+      PasswordValidationModal: {
+        title: 'Password required',
+        passwordRequiredMessage: 'Password is required.',
+      },
+      TechnicalLoginPage: {
+        pageTitle: 'CMS - Login',
+        title: 'Log In',
+        copyright: 'Copyright © {{year}} Sibel Inc. All rights reserved.',
+        UDI: 'UDI: {{UDI}}',
+      },
+      TechnicalHome: {
+        logout: 'Logout',
+        title: 'EHR Integration',
+        subtitle: 'Configure and integrate with EHR platform.',
+        hostAddressTitle: 'Host Address',
+        serverPortTitle: 'Server Port',
+        transmisionIntervalTitle: 'Transmission Interval (Minutes)',
+        transmisionIntervalInstructions: 'Enter a value between 1 - 100',
+        required: 'Required',
+        confirmationTitle: 'Confirmation required',
+        passwordValidationDescription: 'Please enter the password to save the settings.',
+        integratingWithEHRTitle: 'Integrating with EHR...',
+        integratingWithEHRSubtitle: 'This may take a few minutes',
+      },
+      GenericButtons: {
+        saveButton: 'Save',
+        confirmButton: 'Confirm',
+        backToEditButton: 'Back to edit',
+        cancelButton: 'Cancel',
+      },
+      ErrorChips: {
+        serverError: 'Server Error',
+        dataError: 'Data Error',
+        networkError: 'No network available',
+      },
+      RequestErrors: {
+        incorrectPassword: 'Incorrect password. Please try again.',
+        serverError: 'Server error. Please try again in a few minutes.',
+        tooManyAttempts: 'Too many attempts. Please try again in 15 minutes.',
+        accountLocked: 'Account locked.',
+      },
+    },
+  },
+  de: {
+    translation: {
+      LoginPage: {
+        title: 'Einloggen',
+        subtitle: 'Willkommen im Sibel Central Hub',
+        passwordPlaceholder: 'Passwort',
+        logInButton: 'Einloggen',
+        copyright: 'Copyright © {{year}} Sibel Inc. Alle Rechte vorbehalten.',
+        UDI: 'UDI: {{UDI}}',
+      },
+      BedManagementModal: {
+        title: 'Bed Management',
+        firstStepTitle: 'Step 1. Add beds to the system ({{count}})',
+        firstStepConfirmButton: 'Next: Assign patient monitors to beds.',
+        firstStepInstructionText: 'Add beds and assign ID to each bed.',
+        firstStepBedIdLabel: 'Bed ID',
+        secondStepTitle: 'Step 2. Assign patient monitors to beds',
+        secondStepConfirmButton: 'Finish bed setup',
+        secondStepGoBackButton: 'Back to step 1',
+        secondStepMonitorIdLabel: 'Patient monitor ID',
+      },
+      NetworkManagementModal: {
+        networkDisconnectedTitle: 'Netzwerk getrennt',
+        networkDisconnectedDescription:
+          'Keine Netzwerkverbindung erkannt. Bitte überprüfen Sie Ihre Netzwerkeinstellungen. Wenn das Problem weiterhin besteht, wenden Sie sich an den Support.',
+        serverDisconnectedTitle: 'Etwas ist schiefgelaufen',
+        serverDisconnectedDescription:
+          'Das System hat während des Betriebs einen Fehler erkannt. Wenn das Problem weiterhin besteht, wenden Sie sich an den Support und starten Sie den zentralen Server neu.',
+      },
+      PasswordValidationModal: {
+        title: 'Passwort erforderlich',
+        passwordRequiredMessage: 'Passwort ist erforderlich.',
+      },
+      TechnicalLoginPage: {
+        pageTitle: 'CMS - Login',
+        title: 'Anmelden',
+        copyright: 'Copyright © {{year}} Sibel Inc. Alle Rechte vorbehalten.',
+        UDI: 'UDI: {{UDI}}',
+      },
+      TechnicalHome: {
+        logout: 'Abmelden',
+        title: 'EHR-Integration',
+        subtitle: 'Konfigurieren und mit der EHR-Plattform integrieren.',
+        hostAddressTitle: 'Hostadresse',
+        serverPortTitle: 'Server-Port',
+        transmisionIntervalTitle: 'Übertragungsintervall (Minuten)',
+        transmisionIntervalInstructions: 'Geben Sie einen Wert zwischen 1 und 100 ein',
+        required: 'Erforderlich',
+        confirmationTitle: 'Bestätigung erforderlich',
+        passwordValidationDescription:
+          'Bitte geben Sie das Passwort ein, um die Einstellungen zu speichern.',
+        integratingWithEHRTitle: 'Integration mit EHR …',
+        integratingWithEHRSubtitle: 'Dies kann einige Minuten dauern.',
+      },
+      GenericButtons: {
+        saveButton: 'Speichern',
+        confirmButton: 'Bestätigen',
+        backToEditButton: 'Zurück zur Bearbeitung',
+        cancelButton: 'Abbrechen',
+      },
+      ErrorChips: {
+        serverError: 'Serverfehler',
+        dataError: 'Datenfehler',
+        networkError: 'Kein Netzwerk verfügbar',
+      },
+      RequestErrors: {
+        incorrectPassword: 'Falsches Passwort. Bitte versuchen Sie es erneut.',
+        serverError: 'Serverfehler. Bitte versuchen Sie es in ein paar Minuten noch einmal.',
+        tooManyAttempts: 'Zu viele Versuche. Bitte versuchen Sie es in 15 Minuten erneut.',
+        accountLocked: 'Konto gesperrt.',
+      },
+    },
+  },
+  da: {
+    translation: {
+      LoginPage: {
+        title: 'Log ind',
+        subtitle: 'Velkommen til Sibel Central Hub',
+        passwordPlaceholder: 'Adgangskode',
+        logInButton: 'Log ind',
+        copyright: 'Copyright © {{year}} Sibel Inc. Alle rettigheder forbeholdes.',
+        UDI: 'UDI: {{UDI}}',
+      },
+    },
+    BedManagementModal: {
+      title: 'Bed Management',
+      firstStepTitle: 'Step 1. Add beds to the system ({{count}})',
+      firstStepConfirmButton: 'Next: Assign patient monitors to beds.',
+      firstStepInstructionText: 'Add beds and assign ID to each bed.',
+      firstStepBedIdLabel: 'Bed ID',
+      secondStepTitle: 'Step 2. Assign patient monitors to beds',
+      secondStepConfirmButton: 'Finish bed setup',
+      secondStepGoBackButton: 'Back to step 1',
+      secondStepMonitorIdLabel: 'Patient monitor ID',
+    },
+    NetworkManagementModal: {
+      networkDisconnectedTitle: 'Netzwerk getrennt',
+      networkDisconnectedDescription:
+        'Keine Netzwerkverbindung erkannt. Bitte überprüfen Sie Ihre Netzwerkeinstellungen. Wenn das Problem weiterhin besteht, wenden Sie sich an den Support.',
+      serverDisconnectedTitle: 'Etwas ist schiefgelaufen',
+      serverDisconnectedDescription:
+        'Das System hat während des Betriebs einen Fehler erkannt. Wenn das Problem weiterhin besteht, wenden Sie sich an den Support und starten Sie den zentralen Server neu.',
+    },
+    PasswordValidationModal: {
+      title: 'Passwort erforderlich',
+      passwordRequiredMessage: 'Passwort ist erforderlich.',
+    },
+    TechnicalLoginPage: {
+      pageTitle: 'CMS - Login',
+      title: 'Anmelden',
+      copyright: 'Copyright © {{year}} Sibel Inc. Alle Rechte vorbehalten.',
+      UDI: 'UDI: {{UDI}}',
+    },
+    TechnicalHome: {
+      logout: 'Abmelden',
+      title: 'EHR-Integration',
+      subtitle: 'Konfigurieren und mit der EHR-Plattform integrieren.',
+      hostAddressTitle: 'Hostadresse',
+      serverPortTitle: 'Server-Port',
+      transmisionIntervalTitle: 'Übertragungsintervall (Minuten)',
+      transmisionIntervalInstructions: 'Geben Sie einen Wert zwischen 1 und 100 ein',
+      required: 'Erforderlich',
+      confirmationTitle: 'Bestätigung erforderlich',
+      passwordValidationDescription:
+        'Bitte geben Sie das Passwort ein, um die Einstellungen zu speichern.',
+      integratingWithEHRTitle: 'Integration mit EHR …',
+      integratingWithEHRSubtitle: 'Dies kann einige Minuten dauern.',
+    },
+    GenericButtons: {
+      saveButton: 'Speichern',
+      confirmButton: 'Bestätigen',
+      backToEditButton: 'Zurück zur Bearbeitung',
+      cancelButton: 'Abbrechen',
+    },
+    ErrorChips: {
+      serverError: 'Serverfehler',
+      dataError: 'Datenfehler',
+      networkError: 'Kein Netzwerk verfügbar',
+    },
+    RequestErrors: {
+      incorrectPassword: 'Forkert adgangskode. Prøv venligst igen.',
+      serverError: 'Serverfejl. Prøv venligst igen om et par minutter.',
+      tooManyAttempts: 'For mange forsøg. Prøv venligst igen om 15 minutter.',
+      accountLocked: 'Konto låst.',
+    },
+  },
+};

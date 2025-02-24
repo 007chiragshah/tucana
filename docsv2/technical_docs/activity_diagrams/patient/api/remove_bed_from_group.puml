@@ -1,0 +1,8 @@
+@startuml Remove bed from group
+start
+:Get bed;
+:Get bed group;
+:Remove bed from group;
+:Notify bed removed from group;
+stop
+@enduml

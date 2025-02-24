@@ -1,0 +1,64 @@
+@startuml 
+
+skinparam componentStyle uml2
+skinparam defaultFontName Arial
+skinparam defaultTextAlignment center
+skinparam shadowing true
+skinparam arrowThickness 2
+skinparam componentBorderColor Black
+skinparam queueBackgroundColor LightGray
+
+class Base64String {
+    + str value
+}
+
+class CsvString {
+    + str value
+}
+
+class TimezoneFreeDatetime {
+    + datetime value
+}
+
+class DateISO8601 {
+    + date value
+}
+
+class SecretDate {
+    + _secret_value: date
+    - get_secret_value(): date
+}
+
+class SecretString {
+    + get_secret_value(): RedactedRawStringType
+}
+
+class JWTClaims {
+    + sub: str
+    + exp: float
+    + username: str
+    + roles: list[RoleNames]
+    + has_expired(): bool
+    + remaining_duration(): timedelta
+}
+
+class AccessTokenClaims {
+    + token_type: Literal["access"]
+}
+
+class RefreshTokenClaims {
+    + token_type: Literal["refresh"]
+}
+
+enum RoleNames {
+    ADMIN
+    TECH
+    CLINICAL
+    ORGANIZATION
+}
+
+JWTClaims <|-- AccessTokenClaims
+JWTClaims <|-- RefreshTokenClaims
+JWTClaims --> RoleNames
+
+@enduml

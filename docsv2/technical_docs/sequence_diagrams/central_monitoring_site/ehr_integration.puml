@@ -1,0 +1,34 @@
+@startuml EHR Integration
+!include <C4/C4_Component>
+
+actor       "Technical User"  as user
+participant "Central Monitoring Site" as cms
+participant "Web Gateway" as web
+
+cms -> user : Shows ehr integration form
+user -> cms : Provides ehr integration data
+cms -> user : Shows Confirmation Modal
+
+alt user cancels integration
+    user -> cms : Presses back to edit button
+    cms -> user : Shows ehr integration form
+else user accepts integration
+    user -> cms : Confirms data
+    cms -> user : Shows password validation modal
+    loop while password is not validated
+        user -> cms : Enters password
+        cms -> web : Validates user credentials
+        alt password is valid
+            web -> cms : Password is valid
+        else password is invalid
+            web -> cms : Password is invalid
+            cms -> web : Shows error message
+        end
+    end
+    cms -> user : Shows integration in progress message
+    cms -> web : Send integration data
+    web -> cms : Returns integration successful
+    cms -> user: Notifies integration has finished
+end
+
+@enduml

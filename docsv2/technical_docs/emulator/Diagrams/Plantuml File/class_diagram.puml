@@ -1,0 +1,39 @@
+@startuml
+skinparam componentStyle uml2
+skinparam defaultFontName Arial
+skinparam defaultTextAlignment center
+skinparam shadowing true
+skinparam arrowThickness 2
+skinparam componentBorderColor Black
+skinparam queueBackgroundColor LightGray
+
+!include <C4/C4_Component>
+
+' Define the external system component
+Component_Ext(web, "User System", "External System", "Interacts with the Emulator via REST API")
+
+' Define the Boundary container with emulator description
+Boundary(emulator, "Emulator", "Container: Python/FastAPI microservice for simulating virtual devices") {
+
+    ' Define individual components within the emulator container
+    Component(main_api, "Emulator API", "Component: Python", "Main API Gateway for the Emulator")
+    Component(mllp_api, "MLLP API", "Component: Python", "Handles HL7 message communication")
+    Component(alarm_api, "Alarms API", "Component: Python", "Manages alarms and notifications")
+    Component(proxy_api, "Proxy API", "Component: Python", "Handles device proxy commands")
+    Component(sensors_api, "Sensors API", "Component: Python", "Manages sensor connectivity and operations")
+    Component(monitor_api, "Monitor API", "Component: Python", "Manages patient monitoring interactions")
+    Component(admission_api, "Admission API", "Component: Python", "Handles patient admission rejection")
+    Component(healthcheck_api, "Health Check API", "Component: Python", "Monitors system health status")
+    
+    ' Define relationships between components
+    Rel(web, main_api, "Sends API Requests", "JSON/HTTPS")
+    Rel(main_api, mllp_api, "Interacts with")
+    Rel(main_api, alarm_api, "Interacts with")
+    Rel(main_api, proxy_api, "Interacts with")
+    Rel(main_api, sensors_api, "Interacts with")
+    Rel(main_api, monitor_api, "Interacts with")
+    Rel(main_api, admission_api, "Interacts with")
+    Rel(main_api, healthcheck_api, "Monitors system status")
+}
+
+@enduml

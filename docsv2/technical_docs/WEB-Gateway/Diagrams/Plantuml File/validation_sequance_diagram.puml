@@ -1,0 +1,20 @@
+@startuml
+    autonumber
+    actor User
+    participant "Web Gateway" as WebGateway
+    participant Platform
+
+    User ->> WebGateway: API Request
+    WebGateway ->> WebGateway: Validate Request
+    alt Validation Fails
+        WebGateway -->> User: Error Response
+    else Validation Succeeds
+        WebGateway ->> Platform: Perform Operation
+        Platform -->> WebGateway: Success/Failure
+        alt Operation Fails
+            WebGateway -->> User: Error Response
+        else Operation Succeeds
+            WebGateway -->> User: Success Response
+        end
+    end
+@enduml

@@ -1,0 +1,15 @@
+@startuml Connect to realtime service
+start
+:Initialize the connection with the socket;
+while (Is there a message to receive from the client?) is (yes)
+    :Receive configuration message from client;
+    :Update message filtering;
+    if (Does the configuration request to receive cache?) is (yes) then
+        while (Is there a cached metric message to send?) is (yes)
+            :Send cached message to the client;
+        end while (no)
+    else (no)
+    endif
+end while (connection closed)
+stop
+@enduml

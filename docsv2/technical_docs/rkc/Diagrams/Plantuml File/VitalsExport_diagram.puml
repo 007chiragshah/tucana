@@ -1,0 +1,61 @@
+@startuml
+
+skinparam componentStyle uml2
+skinparam defaultFontName Arial
+skinparam defaultTextAlignment center
+skinparam shadowing true
+skinparam arrowThickness 2
+skinparam componentBorderColor Black
+skinparam queueBackgroundColor LightGray
+
+participant "VitalsExport" as Processor
+participant "Receiver" as Rx
+participant "VitalsRecords" as Records
+participant "CancellationToken" as Token
+
+group Initialization
+    Processor -> Processor: new(records, rx, config)
+end
+
+Processor -> Processor: process()
+
+loop until cancelled
+    group Message Processing Loop
+        alt Message Received
+            Rx -> Processor: recv_async()
+            Processor -> Processor: KafkaMessage::try_from(msg)
+            alt Parsing Success
+                Processor -> Processor: Check event_type == "NEW_METRICS"
+                alt Valid Event Type
+                    Processor -> Processor: store_message(m)
+                    Processor -> Records: lock()
+                    
+                    group Record Storage Logic
+                        alt New Key
+                            Records -> Records: insert(new_message)
+                        else Existing Key
+                            Processor -> Processor: Compare determination_time\n(new vs existing)
+                            alt Newer Timestamp
+                                Records -> Records: update_entry(new_message)
+                            else Older/Equal
+                                Processor -> Processor: Skip update
+                            end
+                        end
+                    end
+                    Processor -> Records: unlock()
+                else Invalid Event Type
+                    Processor -> Processor: Skip processing
+                end
+            else Parsing Error
+                Processor -> Processor: Log error\nContinue processing
+            end
+        else Cancellation Requested
+            Token -> Processor: cancellation signal
+            Processor -> Processor: Break loop
+        end
+    end
+end
+
+Processor -> Processor: Log shutdown
+
+@enduml

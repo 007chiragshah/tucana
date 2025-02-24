@@ -1,0 +1,20 @@
+@startuml Pause/unpause audio alarms
+!include <C4/C4_Component>
+
+actor       "Clinical User"  as user
+participant "Central Monitoring Site" as cms
+
+cms -> cms : Loads Clinical Module
+cms -> user : Display pause audio button
+user -> cms : Clicks pause audio button
+cms -> cms : Deactivates audio alerts
+cms -> cms : Starts paused audio timer and shows cancel button
+alt user wants to cancel audio pause
+    user -> cms: Clicks cancel button
+else full timer time passes
+    cms -> cms : Audio paused timer reaches zero
+end
+cms -> cms : Reactivates audio alerts
+cms -> user : Display pause audio button again
+
+@enduml

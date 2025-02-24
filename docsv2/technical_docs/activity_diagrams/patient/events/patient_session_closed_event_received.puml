@@ -1,0 +1,31 @@
+@startuml Patient session closed event received
+start
+fork
+    group Delete patient alert logs
+        :Get patient alert logs;
+        while (Is there an alert log to delete?) is (yes)
+            :Delete alert log;
+            :Notify alert log deleted to event bus;
+        end while (no)
+    end group
+
+    end
+fork again
+    group Delete technical alerts
+        :Get technical alerts for connected sensors;
+        while (Is there an alert to delete?) is (yes)
+            :Delete techincal alert;
+        end while
+    end group
+
+    group Complete encounter
+        :Get existing encounter for patient and device;
+        if (Does an encounter exist?) is (yes) then
+            :Complete existing encounter;
+            :Notify encounter completed;
+        endif
+    end group
+
+    end
+end fork
+@enduml

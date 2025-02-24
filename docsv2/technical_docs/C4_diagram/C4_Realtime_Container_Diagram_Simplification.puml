@@ -1,0 +1,67 @@
+@startuml C4 Realtime - Container diagram symplification
+!include  <C4/C4_Container>
+
+System_Boundary(central_server, "Central Server") {
+    Container( \
+        frontend, \
+        "Frontend", \
+        "JavaScript, ReactJS", \
+        "Allows users to see the information of all PMs connected to the system as well as organize them" \
+    )
+    Container( \
+        realtime, \
+        "Realtime", \
+        "Python, FastAPI", \
+        "Proxy between the event bus and the frontend and clients connected to the system" \
+    )
+    Container( \
+        sdc, \
+        "SDC Gateway", \
+        "Java", \
+        "Proxy between the PMs and the event bus, responsible for parsing the events sent byt the PM to the format used by the Central Server backend" \
+    )
+    Container( \
+        backend, \
+        "Backend", \
+        "Multiple technologies", \
+        "Group of microservices that handle all the events received from the PM, as well as generating and modifying the entities displayed to the user" \
+    )
+    note right
+        This is not a real container, only a simplification to show how the realtime container interacts with the rest of the system. In reality this is composed of multiple containers that handle different tasks.
+    end note
+    ContainerQueue( \
+        kafka, \
+        "Event Bus", \
+        "Kafka", \
+        "Queue that handles the distribution of all messages between the system containers" \
+    )
+
+
+    Rel(frontend, backend, "Requests information as needed", "HTTPS/REST")
+    Rel(frontend, realtime, "Receives realtime events", "WSS (Websocket secure)")
+    Rel(realtime, kafka, "Receives realtime events", "TCP/IP (Kafka protocol)")
+    Rel(backend, kafka, "Sends and receives realtime events", "TCP/IP (Kafka protocol)")
+    Rel(sdc, kafka, "Sends and receives realtime events", "TCP/IP (Kafka protocol)")
+}
+
+
+Container_Ext(ext_client, \
+    "External Client", \
+    "Any supported language", \
+    "This includes any possible external client connected to the system, e.g. Mobile app" \
+)
+
+Rel(ext_client, backend, "Requests information as needed", "HTTPS/REST")
+Rel(ext_client, realtime, "Receives realtime events", "WSS (Websocket secure)")
+
+Container_Ext(pm, \
+    "Patient Monitor", \
+    "Android, Kotlin", \
+    "Mobile app that connects with the patient sensors, records vital metrics information and sends it to the Central Server" \
+)
+
+Rel(pm, sdc, "Sends metrics and patient information", "SDC Protocol")
+
+
+
+@enduml

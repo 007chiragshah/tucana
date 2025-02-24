@@ -1,0 +1,40 @@
+@startuml
+
+skinparam componentStyle uml2
+skinparam defaultFontName Arial
+skinparam defaultTextAlignment center
+skinparam shadowing true
+skinparam arrowThickness 2
+skinparam componentBorderColor Black
+skinparam queueBackgroundColor LightGray
+
+actor User
+participant DecoratedFunction
+participant RedisCache
+participant RedisServer
+
+User -> DecoratedFunction: Call function
+DecoratedFunction -> RedisCache: Check connection
+RedisCache --> DecoratedFunction: Connection status
+
+alt Caching enabled and connected
+  DecoratedFunction -> RedisCache: Generate cache key
+  DecoratedFunction -> RedisCache: get(key)
+  RedisCache -> RedisServer: GET request
+  RedisServer --> RedisCache: Response
+
+  alt Cache hit
+    RedisCache --> DecoratedFunction: Deserialized data
+    DecoratedFunction --> User: Return cached data
+  else Cache miss
+    DecoratedFunction -> DecoratedFunction: Execute original logic
+    DecoratedFunction -> RedisCache: set(key, result)
+    RedisCache -> RedisServer: SET with TTL
+    DecoratedFunction --> User: Return fresh data
+  end
+else
+  DecoratedFunction -> DecoratedFunction: Execute original logic
+  DecoratedFunction --> User: Return fresh data
+end
+
+@enduml

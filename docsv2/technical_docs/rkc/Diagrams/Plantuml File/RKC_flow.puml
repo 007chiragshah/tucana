@@ -1,0 +1,42 @@
+@startuml
+
+skinparam componentStyle uml2
+skinparam defaultFontName Arial
+skinparam defaultTextAlignment center
+skinparam shadowing true
+skinparam arrowThickness 2
+skinparam componentBorderColor Black
+skinparam queueBackgroundColor LightGray
+
+left to right direction
+
+database Kafka
+component "Kafka Consumer" as KafkaConsumer
+component "Stream Consumer" as StreamConsumer
+component "Message Channel" as MessageChannel
+component "Vital Export Processor" as VitalsExport
+component "Vitals Records HashMap" as VitalsRecords
+component "Vital Flusher Processor" as VitalsFlusher
+component "Mirth" as Mirth
+component "Commit Channel" as CommitChannel
+component "Health Check" as HealthCheck
+component "Error Handler" as ErrorHandler
+
+Kafka --> KafkaConsumer : vitals
+
+KafkaConsumer --> StreamConsumer : initialize\nand subscribe
+StreamConsumer --> MessageChannel : consume\nmessages
+MessageChannel --> VitalsExport : send message\nto processor
+VitalsExport --> VitalsRecords : parse and\nstore messages
+VitalsRecords --> VitalsFlusher : store/compare\ntimestamps
+VitalsFlusher --> Mirth : periodic POST
+
+MessageChannel --> CommitChannel : store offset
+CommitChannel --> KafkaConsumer : commit offset
+KafkaConsumer --> HealthCheck : graceful\nshutdown
+HealthCheck --> KafkaConsumer : log status
+
+KafkaConsumer --> ErrorHandler : handling\nerrors
+ErrorHandler --> HealthCheck : send unhealthy\nstatus
+
+@enduml

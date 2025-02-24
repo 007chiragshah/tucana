@@ -1,0 +1,13 @@
+@startuml
+participant Frontend
+participant WebGateway
+participant Platform
+participant Postgres
+
+Frontend->>WebGateway: Send API Request (e.g., Patient Data, Bed Management)
+WebGateway->>Platform: Validate Access Token
+Platform->>Postgres: Query Requested Data
+Postgres-->>Platform: Return Data
+Platform-->>WebGateway: Return Processed Result
+WebGateway-->>Frontend: Return Response
+@enduml

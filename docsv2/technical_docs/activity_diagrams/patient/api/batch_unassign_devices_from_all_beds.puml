@@ -1,0 +1,8 @@
+@startuml Batch unassign device from all beds
+start
+while (Is there a device to unassign from a bed?) is (yes)
+    :Unassign device from bed;
+    :Notify device unassigned to event bus;
+endwhile (no)
+stop
+@enduml

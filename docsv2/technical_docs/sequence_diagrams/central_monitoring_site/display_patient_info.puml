@@ -1,0 +1,15 @@
+@startuml Display Patient Info
+!include <C4/C4_Component>
+
+actor "User" as user
+participant "Central Monitoring Site" as cms
+participant "Web Gateway" as web
+
+cms -> web : Request beds information (including patients)
+web -> cms : Send bed information (including patients)
+cms -> user : Display patient details
+user -> cms : Change to patient info details 
+cms -> user : Displays patient info details
+
+
+@enduml

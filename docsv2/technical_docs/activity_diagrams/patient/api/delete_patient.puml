@@ -1,0 +1,7 @@
+@startuml Delete patient
+start
+:Get the patient;
+:Delete the patient;
+:Notify patient deleted to event bus;
+stop
+@enduml

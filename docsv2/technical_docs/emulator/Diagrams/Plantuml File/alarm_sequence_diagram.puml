@@ -1,0 +1,109 @@
+@startuml
+
+skinparam componentStyle uml2
+skinparam defaultFontName Arial
+skinparam defaultTextAlignment center
+skinparam shadowing true
+skinparam arrowThickness 2
+skinparam componentBorderColor Black
+skinparam queueBackgroundColor LightGray
+
+actor Client as C
+participant "API" as API
+participant "Schemas" as S
+participant "Manager" as M
+participant "Constants" as Constants
+participant "Broker" as B
+participant "Message Queue" as MQ
+
+== Alarm Processing Flow ==
+
+C -> API: PUT /alarm (AlarmPayload)
+activate API
+
+API -> S: Validate AlarmPayload
+activate S
+S --> API: Validated data
+deactivate S
+
+API -> M: send_alarm()
+activate M
+
+M -> S: Create AlertSchema\nand AlertPayloadSchema
+activate S
+S --> M: Structured message
+deactivate S
+
+M -> Constants: Check if code\nis TechnicalAlarmCode
+activate Constants
+Constants --> M: True/False
+deactivate Constants
+
+M -> B: publish_alert()
+activate B
+B -> MQ: Send message
+MQ --> B: Acknowledgment
+B --> M: Published
+
+deactivate B
+M --> API: Return
+
+deactivate M
+API --> C: HTTP 204 No Content
+
+deactivate API
+
+== Technical Alert Processing ==
+
+C -> API: PUT /technical_alert (TechnicalAlarmPayload)
+activate API
+
+API -> S: Validate TechnicalAlarmPayload
+activate S
+S --> API: Validated data
+deactivate S
+
+API -> M: send_alarm()
+activate M
+
+M -> Constants: Check if code\nis TechnicalAlarmCode
+activate Constants
+Constants --> M: True/False
+deactivate Constants
+
+M -> B: publish_alert()
+activate B
+B -> MQ: Send message
+MQ --> B: Acknowledgment
+B --> M: Published
+
+deactivate B
+M --> API: Return
+
+deactivate M
+API --> C: HTTP 204 No Content
+
+deactivate API
+
+== Device Range Update ==
+
+C -> API: PUT /device/range (DeviceRangesPayload)
+activate API
+
+API -> S: Validate DeviceRangesPayload
+activate S
+S --> API: Validated data
+deactivate S
+
+API -> B: publish_device_ranges()
+activate B
+B -> MQ: Publish device range update
+MQ --> B: Acknowledgment
+B --> API: Published
+
+deactivate B
+API --> C: HTTP 204 No Content
+
+deactivate API
+
+@enduml

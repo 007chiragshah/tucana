@@ -1,0 +1,31 @@
+@startuml
+
+skinparam componentStyle uml2
+skinparam defaultFontName Arial
+skinparam defaultTextAlignment center
+skinparam shadowing true
+skinparam arrowThickness 2
+skinparam componentBorderColor Black
+skinparam queueBackgroundColor LightGray
+
+left to right direction
+
+component "**Kafka Producer**" as producer {
+    [Produces Vital Data]
+}
+
+queue "Vitals Topic" as topic #lightgray
+
+component "**RKC Platform**" as rkc {
+    [Data Management\n& Processing]
+}
+
+component "**Mirth Connect**" as mirth {
+    [Manage HL7\n& EHR Connection]
+}
+
+producer --> topic : Publishes\nvital events
+topic --> rkc : Consumes\nfrom topic
+rkc --> mirth : POST to\nAPI endpoint
+
+@enduml

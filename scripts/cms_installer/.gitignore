@@ -1,0 +1,9 @@
+*.tar
+version/version.txt
+*.terraform.lock.hcl
+*.pem
+*.crt
+*.key
+*private_key
+*public_key
+cms_installer_data/**

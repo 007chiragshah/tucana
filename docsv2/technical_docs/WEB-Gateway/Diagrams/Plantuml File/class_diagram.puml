@@ -1,0 +1,70 @@
+@startuml
+class Authentication {
+    + open_new_session(response: Response, payload: LoginCredentials) : Response
+    + get_internal_token_api(payload: LoginCredentials) : FastJSONResponse
+    + refresh_token_api(payload: RefreshToken) : FastJSONResponse
+    + logout_api(payload: LogoutSchema, platform_auth_service: PlatformAuthenticationService) : Response
+    + change_password(payload: WebChangePasswordPayload, platform_auth_service: PlatformAuthenticationService) : Response
+    + get_technical_internal_token_api(payload: TechnicalLoginCredentials) : FastJSONResponse
+}
+
+class Audit {
+    + get_audit_list(entity_id: UUID, audit_service: AuditService) : FastJSONResponse
+}
+
+class Patient {
+    + create_patient_api(payload: CreatePatientSchema, patient_service: PatientService) : FastJSONResponse
+    + upsert_patient_api(response: Response, payload: UpsertPatientSchema, patient_service: PatientService) : Response
+    + get_patient_list(patient_service: PatientService) : FastJSONResponse
+    + get_patient(patient_id: UUID, patient_service: PatientService) : FastJSONResponse
+    + delete_patient(patient_id: UUID, patient_service: PatientService) : Response
+    + get_session_alerts(patient_id: UUID, session_alert_service: SessionAlertsService) : FastJSONResponse
+    + get_ehr_patients(patient_identifier: str, given_name: str, family_name: str, birth_date: str, ehr_service: EHRService) : FastJSONResponse
+    + patient_ehr_admission(payload: WebPatientAdmission, patient_service: PatientService) : FastJSONResponse
+    + delete_patient_admission(patient_id: UUID, patient_service: PatientService) : Response
+}
+
+class BedGroup {
+    + batch_create_bed_groups(payload: WebBedGroupCreateResources, bed_service: BedGroupService) : FastJSONResponse
+    + batch_create_or_update_bed_groups(payload: WebBatchCreateOrUpdateBedGroup, bed_service: BedGroupService) : Response
+    + batch_delete_bed_groups(payload: WebBedGroupBatchDelete, bed_service: BedGroupService) : Response
+    + get_bed_group_list(bed_group_service: BedGroupService) : FastJSONResponse
+    + assign_beds_to_a_group(payload: WebAssignBedsToGroup, group_id: UUID, bed_group_service: BedGroupService) : Response
+    + batch_assign_beds(payload: WebBatchAssignBeds, bed_group_service: BedGroupService) : Response
+    + get_bed_group_beds(bed_group_id: UUID, bed_group_service: BedGroupService) : FastJSONResponse
+    + get_bed_group_observations(bed_group_id: UUID, bed_group_service: BedGroupService) : FastJSONResponse
+}
+
+class Bed {
+    + get_bed_list(bed_service: BedService) : FastJSONResponse
+    + batch_create_beds(payload: WebBatchCreateBeds, bed_service: BedService) : WebBedResources
+    + batch_create_or_update_beds(payload: WebBatchCreateOrUpdateBeds, bed_service: BedService) : Response
+    + batch_delete_beds(payload: WebBatchDeleteBeds, bed_service: BedService) : Response
+}
+
+class Device {
+    + get_device_list(bed_id: list[UUID], gateway_id: UUID, is_gateway: bool, device_code: str, bed_group: UUID, device_service: DeviceService) : FastJSONResponse
+    + batch_assign_beds(payload: WebBatchAssignBedsSchema, device_service: DeviceService) : Response
+    + create_or_update_device(payload: WebCreateOrUpdateDevice, device_service: DeviceService) : Response
+    + get_device_vital_ranges(device_id: UUID, device_service: DeviceService) : FastJSONResponse
+}
+
+class Configuration {
+    + get_config_list(config_service: ConfigService) : FastJSONResponse
+    + batch_create_or_update_configs(payload: WebUpdateOrCreateConfigPayload, config_service: ConfigService) : Response
+}
+
+class System {
+    + get_health_check_api(health_check_service: HealthCheckService) : HealthCheck
+}
+
+WebGateway --> Authentication
+WebGateway --> Audit
+WebGateway --> Patient
+WebGateway --> BedGroup
+WebGateway --> Bed
+WebGateway --> Device
+WebGateway --> Configuration
+WebGateway --> System
+
+@enduml

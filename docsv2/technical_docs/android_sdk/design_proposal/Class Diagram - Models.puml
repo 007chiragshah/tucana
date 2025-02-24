@@ -1,0 +1,460 @@
+@startuml Android SDK - Class diagram (Models)
+
+skinparam groupInheritance 2
+
+
+class Patient  <<DataType>> {
+    - id : String
+    - primaryIdentifier : String
+    - active : Boolean
+    - givenName : String
+    - familyName : String
+    - gender : Gender
+    - birthDate : String
+}
+
+enum Gender <<DataType>> {
+    MALE
+    FEMALE
+    OTHER
+    UNKNOWN
+}
+
+class BedGroup <<DataType>> {
+    - id : String
+    - name : String
+    - description : String
+}
+
+class Bed <<DataType>> {
+    - id : String
+    - name : String
+}
+
+' TODO: IS THIS BE NECESSARY?
+class FullBed <<DataType>>
+note left: Beds only include patients or encounters\n when retrieved via bed api
+
+class Device <<DataType>> {
+    - id : String
+    - primaryIdentifier : String
+    - name : String
+    - bedId : String
+    - patientMonitorId : String
+    - deviceType : DeviceType
+}
+
+class DeviceConfig <<DataType>> {
+    - audioEnabled : Boolean
+    - audioPaused : Boolean
+}
+
+enum DeviceType <<DataType>> {
+    PM
+    ANNE_CHEST
+    ANNE_LIMB
+    NONIN
+    THERMOMETER
+    BP_MONITOR
+    ADAM
+}
+
+class VitalRange <<DataType>> {
+    - id : String
+    - code : String
+    - upperLimit : Number
+    - lowerLimit : Number
+    - enabled : Boolean
+}
+
+class Encounter <<DataType>> {
+    - patientId : String
+    - deviceId : String
+    - status : EncounterStatus
+    - startTime : DateTime
+    - endTime : DateTime
+}
+
+class Alert <<DataType>> {
+    - id : String
+    - type: AlertType
+    - determinationTime : DateTime
+    - priority : AlertPriority
+    - devicePrimaryIdentifier : String
+    - deviceType : DeviceType
+    - triggerUpperLimit : Float
+    - triggerLowerLimit : Float
+    - active : Boolean
+    - latching : Boolean
+}
+
+class AuditEntry <<DataType>> {
+    - id : String
+    - eventName : String
+    - timestamp : DateTime
+    - data : String
+}
+
+BedGroup o-- "0..*" Bed
+Device o-- DeviceConfig
+Device --> "0..*" Alert
+Device --> "0..*" VitalRange
+Bed <|-- FullBed
+FullBed --> "0..1" Patient
+FullBed --> "0..1" Encounter
+
+
+' ---------------------------------------------
+' Realtime models
+' ---------------------------------------------
+
+abstract RealtimeEvent<T> <<DataType>> {
+    - eventType : RealtimeEventType
+    - eventName : String
+    - messageId : String
+    - timestamp : DateTime
+    - payload : T
+
+    ' TODO: WHAT TO DO WITH PAYLOAD
+}
+
+enum RealtimeEventType <<DataType>> {
+    NEW_METRICS
+    NEW_WAVEFORM_VITALS
+    NEW_ALERT_OBSERVATION
+    DEVICE_DISCOVERED
+    DEVICE_NEW_VITALS_RANGES
+    PATIENT_ADMISSION_REJECTED
+    PATIENT_SESSION_CLOSED_EVENT
+    PATIENT_SESSION_STARTED
+    PM_CONFIGURATION_UPDATED
+    PM_CONNECTION_STATUS_REPORT
+    SENSOR_REMOVED_EVENT
+
+    BED_CREATED_EVENT
+    BED_UPDATED_EVENT
+    BED_DELETED_EVENT
+    BED_GROUP_CREATED_EVENT
+    BED_GROUP_UPDATED_EVENT
+    BED_GROUP_DELETED_EVENT
+    BED_ASSIGNED_TO_GROUP_EVENT
+    BED_REMOVED_FROM_GROUP_EVENT
+    DEVICE_CREATED_EVENT
+    DEVICE_DELETED_EVENT
+    DEVICE_UPDATED_EVENT
+    ASSIGN_DEVICE_LOCATION_EVENT
+    UNASSIGN_DEVICE_LOCATION_EVENT
+    VITAL_RANGE_CREATED_EVENT
+    VITAL_RANGE_DELETED_EVENT
+    DEVICE_ALERT_CREATED
+    DEVICE_ALERT_UPDATED
+    DEVICE_ALERT_DELETED
+    MULTIPLE_DEVICE_ALERTS_UPDATED
+    PATIENT_CREATED_EVENT
+    UPDATE_PATIENT_INFO_EVENT
+    PATIENT_DELETED_EVENT
+    OBSERVATION_CREATED_EVENT
+    OBSERVATION_DELETED_EVENT
+    MULTIPLE_OBSERVATIONS_UPDATED
+    ALERT_ACTIVATED_EVENT
+    ALERT_DEACTIVATED_EVENT
+    PATIENT_ENCOUNTER_PLANNED
+    PATIENT_ENCOUNTER_STARTED
+    PATIENT_ENCOUNTER_CANCELLED
+    PATIENT_ENCOUNTER_COMPLETED
+}
+
+
+class NewMetricEvent <<DataType>> {
+    - eventType = NEW_METRICS
+}
+
+class NewMetricEventPayload {
+    - patientPrimaryIdentifier : String
+    - code : String
+    - value : Double
+    - unitCode : String
+    - devicePrimaryIdentifier : String
+    - deviceType : DeviceType
+    - determinationTime : DateTime
+
+    + patientPrimaryIdentifier() : String
+    + code() : String
+    + value() : Double
+    + unitCode() : String
+    + devicePrimaryIdentifier() : String
+    + deviceType() : DeviceType
+    + determinationTime() : DateTime
+}
+
+RealtimeEvent <|-- NewMetricEvent
+NewMetricEvent --> NewMetricEventPayload
+
+
+class NewWaveformEvent <<DataType>> {
+    - eventType = NEW_WAVEFORM_VITALS
+}
+
+class NewWaveformEventPayload <<DataType>> {
+    - patientPrimaryIdentifier : String
+    - code : String
+    - samples : Double[]
+    - unitCode : String
+    - devicePrimaryIdentifier : String
+    - deviceType : DeviceType
+    - determinationTime : DateTime
+    - samplePeriod : Duration
+    - determinationPeriod : Duration
+}
+
+RealtimeEvent <|-- NewWaveformEvent
+NewWaveformEvent --> NewWaveformEventPayload
+
+
+class NewAlertEvent <<DataType>> {
+    - eventType = NEW_ALERT_OBSERVATION
+}
+
+class NewAlertEventPayload <<DataType>>
+
+RealtimeEvent <|-- NewAlertEvent
+NewAlertEvent --> NewAlertEventPayload
+NewAlertEventPayload --> Alert
+
+
+class DeviceDiscoveredEvent <<DataType>> {
+    - eventType = DEVICE_DISCOVERED
+}
+
+RealtimeEvent <|-- DeviceDiscoveredEvent
+DeviceDiscoveredEvent --> DeviceDiscoveredEventPayload
+DeviceDiscoveredEventPayload --> Device : device
+DeviceDiscoveredEventPayload --> "0..*" Device : connectedSensors
+DeviceDiscoveredEventPayload --> "0..1" Patient
+DeviceDiscoveredEventPayload --> "0..*" Alert
+
+
+class NewVitalsRangesEvent <<DataType>> {
+    - eventType = DEVICE_NEW_VITALS_RANGES
+}
+
+RealtimeEvent <|-- NewVitalsRangesEvent
+NewVitalsRangesEvent --> NewVitalsRangesEventPayload
+NewVitalsRangesEventPayload --> "0..*" VitalRange
+
+
+class PatientAdmissionRejectedEvent <<DataType>> {
+    - eventType = PATIENT_ADMISSION_REJECTED
+}
+
+class PatientAdmissionRejectedEventPayload <<DataType>> {
+    - patientMonitorPrimaryIdentifier : String
+    - patientPrimaryIdentifier : String
+}
+
+RealtimeEvent <|-- PatientAdmissionRejectedEvent
+PatientAdmissionRejectedEvent --> PatientAdmissionRejectedEventPayload
+
+
+class PatientSessionClosedEvent <<DataType>> {
+    - eventType = PATIENT_SESSION_CLOSED_EVENT
+}
+
+class PatientSessionClosedEventPayload <<DataType>> {
+    - patientMonitorPrimaryIdentifier : String
+    - patientPrimaryIdentifier : String
+}
+
+RealtimeEvent <|-- PatientSessionClosedEvent
+PatientSessionClosedEvent --> PatientSessionClosedEventPayload
+
+
+class PatientSessionStartedEvent <<DataType>> {
+    - eventType = PATIENT_SESSION_STARTED
+}
+
+class PatientSessionStartedEventPayload <<DataType>> {
+    - patientMonitorPrimaryIdentifier : String
+}
+
+RealtimeEvent <|-- PatientSessionStartedEvent
+PatientSessionStartedEvent --> PatientSessionStartedEventPayload
+PatientSessionStartedEventPayload --> Patient
+PatientSessionStartedEventPayload --> "0..*" Alert
+
+
+class PatientMonitorConfigUpdatedEvent <<DataType>> {
+    - eventType = PM_CONFIGURATION_UPDATED
+}
+
+class PatientMonitorConfigUpdatedEventPayload <<DataType>> {
+    - patientMonitorPrimaryIdentifier : String
+}
+
+RealtimeEvent <|-- PatientMonitorConfigUpdatedEvent
+PatientMonitorConfigUpdatedEvent --> PatientMonitorConfigUpdatedEventPayload
+PatientMonitorConfigUpdatedEventPayload --> DeviceConfig
+
+
+class PatientMonitorStatusEvent <<DataType>> {
+    - eventType = PM_CONNECTION_STATUS_REPORT
+}
+
+class PatientMonitorStatusEventPayload <<DataType>> {
+    - patientMonitorPrimaryIdentifier : String
+    - status : Boolean
+}
+
+RealtimeEvent <|-- PatientMonitorStatusEvent
+PatientMonitorStatusEvent --> PatientMonitorStatusEventPayload
+
+
+class SensorRemovedEvent <<DataType>> {
+    - eventType = SENSOR_REMOVED_EVENT
+}
+
+class SensorRemovedEventPayload <<DataType>> {
+    - patientMonitorPrimaryIdentifier : String
+    - patientPrimaryIdentifier : String
+    - determinationTime : DateTime
+}
+
+RealtimeEvent <|-- SensorRemovedEvent
+SensorRemovedEvent --> SensorRemovedEventPayload
+
+
+class EntityCreatedEvent<T> <<DataType>> {
+    - eventType = { \n\
+        BED_CREATED_EVENT | \n\
+        BED_GROUP_CREATED_EVENT | \n\
+        DEVICE_CREATED_EVENT | \n\
+        VITAL_RANGE_CREATED_EVENT | \n\
+        DEVICE_ALERT_CREATED | \n\
+        PATIENT_CREATED_EVENT | \n\
+        OBSERVATION_CREATED_EVENT \n\
+    }
+}
+
+class EntityCreatedEventPayload<T> <<DataType>> {
+    - entity : T
+}
+note bottom: Depending on the eventType the entity field can be:\n a bed, a bed group, a device, a vital range, an alert or a patient.
+
+RealtimeEvent <|-- EntityCreatedEvent
+EntityCreatedEvent --> EntityCreatedEventPayload
+
+
+class EntityUpdatedEvent<T> <<DataType>> {
+    - eventType = { \n\
+        BED_UPDATED_EVENT | \n\
+        BED_GROUP_UPDATED_EVENT | \n\
+        DEVICE_UPDATED_EVENT | \n\
+        DEVICE_ALERT_UPDATED | \n\
+        UPDATE_PATIENT_INFO_EVENT \n\
+    }
+}
+
+class EntityUpdatedEventPayload<T> <<DataType>> {
+    - entity : T
+}
+note bottom: Depending on the eventType the entity field can be:\n a bed, a bed group, a device, an alert or a patient.
+
+RealtimeEvent <|-- EntityUpdatedEvent
+EntityUpdatedEvent --> EntityUpdatedEventPayload
+
+
+class EntityDeletedEvent<T> <<DataType>> {
+    - eventType = { \n\
+        BED_DELETED_EVENT | \n\
+        BED_GROUP_DELETED_EVENT | \n\
+        DEVICE_DELETED_EVENT | \n\
+        VITAL_RANGE_DELETED_EVENT | \n\
+        DEVICE_ALERT_DELETED | \n\
+        PATIENT_DELETED_EVENT | \n\
+        OBSERVATION_DELETED_EVENT \n\
+    }
+}
+
+class EntityDeletedEventPayload<T> <<DataType>> {
+    - entity : T
+}
+note bottom: Depending on the eventType the entity field can be:\n a bed, a bed group, a device, a vital range, an alert or a patient.
+
+RealtimeEvent <|-- EntityDeletedEvent
+EntityDeletedEvent --> EntityDeletedEventPayload
+
+
+class BedGroupAssignmentChangedEvent <<DataType>> {
+    - eventType = { \n\
+        BED_ASSIGNED_TO_GROUP_EVENT | \n\
+        BED_REMOVED_FROM_GROUP_EVENT \n\
+    }
+}
+
+class BedGroupAssignmentChangedEventPayload
+
+RealtimeEvent <|-- BedGroupAssignmentChangedEvent
+BedGroupAssignmentChangedEvent --> BedGroupAssignmentChangedEventPayload
+BedGroupAssignmentChangedEventPayload --> BedGroup
+BedGroupAssignmentChangedEventPayload --> Bed
+
+
+class BedDeviceAssignmentChangedEvent <<DataType>> {
+    - eventType = { \n\
+        ASSIGN_DEVICE_LOCATION_EVENT | \n\
+        UNASSIGN_DEVICE_LOCATION_EVENT \n\
+    }
+}
+
+class BedDeviceAssignmentChangedEventPayload
+
+RealtimeEvent <|-- BedDeviceAssignmentChangedEvent
+BedDeviceAssignmentChangedEvent --> BedDeviceAssignmentChangedEventPayload
+BedDeviceAssignmentChangedEventPayload --> Device
+
+
+class MultipleAlertsUpdatedEvent <<DataType>> {
+    - eventType = { \n\
+        MULTIPLE_DEVICE_ALERTS_UPDATED | \n\
+        MULTIPLE_OBSERVATIONS_UPDATED \n\
+    }
+}
+
+class MultipleAlertsUpdatedEventPayload {
+    - patientMonitorId : String
+}
+
+RealtimeEvent <|-- MultipleAlertsUpdatedEvent
+MultipleAlertsUpdatedEvent --> MultipleAlertsUpdatedEventPayload
+
+
+class AlertLogEvent <<DataType>> {
+    - eventType = { \n\
+        ALERT_ACTIVATED_EVENT | \n\
+        ALERT_DEACTIVATED_EVENT \n\
+    }
+}
+
+class AlertLogEventPayload
+
+RealtimeEvent <|-- AlertLogEvent
+AlertLogEvent --> AlertLogEventPayload
+AlertLogEventPayload --> Alert
+
+
+class PatientEncounterEvent <<DataType>> {
+    - eventType = { \n\
+        PATIENT_ENCOUNTER_PLANNED | \n\
+        PATIENT_ENCOUNTER_STARTED | \n\
+        PATIENT_ENCOUNTER_CANCELLED | \n\
+        PATIENT_ENCOUNTER_COMPLETED \n\
+    }
+}
+
+class PatientEncounterEventPayload
+
+RealtimeEvent <|-- PatientEncounterEvent
+PatientEncounterEvent --> PatientEncounterEventPayload
+PatientEncounterEventPayload --> Encounter
+
+@enduml

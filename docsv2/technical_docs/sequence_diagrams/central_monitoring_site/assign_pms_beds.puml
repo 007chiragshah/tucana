@@ -1,0 +1,28 @@
+@startuml Assign PMs to beds
+!include <C4/C4_Component>
+
+actor       "Clinical User"  as user
+participant "Central Monitoring Site" as cms
+participant "Web Gateway" as web
+
+cms -> user : Shows Bed Management Modal (Step 2)
+loop while more edits are needed
+    user -> cms : Add/Remove assignation
+    alt no beds have a PM assigned
+        cms -> cms : deactivates save button
+    else no errors found
+        cms -> cms : activates save button
+    end
+end
+user -> cms : Presses save button
+alt at least one pm is not assigned
+    cms -> user : Shows confirmation modal
+    user -> cms : Confirms updates
+    cms -> user : Hides confirmation modal
+end
+cms -> web : Updates PM/beds associations
+web -> cms : Return sucess message
+cms -> user : Closes Bed Management Modal
+
+
+@enduml

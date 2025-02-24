@@ -1,0 +1,33 @@
+@startuml
+
+skinparam componentStyle uml2
+skinparam defaultFontName Arial
+skinparam defaultTextAlignment center
+skinparam shadowing true
+skinparam arrowThickness 2
+skinparam componentBorderColor Black
+skinparam queueBackgroundColor LightGray
+
+start
+
+:Method call (get/set/delete);
+:Check connection;
+
+if (Connected?) then (yes)
+  :Execute Redis command;
+
+  if (Success?) then (yes)
+    :Return result;
+    stop
+  else (no)
+    :Log error;
+  endif
+else (no)
+  :Log connection error;
+endif
+
+:Return None/False;
+
+stop
+
+@enduml

@@ -1,0 +1,8 @@
+@startuml Batch delete bed grops
+start
+while (Is there a bed group to be deleted?) is (yes)
+    :Delete bed group;
+    :Notify bed group deleted to event bus;
+endwhile (no)
+stop
+@enduml

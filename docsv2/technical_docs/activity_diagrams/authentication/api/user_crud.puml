@@ -1,0 +1,23 @@
+@startuml UserViewSet
+start
+
+if (User has enaught privileges?) then (yes)
+    if (Action is create?) then (yes)
+        :Save user;
+        :Notify user created to event bus;
+    else (no)
+        if (Action is update?) then (yes)
+            :Update user;
+            :Notify user updated to event bus;
+        else (no)
+            :Action is delete;
+            :Delete user;
+            :Notify user deleted to event bus;
+        endif
+    endif
+else (no)
+    :Return an error;
+endif
+
+stop
+@enduml

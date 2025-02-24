@@ -1,0 +1,23 @@
+@startuml MemberViewSet
+start
+
+if (User has enaught privileges?) then (yes)
+    if (Action is create?) then (yes)
+        :Save group;
+        :Notify group created to event bus;
+    else (no)
+        if (Action is update?) then (yes)
+            :Update group;
+            :Notify group updated to event bus;
+        else (no)
+            :Action is delete;
+            :Delete group;
+            :Notify group deleted to event bus;
+        endif
+    endif
+else (no)
+    :Return an error;
+endif
+
+stop
+@enduml

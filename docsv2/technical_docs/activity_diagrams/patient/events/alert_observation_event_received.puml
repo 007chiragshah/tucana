@@ -1,0 +1,70 @@
+@startuml Alert observation received
+start
+fork
+    group Process physiological alert
+        if (Is physiological alert?) is (yes) then
+            :Get existing alert with same code, patient and device;
+            if (Incoming alert is active?) is (yes) then
+                if (Does an alert already exist?) is (yes) then
+                else (no)
+                    :Create physiological alert;
+                    :Notify alert created to event bus;
+                endif
+            else (no)
+                if (Does an alert already exist?) is (yes) then
+                    :Delete existing alert;
+                    :Notify alert deleted to event bus;
+                else (no)
+                endif
+            endif
+        else (no)
+        endif
+    end group
+    end
+fork again
+    group Process technical alert
+        if (Is technical alert?) is (yes) then
+            :Get existing alert with same code and device;
+            if (Incoming alert is active?) is (yes) then
+                if (Does an alert already exist?) is (yes) then
+                    :Update existing alert;
+                    :Notify alert updated to event bus;
+                else (no)
+                    :Create new alert;
+                    :Notify alert created to event bus;
+                endif
+            else (no)
+                if (Does an alert already exist?) is (yes) then
+                    :Delete existing alert;
+                    :Notify alert deleted to event bus;
+                else (no)
+                endif
+            endif
+        else (no)
+        endif
+    end group
+    end
+fork again
+    group Process alert log
+        :Get alert log with same code, device and determination time;
+        if (Does an alert log exist?) is (yes) then
+            if (Is the activation state different from the incoming alert?) is (yes) then
+                :Notify an error occurred;
+                note left
+                    This means an alert with the same code,
+                    device and determination time triggered twice
+                    once active and once inactive (or latching).
+                    
+                    This is an error as the determination time must change
+                    when an alert is activated or deactivated. 
+                end note
+            else (no)
+            endif
+        else (no)
+            :Create alert log for the incoming alert;
+            :Notify alert log created to the event bus;
+        endif
+    end group
+    end
+end fork
+@enduml

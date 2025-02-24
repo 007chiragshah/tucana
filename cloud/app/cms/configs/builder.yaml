@@ -1,0 +1,12 @@
+productName: CMSKiosk
+directories:
+  output: dist
+
+extraMetadata:
+  env: dev
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: false
+  include: installer.nsh
+  perMachine: true

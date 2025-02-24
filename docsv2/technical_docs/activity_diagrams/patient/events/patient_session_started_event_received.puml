@@ -1,0 +1,20 @@
+@startuml Patient session started event received
+start
+:Get existing encounters for the device or the patient;
+while (Is there an encounter that belongs to the patient or device but not both?) is (yes)
+    if (Is the existing encounter in progress) is (yes) then
+        :Return an error;
+        stop
+    else (no)
+        :Delete existing encounter;
+        :Notify encounter cancelled to event bus;
+    endif
+end while
+if (Does an encounter exist for both patient and device?) is (yes) then
+    :Set existing encounter as started;
+else (no)
+    :Create an started encounter;
+endif
+:Notify encounter started to event bus;
+stop
+@enduml

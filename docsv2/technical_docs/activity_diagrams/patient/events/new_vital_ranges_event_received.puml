@@ -1,0 +1,19 @@
+@startuml New vital ranges event received
+start
+if (Is this backfill data?) is (yes) then
+    while (Is there a vital range to create?) is (yes)
+        :Create backfill vital range;
+        :Notify backfill vital range created to event bus;
+    end while (no)
+else (no)
+    while (Is there an existing vital range that was modified?) is (yes)
+        :Delete existing vital range;
+        :Notify vital range deleted;
+    end while (no)
+    while (Is there a vital range to create?) is (yes)
+        :Create vital range;
+        :Notify vital range created;
+    end while (no)
+endif
+stop
+@enduml

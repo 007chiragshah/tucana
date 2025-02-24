@@ -1,0 +1,22 @@
+@startuml 
+
+skinparam componentStyle uml2
+skinparam defaultFontName Arial
+skinparam defaultTextAlignment center
+skinparam shadowing true
+skinparam arrowThickness 2
+skinparam componentBorderColor Black
+skinparam queueBackgroundColor LightGray
+
+participant Service
+participant Producer
+participant Kafka
+participant Consumer
+
+Service -> Producer: send_and_wait("PING")
+Producer -> Kafka: Produce message
+Kafka -> Consumer: Deliver message
+Consumer -> Service: Update timestamp
+Service -> Service: is_healthy() == true
+
+@enduml

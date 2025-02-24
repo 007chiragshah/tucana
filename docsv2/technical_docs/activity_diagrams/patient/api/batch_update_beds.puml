@@ -1,0 +1,9 @@
+@startuml Batch update beds
+start
+:Get all bed to modify;
+while (Is there a bed to modify?) is (yes)
+    :Modify the bed;
+    :Notify bed modified to event bus;
+endwhile (no)
+stop
+@enduml

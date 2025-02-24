@@ -1,0 +1,13 @@
+@startuml
+participant Frontend
+participant WebGateway
+participant AuthPlatform
+participant Postgres
+
+Frontend->>WebGateway: Login Request
+WebGateway->>AuthPlatform: Authenticate User
+AuthPlatform->>Postgres: Query User Credentials
+Postgres-->>AuthPlatform: Return User Data
+AuthPlatform-->>WebGateway: Return Token
+WebGateway-->>Frontend: Send Authentication Token
+@enduml

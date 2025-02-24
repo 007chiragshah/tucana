@@ -1,0 +1,23 @@
+@startuml PrivilegeViewSet
+start
+
+if (User has enaught privileges?) then (yes)
+    if (Action is create?) then (yes)
+        :Save privilege;
+        :Notify privilege created to event bus;
+    else (no)
+        if (Action is update?) then (yes)
+            :Update privilege;
+            :Notify privilege updated to event bus;
+        else (no)
+            :Action is delete;
+            :Delete privilege;
+            :Notify privilege deleted to event bus;
+        endif
+    endif
+else (no)
+    :Return an error;
+endif
+
+stop
+@enduml

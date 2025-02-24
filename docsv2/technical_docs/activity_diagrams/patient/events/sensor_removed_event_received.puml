@@ -1,0 +1,24 @@
+@startuml Sensor removed event received
+start
+fork
+    group Delete physiological alerts
+        :Get physiological alerts for the device;
+        while (Is there an alert to remove?) is (yes)
+            :Delete alert;
+            :Notify alert deleted to event bus;
+        end while (no)
+    end group
+
+    end
+fork again
+    group Delete device
+        :Get existing device;
+        if (Does the device exist?) is (yes) then
+            :Delete the device;
+            :Notify device deleted to event bus;
+        endif
+    end group
+
+    end
+end fork
+@enduml

@@ -1,0 +1,84 @@
+@startuml 
+
+skinparam componentStyle uml2
+skinparam defaultFontName Arial
+skinparam defaultTextAlignment center
+skinparam shadowing true
+skinparam arrowThickness 2
+skinparam componentBorderColor Black
+skinparam queueBackgroundColor LightGray
+
+class KafkaHealthcheckService {
+  - HealthcheckRecord health_record
+  - AIOKafkaProducer producer
+  - AIOKafkaConsumer consumer
+  - Task task
+  - bool stopped
+  + start()
+  + run()
+  + stop()
+  + flush()
+  + watchdog()
+  + is_healthy()
+  + is_critical_failure()
+}
+
+class HealthcheckRecord {
+  - datetime timestamp
+}
+
+class Consumer {
+  + get_healthcheck_consumer(): AIOKafkaConsumer
+}
+
+class Producer {
+  + get_healthcheck_producer(): AIOKafkaProducer
+}
+
+class AIOKafkaProducer {
+  + send_and_wait()
+  + start()
+  + stop()
+  + flush()
+}
+
+class AIOKafkaConsumer {
+  + start()
+  + stop()
+}
+
+class KafkaHealthcheckConfig {
+  - SSL context
+  + get_ssl_context()
+}
+
+class settings {
+    + ENVIRONMENT
+    + KAFKA_HEALTHCHECK_PERIOD_SECONDS
+    + KAFKA_HEALTHCHECK_TOLERANCE_SECONDS
+    + KAFKA_HEALTHCHECK_MAXIMUM_TOLERANCE_MINUTES
+    + KAFKA_HEALTHCHECK_TOPIC
+    + KAFKA_HOST
+    + KAFKA_PORT
+    + KAFKA_PASSWORD
+    + KAFKA_CA_FILE_PATH
+    + KAFKA_CERT_FILE_PATH
+    + KAFKA_KEY_FILE_PATH
+    + KAFKA_RETRY_BACKOFF
+    + KAFKA_METADATA_MAX_AGE
+}
+
+KafkaHealthcheckService --> HealthcheckRecord : contains
+KafkaHealthcheckService --> Producer : uses
+KafkaHealthcheckService --> Consumer : uses
+KafkaHealthcheckService --> KafkaHealthcheckConfig : configures
+Producer --> AIOKafkaProducer : uses
+Consumer --> AIOKafkaConsumer : uses
+Producer --> KafkaHealthcheckConfig : uses
+Consumer --> KafkaHealthcheckConfig : uses
+KafkaHealthcheckConfig --> settings : configures
+KafkaHealthcheckService --> settings : configures
+Producer --> settings : configures
+Consumer --> settings : configures
+
+@enduml

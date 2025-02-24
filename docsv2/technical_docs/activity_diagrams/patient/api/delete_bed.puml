@@ -1,0 +1,11 @@
+@startuml Delete bed
+start
+:Get the bed;
+if (Is the bed assigned to a group?) is (yes) then
+    :Return an error;
+else (no)
+    :Delete the bed;
+    :Notify bed deleted to event bus;
+endif
+stop
+@enduml

@@ -1,0 +1,43 @@
+@startuml C4 Component diagram - Android SDK
+!include  <C4/C4_Component>
+
+Component_Ext(web, "Web", "Python/FastAPI microservice")
+Component_Ext(realtime, "Realtime", "Python/FastAPI microservice")
+Component_Ext(android_app, "Android App", "Kotlin/Android")
+
+Boundary(sdk, "Sibel SDK", "Container: Kotlin/Android Library") {
+    Component( \
+        client, \
+        "Client", \
+        "Component: Kotlin", \
+        "Provides the base Facade that the user will interact with" \
+    )
+    Component( \
+        storage, \
+        "Storage", \
+        "Component: Kotlin", \
+        "Provides functionalities to store data needed by the library. Specifically the acess and refresh token" \
+    )
+    Component( \
+        api_handler, \
+        "API Handler", \
+        "Component: Kotlin", \
+        "Provides functionalities to use the Web API and parse the data sent and received." \
+    )
+    Component( \
+        realtime_handler, \
+        "Realtime Handler", \
+        "Component: Kotlin", \
+        "Provides functionalities to maintain the connection with the Realtime microservice and parse the received events." \
+    )
+
+    Rel(client, api_handler, "Uses")
+    Rel(client, realtime_handler, "Uses")
+    Rel(api_handler, storage, "Uses")
+}
+
+Rel(android_app, client, "Uses")
+Rel(api_handler, web, "Uses")
+Rel(realtime_handler, realtime, "Uses")
+
+@enduml

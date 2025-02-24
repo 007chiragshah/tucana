@@ -1,0 +1,32 @@
+@startuml EHR Quick Admit Patient
+!include <C4/C4_Component>
+
+actor       "Clinical User"  as user
+participant "Central Monitoring Site" as cms
+participant "Web Gateway" as web
+participant "Web Worker" as worker
+participant "Realtime Gateway" as realtime
+
+cms -> user : Shows Bed connected to PM without active session
+user -> cms : Select Quick Admit option
+cms -> user : Shows quick admit form
+user -> cms : Enters first and last name
+alt user wants to add patient date of birth
+    user -> cms: Enters patient dob
+end
+user -> cms : Sends patient data for quick admit
+cms -> user : Shows confirmation message with data
+user -> cms : Confirms request
+alt dob was entered and patient is less than 12 years Old
+    cms -> user : Shows age warning modal
+    user -> cms : Confirms patient
+end
+cms -> web : Sends data for quick admit
+web -> cms : Returns success
+cms -> cms : Invalidates local bed data
+realtime -> worker : Sends event for new bed information
+worker -> cms : Passes event for new bed information
+cms -> user : Shows submitted request message
+
+
+@enduml

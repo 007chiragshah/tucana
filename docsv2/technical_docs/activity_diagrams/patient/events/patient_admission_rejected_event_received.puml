@@ -1,0 +1,9 @@
+@startuml Patient admission rejected event received
+start
+:Get encounter for device and patient;
+if (Does the encounter exist?) is (yes) then
+    :Cancel the existing encounter;
+    :Notify encounter cancelled to event bus;
+endif
+stop
+@enduml

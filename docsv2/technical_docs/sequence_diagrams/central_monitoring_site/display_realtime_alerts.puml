@@ -1,0 +1,25 @@
+@startuml Display Realtime Alerts
+!include <C4/C4_Component>
+
+participant "Central Monitoring Site" as cms
+participant "Web Worker" as worker
+participant "Realtime Gateway" as realtime
+participant "Web Gateway" as web
+
+cms -> web : Request current groups patients
+web -> cms : Returns current groups patients
+cms -> worker : Starts worker with group patients
+worker -> realtime : Establishes realtime connection
+
+loop while connection is established
+    realtime -> worker : Sends new alert for group event
+    worker -> realtime : Passes new alert event along
+    cms -> web : Requests new alerts data
+    web -> cms : Returns new alerts data
+    cms -> cms : Displays new alerts data
+end
+
+cms -> worker : Sends disconnection message
+worker -> realtime : Finishes connection
+
+@enduml

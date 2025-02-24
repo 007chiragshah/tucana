@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="styles.css" />
+    <title>Central Monitoring</title>
+  </head>
+
+  <body>
+    <div class="form-container">
+      <img src="../images/desktop-icon.png" alt="anne Central" class="small-image" />
+      <form id="mode-selection-form">
+        <h3 class="mode-selection-title">
+          Would you like to enable Kiosk Mode for this application?
+        </h3>
+        <br />
+        <label
+          >Enabling Kiosk Mode will immediately restart your computer, and only allow the CMS
+          Desktop Application to run</label
+        >
+        <br />
+        <label class="mode-text-note"
+          >Note: Kiosk Mode is the intended mode for regular usage</label
+        >
+        <br />
+        <div class="button-group">
+          <button type="submit" value="enabled" class="mode-button">Enable</button>
+          <button type="submit" value="disabled" class="mode-button">Disable</button>
+        </div>
+      </form>
+    </div>
+
+    <script>
+      const { ipcRenderer } = require('electron');
+
+      const form = document.getElementById('mode-selection-form');
+      let selectedMode = '';
+
+      document.querySelectorAll('button[type="submit"]').forEach((button) => {
+        button.addEventListener('click', (event) => {
+          selectedMode = event.target.value;
+        });
+      });
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        // Send the selected mode to the main process
+        ipcRenderer.send('kiosk-selection', selectedMode);
+      });
+    </script>
+  </body>
+</html>

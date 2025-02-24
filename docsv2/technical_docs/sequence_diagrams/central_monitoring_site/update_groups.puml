@@ -1,0 +1,30 @@
+@startuml Update groups
+!include <C4/C4_Component>
+
+actor       "Clinical User"  as user
+participant "Central Monitoring Site" as cms
+participant "Web Gateway" as web
+
+cms -> user : Shows Group Management Modal
+loop while more edits are needed
+    user -> cms : Adds/Removes/Edits groups or Adds/Removes bed-group assignments
+    alt two groups have the same name
+        cms -> user : shows error on editted/added group
+        cms -> cms : deactivates save button
+    else group has no beds assigned
+        cms -> cms : deactivates save button
+    else no errors found
+        cms -> cms : activates save button
+    end
+end
+user -> cms : Presses save button
+cms -> web : Deletes groups removed by user
+web -> cms : Return sucess message
+cms -> web : Adds/edits groups modified by user
+web -> cms : Returns sucess message
+cms -> web : Modifies bed group assignments
+web -> cms : Returns sucess message
+cms -> user : Returns user to Clinical Module Screen
+
+
+@enduml

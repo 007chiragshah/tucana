@@ -1,0 +1,28 @@
+@startuml
+
+skinparam componentStyle uml2
+skinparam defaultFontName Arial
+skinparam defaultTextAlignment center
+skinparam shadowing true
+skinparam arrowThickness 2
+skinparam componentBorderColor Black
+skinparam queueBackgroundColor LightGray
+
+actor User
+participant DecoratedFunction
+participant RedisCache
+participant RedisServer
+
+User -> DecoratedFunction: Call function
+DecoratedFunction -> DecoratedFunction: Execute original logic
+alt Caching enabled and connected
+DecoratedFunction -> RedisCache: scan(pattern)
+RedisCache -> RedisServer: SCAN command
+RedisServer --> RedisCache: Matching keys
+loop for each key
+  DecoratedFunction -> RedisCache: delete(key)
+  RedisCache -> RedisServer: DEL command
+end
+end
+DecoratedFunction --> User: Return result
+@enduml

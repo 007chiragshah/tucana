@@ -1,0 +1,17 @@
+@startuml AppSettingViewSet
+start
+
+if (User has enaught privileges?) then (yes)
+    if (Action is create?) then (yes)
+        :Save app setting;
+        :Notify app setting created to event bus;
+    else (no)
+            :Action is list;
+            :List app settings;
+    endif
+else (no)
+    :Return an error;
+endif
+
+stop
+@enduml

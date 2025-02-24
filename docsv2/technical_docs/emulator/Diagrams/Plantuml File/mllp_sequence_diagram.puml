@@ -1,0 +1,37 @@
+@startuml
+
+skinparam componentStyle uml2
+skinparam defaultFontName Arial
+skinparam defaultTextAlignment center
+skinparam shadowing true
+skinparam arrowThickness 2
+skinparam componentBorderColor Black
+skinparam queueBackgroundColor LightGray
+
+participant "HL7 Sender (Client)" as Sender
+participant "MLLP Server" as Server
+participant "HL7 Processor" as Processor
+participant "Database" as DB
+participant "MLLP Buffer" as Buffer
+participant "API" as API
+
+Sender -> Server: Send HL7 Message
+Server -> Server: Parse HL7 Message
+Server -> Processor: Handle Message
+
+alt Message is QBP (Query)
+    Processor -> DB: Search Patient Record
+    DB -> Processor: Return Matching Patient Data
+    Processor -> Server: Generate K22 Response
+else Message is ORU (Observation)
+    Processor -> Server: Generate Acknowledgment (ACK)
+else Unsupported Message
+    Processor -> Server: Raise Error
+end
+
+Server -> Sender: Send Response
+Server -> Buffer: Store Message
+API -> Buffer: Retrieve latest messages
+Buffer -> API: Return messages
+
+@enduml

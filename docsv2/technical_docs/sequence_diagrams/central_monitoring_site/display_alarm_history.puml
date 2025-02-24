@@ -1,0 +1,25 @@
+@startuml Display Alarm History
+!include <C4/C4_Component>
+
+actor "User" as user
+participant "Central Monitoring Site" as cms
+participant "Web Gateway" as web
+participant "Web Worker" as worker
+participant "Realtime Gateway" as realtime
+
+cms -> web : Request beds information (including patients)
+web -> cms : Send bed information (including patients)
+cms -> web : Request session alerts
+web -> cms : Send session alerts
+alt new session alerts history
+    realtime -> worker : sends alert deactivated event
+    worker -> cms : relays alert deactivation event
+    cms -> web : Request new session alerts
+    web -> cms : Send new session alerts
+end
+cms -> user : Display patient details
+user -> cms : Change to alarm history
+cms -> user : Displays alarm history
+
+
+@enduml

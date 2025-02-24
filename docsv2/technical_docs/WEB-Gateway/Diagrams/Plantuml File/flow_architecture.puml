@@ -1,0 +1,48 @@
+
+
+@startuml
+
+package "Web Gateway" {
+    [AuthenticationManagement] 
+    [PatientManagement] 
+    [BedManagement] 
+    [BedGroupManagement] 
+    [DeviceManagement] 
+    [AuditTrail]
+    [ConfigurationManagement]
+    [System]
+
+}
+
+
+package "Platforms" {
+    [AuthenticationPlatform] 
+    [PatientPlatform]
+    [AuditTrailPlatform]
+}
+
+[Frontend] --> [AuthenticationManagement] : Manage Access Token
+[Frontend] --> [PatientManagement] : Access Token
+[Frontend] --> [BedManagement] : Access Token
+[Frontend] --> [BedGroupManagement] : Access Token
+[Frontend] --> [DeviceManagement] : Access Token
+[Frontend] --> [AuditTrail] : Access Token
+[Frontend] --> [ConfigurationManagement] : Access Token
+[Frontend] --> [System]
+
+[AuthenticationManagement] --> [AuthenticationPlatform]
+[ConfigurationManagement] --> [AuthenticationPlatform]
+[PatientManagement] --> [PatientPlatform]
+[BedManagement] --> [PatientPlatform]
+[BedGroupManagement] --> [PatientPlatform]
+[DeviceManagement] --> [PatientPlatform]
+[AuditTrail] --> [AuditTrailPlatform]
+
+
+database Postgres {
+}
+
+[AuthenticationPlatform] --> [Postgres]
+[PatientPlatform] --> [Postgres]
+[AuditTrailPlatform] --> [Postgres]
+@enduml

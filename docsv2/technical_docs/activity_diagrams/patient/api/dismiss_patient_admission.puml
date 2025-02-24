@@ -1,0 +1,11 @@
+@startuml Dismiss patient admission
+start
+:Get encounter;
+if (Is encounter "cancelled"?) is (yes) then
+    :Delete encounter;
+    :Notify admission dismissed to event bus;
+else (no)
+    :Return an error;
+endif
+stop
+@enduml

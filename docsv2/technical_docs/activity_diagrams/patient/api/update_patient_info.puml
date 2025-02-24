@@ -1,0 +1,7 @@
+@startuml Update device
+start
+:Get patient;
+:Update patient info;
+:Notify patient updated to event bus;
+stop
+@enduml

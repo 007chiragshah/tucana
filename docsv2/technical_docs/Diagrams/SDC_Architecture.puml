@@ -1,0 +1,28 @@
+<--
+@startuml
+skinparam rectangle {
+  BackgroundColor white
+  BorderColor black
+}
+
+rectangle "Leader" as Leader
+rectangle "Redis" as Redis
+rectangle "Follower" as Follower1
+rectangle "Follower" as Follower2
+rectangle "PM" as PM1
+rectangle "PM" as PM2
+
+Leader -> Leader : Probe
+Leader --> Redis : Refresh Leader Claim
+Redis --> Leader : Refresh Leader Claim
+
+Redis --> Follower1 : Refresh Follower Claim
+Follower1 --> Redis : Refresh Follower Claim
+
+Redis --> Follower2 : Refresh Slave
+Follower2 --> Redis : Refresh Slave
+
+Follower1 --> PM1
+Follower2 --> PM2
+@enduml
+-->

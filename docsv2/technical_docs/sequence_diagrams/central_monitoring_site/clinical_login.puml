@@ -1,0 +1,32 @@
+@startuml Clinical Login
+!include <C4/C4_Component>
+
+actor       "Clinical User"  as user
+participant "Central Monitoring Site" as cms
+participant "Web Gateway" as web
+
+cms -> user : Shows clinical login page
+user -> cms : Provides password and submits
+cms -> web : Validates user credentials
+
+alt sucessfull case
+    web -> cms : Returns valid token
+    cms -> cms : Stores valid token
+    cms -> user : Redirects to authenticated module
+    cms -> web : Requests beds, patients and groups data
+    web -> cms : Provides beds, patients and groups data
+    alt no beds in systen
+        cms -> user : Shows bed creation modal
+    else no bed/pm associations in system
+        cms -> user : Shows bed/pm association modal
+    else no groups in system
+        cms -> user : Shows group modal
+    else all pre-existing data in system
+        cms -> user : Shows multi-patient view
+    end
+else authentication error
+    web -> cms : Returns error code
+    cms -> user : Shows error in authentication
+end
+
+@enduml
