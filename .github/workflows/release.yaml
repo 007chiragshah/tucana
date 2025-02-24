@@ -48,6 +48,10 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: push to resistry
+      - name: Prepare infrastructure images for offline installation
         run: |
-          docker buildx imagetools create -t localhost:5000/hardened-kubernetes:v1.29.1-rke2r1-build20240117 hardened-kubernetes:v1.29.1-rke2r1-build20240117
+          while read f;
+            do docker pull ${f};
+            docker save ${f}
+            docker buildx imagetools create --tag localhost:5000/${f##*/} ${f};
+          done < infra/offline-infra-images.lst
