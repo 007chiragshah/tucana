@@ -1,0 +1,84 @@
+name: Build CLI Installer
+
+on:
+  workflow_dispatch:
+    inputs:
+      sibel_version:
+        description: "Installer image version"
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      sibel_version:
+        description: "Installer image version"
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    environment: prod
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    permissions:
+      actions: read
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Save encoded PFX
+        run: echo "${{ secrets.EXE_SIGNING_PFX_BASE_64 }}" >> cert.pfx.b64
+
+      - name: Decode PFX
+        run: certutil -decode cert.pfx.b64 cert.pfx
+
+      - name: Trust PFX certificate
+        run: certutil -f -p ${{ secrets.EXE_SIGNING_PFX_BASE_64_PASSWORD }} -importpfx "cert.pfx"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11.9
+
+      - name: Install Poetry
+        run: pip3 install poetry
+
+      - name: Install CLI project
+        run: poetry install
+        working-directory: ./scripts/cms_installer
+
+      - name: Inject updated version compiler instructions
+        run: sed -i "s/NEW_PRODUCT_VERSION/${{ inputs.sibel_version }}/g" version.txt
+        working-directory: ./scripts/cms_installer
+
+      - name: Inject version into Python code
+        run: echo 'SIBEL_VERSION="${{ inputs.sibel_version }}"' > app/version.py
+        working-directory: ./scripts/cms_installer
+
+      - name: Compile
+        run: ./compile.sh
+        working-directory: ./scripts/cms_installer
+
+      - uses: skymatic/code-sign-action@v1
+        with:
+          certificate: '${{ secrets.EXE_SIGNING_PFX_BASE_64 }}'
+          password: '${{ secrets.EXE_SIGNING_PFX_BASE_64_PASSWORD }}'
+          certificatesha1: '${{ secrets.EXE_SIGNING_PFX_BASE_THUMBPRINT }}'
+          description: 'Central Server CLI Installer'
+          folder: './scripts/cms_installer/dist'
+          recursive: true
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer-cli-${{inputs.sibel_version}}
+          path: ./scripts/cms_installer/dist

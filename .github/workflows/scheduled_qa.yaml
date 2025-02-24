@@ -1,0 +1,23 @@
+name: Scheduled Tests - QA
+
+on: 
+  schedule:
+    - cron: '0 0 * * *' # Once per day at midnight
+
+
+jobs:
+  run-automated-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        id: checkout-repo
+        uses: actions/checkout@v3
+
+  trigger-e2e-tests-actions:
+    uses: ./.github/workflows/e2e_run.yaml
+    with:
+      tag: SMOKE
+      target_environment: qa
+      slack_notifications: true
+    secrets: inherit

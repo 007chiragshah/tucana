@@ -1,0 +1,94 @@
+name: Pull Request Build
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    branches:
+      - "main"
+      - "release/**"
+      - "develop"
+    paths:
+      - "cloud/**"
+      - "scripts/**"
+
+permissions: write-all
+
+jobs:
+  projects-to-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11.9
+
+
+      - name: Install Poetry
+        run: pip3 install poetry
+
+      - name: Install build tools
+        run: poetry install
+        working-directory: ./scripts/buildtools
+
+      - name: Create changes projects file
+        run: |
+          poetry run buildtools get-projects changed-projects.json \
+          --previous-commit ${{ github.event.pull_request.base.sha }} \
+          --current-commit ${{ github.sha }}
+        working-directory: ./scripts/buildtools
+
+      - name: Setup Matrix environment
+        id: set_matrix
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: ./scripts/buildtools/changed-projects.json
+
+      - name: Echo defined Build Matrix
+        id: echo_build_matrix
+        run: echo "${{ steps.set_matrix.outputs.content }}"
+
+    outputs:
+      matrix: ${{ steps.set_matrix.outputs.content }}
+
+  build-projects:
+    if: ${{ fromJSON(needs.projects-to-build.outputs.matrix).include[0] }} 
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: cantguessthis
+        ports:
+          - 5432:5432
+    needs: projects-to-build
+    strategy:
+      matrix: ${{ fromJson(needs.projects-to-build.outputs.matrix) }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11.9
+
+      - name: Install Poetry
+        run: pip3 install poetry
+
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'corretto'
+          java-version: '21'
+
+      - name: Build Project
+        working-directory: ${{ matrix.path }}
+        run: ./build.sh

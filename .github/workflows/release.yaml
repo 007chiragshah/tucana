@@ -250,6 +250,12 @@ jobs:
       - projects-to-build
       - build-projects
     steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          
       - uses: ./.github/workflows/build-installer.yaml
         with:
           sibel_version: ${{ needs.projects-to-build.outputs.tag_name }}

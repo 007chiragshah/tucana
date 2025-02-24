@@ -1,0 +1,42 @@
+name: E2E - Manual Execution
+
+on:
+  workflow_dispatch:
+      inputs:
+          tag:
+            description: 'Test scenario tags'
+            required: true
+            options:
+              - SMOKE
+              - WEB
+          target_environment:
+            description: 'Environment the tests will hit'
+            required: true
+            options:
+              - dev
+              - qa
+              - iqa
+              - prod
+          slack_notifications:
+            description: 'Active, Deactive QA Slack notifications'
+            required: true
+            options:
+              - true
+              - false
+
+jobs:
+  run-automated-tests:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout Repository
+        id: checkout-repo
+        uses: actions/checkout@v4
+
+  trigger-e2e-tests-actions:
+    uses: ./.github/workflows/e2e_run.yaml
+    with:
+      tag: ${{ inputs.tag }}
+      target_environment: ${{ inputs.target_environment }}
+      slack_notifications: ${{ inputs.slack_notifications }}
+    secrets: inherit

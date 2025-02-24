@@ -1,0 +1,98 @@
+name: Test Installer e2e
+
+on:
+  workflow_dispatch:
+    inputs:
+      docker_image_version:
+        description: "Installer image version"
+        required: true
+        type: string
+  workflow_call:
+    docker_image_version:
+        description: "Installer image version"
+        required: true
+        type: string
+
+jobs:
+
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    environment: prod
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    permissions:
+      actions: read
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11.9
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Configure AWS Credentials Dev
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-2
+          role-to-assume: ${{ secrets.DEPLOYMENT_ROLE_ARN_DEV }}
+
+      - name: Terraform init
+        id: tf_init
+        run: terraform init
+        working-directory: ./scripts/cms_installer/infra/dev
+
+      - name: Deploy installation testing infra
+        run: terraform apply -auto-approve -input=false -var="usage_identifier=e2e-cicd-test"
+        working-directory: ./scripts/cms_installer/infra/dev
+
+      - name: Gather installation parameters
+        run: ./create_env.sh
+        working-directory: ./scripts/cms_installer
+
+      - name: Configure AWS Credentials Prod
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-2
+          role-to-assume: ${{ secrets.DEPLOYMENT_ROLE_ARN_PROD }}
+
+      - name: Login to Amazon ECR
+        id: login_ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Pull offline installation image
+        env:
+          REGISTRY: ${{ steps.login_ecr.outputs.registry }}
+        run: docker pull $REGISTRY/install:${{ inputs.docker_image_version }}-offline
+
+      - name: Install Poetry
+        run: pip3 install poetry
+
+      - name: Install CLI project
+        run: poetry install
+        working-directory: ./scripts/cms_installer
+
+      - name: Run tests
+        run: poetry run pytest -s e2e
+        working-directory: ./scripts/cms_installer
+      - name: Configure AWS Credentials Dev
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-2
+          role-to-assume: ${{ secrets.DEPLOYMENT_ROLE_ARN_DEV }}
+      
+      - name: Destroy infra
+        run: terraform destroy -auto-approve -input=false
+        working-directory: ./scripts/cms_installer

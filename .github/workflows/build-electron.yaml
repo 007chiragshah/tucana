@@ -1,0 +1,84 @@
+name: Build Electron Apps
+
+concurrency:
+  group: Electron-Build-Job
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-for-windows:
+    runs-on: windows-latest
+    environment: prod
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Create Directory
+        run: |
+          New-Item -Path "C:\certificates" -ItemType Directory -Force
+
+      - name: Convert certificate to .pfx
+        run: |
+          echo ${{ secrets.WIN_CERTIFICATE_BASE64 }} > base64Cert.txt
+          $base64String = Get-Content -Path base64Cert.txt
+          Remove-Item base64Cert.txt
+          [System.IO.File]::WriteAllBytes("C:\certificates\certificate.pfx", [Convert]::FromBase64String($base64String))
+
+      - name: Build Windows App
+        working-directory: cloud/app/cms # should be able to set for entire job...
+        run: |
+          npm install
+          npm run build
+        env:
+          CSC_LINK: C:\certificates\certificate.pfx
+          CSC_KEY_PASSWORD: ${{ secrets.WIN_CERTIFICATE_PASSWORD }}
+
+      - name: "Upload Artifact"
+        uses: actions/upload-artifact@v4
+        with:
+          name: CMSKiosk-windows-app
+          path: cloud\app\cms\dist\CMSKiosk Setup 1.0.0.exe
+
+  build-for-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Build Linux App
+        working-directory: cloud/app/cms
+        run: |
+          npm install
+          npm run build
+
+      - name: "Upload Artifact"
+        uses: actions/upload-artifact@v4
+        with:
+          name: CMSKiosk-linux-app
+          path: cloud/app/cms/dist/CMSKiosk-1.0.0.AppImage
+
+  build-for-mac:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Build MacOS App
+        working-directory: cloud/app/cms
+        run: |
+          npm install
+          npm run build
+
+      - name: "Upload Artifact"
+        uses: actions/upload-artifact@v4
+        with:
+          name: CMSKiosk-macos-app
+          path: cloud/app/cms/dist/CMSKiosk-1.0.0.dmg

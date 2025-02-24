@@ -1,0 +1,52 @@
+name: PR Validation
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+
+  validate_pull_request:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate branch name
+        env:
+          BRANCH_NAME: ${{ github.head_ref }}
+          TARGET_BRANCH: ${{ github.base_ref }}
+        run: |
+          case "$TARGET_BRANCH" in
+            main)
+              if [[ ! $BRANCH_NAME =~ ^(release|develop|hotfix)\/ ]]; then
+                echo "Branch name '$BRANCH_NAME' is invalid for target branch 'main'. It must start with 'release/', 'develop/', or 'hotfix/'."
+                exit 1
+              fi
+              ;;
+            support)
+              if [[ ! $BRANCH_NAME =~ ^hotfix\/ ]]; then
+                echo "Branch name '$BRANCH_NAME' is invalid for target branch 'support'. It must start with 'hotfix/'."
+                exit 1
+              fi
+              ;;
+            release*)
+              if [[ ! $BRANCH_NAME =~ ^(update|bugfix|hotfix|develop)\/ ]]; then
+                echo "Branch name '$BRANCH_NAME' is invalid for target branch 'release'. It must start with 'update/', 'bugfix/', 'develop/' or 'hotfix/'."
+                exit 1
+              fi
+              ;;
+            archive)
+              echo "Merging to 'archive' branch is not allowed from any branch."
+              exit 1
+              ;;
+            *)
+              echo "Target branch '$TARGET_BRANCH' is not validated by this workflow."
+              ;;
+          esac
+          
+      - name: Validate PR title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          if [[ ! "$PR_TITLE" =~ ^CLOUDT-[0-9]+: ]]; then
+            echo "Pull request title '$PR_TITLE' is invalid. It must start with 'CLOUDT-{a number}: '."
+            exit 1
+          fi

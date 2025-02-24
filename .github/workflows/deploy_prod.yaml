@@ -1,0 +1,29 @@
+name: Cloud - Deploy to PROD
+
+concurrency:
+  group: ${{ github.ref }}-deploy-prod
+  cancel-in-progress: false
+
+on:
+  workflow_dispatch:
+    inputs:
+      github_ref:
+        description: Github ref (SHA / tag / branch)
+        type: string
+        required: false
+        default: 'main'
+
+jobs:
+  prod:
+    name: build_and_deploy
+    permissions:
+      id-token: write
+      contents: write
+    uses: ./.github/workflows/reusable_deploy.yaml
+    with:
+      github_ref: ${{ inputs.github_ref }}
+      github_event_name: ${{ github.event_name }}
+      github_event_before: ${{ github.event.before }}
+      environment: prod
+    secrets:
+      DEPLOYMENT_ROLE_ARN: ${{ secrets.DEPLOYMENT_ROLE_ARN }}

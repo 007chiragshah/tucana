@@ -1,0 +1,132 @@
+name: Cloud - Infra Base Dev
+
+concurrency:
+  group: ${{ github.ref }}-dev-infra
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - develop
+    paths:
+      - "infra/modules/core/**"
+      - "infra/modules/k8s/**"
+      - "infra/dev/tf/**"
+
+  pull_request:
+    branches:
+      - "develop"
+    paths:
+      - "infra/modules/core/**"
+      - "infra/modules/k8s/**"
+      - "infra/dev/tf/**"
+      - '!infra/dev/k8s-infra-apps/**'
+
+jobs:
+  terraform-plan-base-infra:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    environment: dev
+    concurrency: terraform-dev
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-2
+          role-to-assume: ${{ secrets.DEPLOYMENT_ROLE_ARN_DEV }}
+          role-session-name: tucana-dev
+
+      - name: Terraform Format
+        id: tf_format
+        run: terraform fmt -check
+        working-directory: ./infra/dev/tf
+
+      - name: Terraform Init
+        id: tf_init
+        run: terraform init
+        working-directory: ./infra/dev/tf
+
+      - name: Terraform Validate
+        id: tf_validate
+        run: terraform validate -no-color
+        working-directory: ./infra/dev/tf
+
+      - name: Terraform Plan
+        id: tf_plan
+        run: terraform plan -no-color -input=false
+        continue-on-error: true
+        working-directory: ./infra/dev/tf
+
+      - name: Update Pull Request
+        uses: actions/github-script@v6
+        env:
+          PLAN: "terraform\n${{ steps.tf_plan.outputs.stdout }}"
+        with:
+          script: |
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.tf_format.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.tf_init.outcome }}\`
+            #### Terraform Plan 📖\`${{ steps.tf_plan.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.tf_validate.outcome }}\`
+            <details><summary>Show Plan</summary>
+            \`\`\`\n
+            ${process.env.PLAN}
+            \`\`\`
+            </details>
+            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+      - name: Terraform Plan Status
+        if: steps.tf_plan.outcome == 'failure'
+        run: exit 1
+
+  terraform-apply-base-infra:
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment: dev
+    concurrency: terraform-dev
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-2
+          role-to-assume: ${{ secrets.DEPLOYMENT_ROLE_ARN_DEV }}
+
+      - name: Terraform Format
+        id: tf_format
+        run: terraform fmt -check
+        working-directory: ./infra/dev/tf
+
+      - name: Terraform Init
+        id: tf_init
+        run: terraform init
+        working-directory: ./infra/dev/tf
+
+      - name: Deploy base infra
+        id: deploy_base_infra
+        run: terraform apply -auto-approve -input=false
+        working-directory: ./infra/dev/tf

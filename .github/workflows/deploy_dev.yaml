@@ -1,0 +1,163 @@
+name: Cloud - Deploy to DEV
+
+concurrency:
+  group: ${{ github.ref }}-deploy-dev
+  cancel-in-progress: false
+
+on:
+  push:
+    branches:
+      - "develop"
+    paths:
+      - "cloud/**"
+  workflow_dispatch:
+    inputs:
+      base_commit:
+        type: string
+        description: 'Base sha to use'
+        required: true
+
+
+jobs:
+  projects-to-build:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    permissions:
+      actions: read
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: |
+            3.11.9
+
+      - name: Install Poetry
+        run: pip3 install poetry
+
+      - name: Install build tools
+        run: poetry install
+        working-directory: ./scripts/buildtools
+
+      - name: Find last successful workflow commit hash
+        id: last-successful-commit
+        run: poetry run buildtools get-last-successful-commit
+        working-directory: ./scripts/buildtools
+
+      - name: Detect updated projects - CI
+        if: github.event_name == 'push'
+        run: |
+          poetry run buildtools get-projects changed-projects.json \
+          --previous-commit ${{ steps.last-successful-commit.outputs.COMMIT_HASH }} \
+          --current-commit ${{ github.sha }} \
+          --deployable
+        working-directory: ./scripts/buildtools
+
+      - name: Detect updated projects - Dispatch
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          poetry run buildtools get-projects changed-projects.json \
+          --previous-commit ${{ github.event.inputs.base_commit }} \
+          --current-commit ${{ github.sha }} \
+          --deployable
+        working-directory: ./scripts/buildtools
+
+      - name: Setup Matrix environment
+        id: set_matrix
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: ./scripts/buildtools/changed-projects.json
+
+    outputs:
+      matrix: ${{ steps.set_matrix.outputs.content }}
+
+
+  build-projects:
+    if: ${{ needs.projects-to-build.outputs.matrix != '{}' }}
+    runs-on: ubuntu-latest
+    needs:
+      - projects-to-build
+    environment: dev
+    permissions:
+      id-token: write
+      contents: read
+    strategy:
+      matrix: ${{ fromJson(needs.projects-to-build.outputs.matrix) }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: |
+            3.11.9
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-2
+          role-to-assume: ${{ secrets.DEPLOYMENT_ROLE_ARN_DEV }}
+          role-session-name: AWS-DEPLOYMENT-SESSION
+
+      - name: Login to Amazon ECR
+        id: login_ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image to Amazon ECR
+        working-directory: ${{ matrix.path }}
+        env:
+          REGISTRY: ${{ steps.login_ecr.outputs.registry }}
+          REPOSITORY: ${{ matrix.name }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          echo $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          echo $REGISTRY/$REPOSITORY
+          echo $REGISTRY/$REPOSITORY:latest
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t $REGISTRY/$REPOSITORY:latest --build-arg REGISTRY_NAME=$REGISTRY --build-arg SIBEL_VERSION=$IMAGE_TAG -f Dockerfile ../../.
+          docker push --all-tags $REGISTRY/$REPOSITORY
+
+
+  deploy-projects:
+    if: ${{ needs.projects-to-build.outputs.matrix != '{}' }}
+    runs-on: [ self-hosted, k8s, dev ]
+    continue-on-error: true
+    needs:
+      - projects-to-build
+      - build-projects
+    environment: dev
+    permissions:
+      id-token: write
+      contents: read
+    strategy:
+      matrix: ${{ fromJson(needs.projects-to-build.outputs.matrix) }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: 'v3.11.2'
+
+      - name: Deploy ${{ matrix.name }}
+        working-directory: ${{ matrix.path }}
+        env:
+          REPOSITORY: ${{ matrix.name }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          echo $REPOSITORY
+          echo $REPOSITORY:$IMAGE_TAG
+          echo $KUBECONFIG | base64 -d > kubeconfig
+          helm upgrade -i $REPOSITORY ./deploy -f ./deploy/values.dev.yaml --set image.tag=$IMAGE_TAG --kubeconfig=kubeconfig

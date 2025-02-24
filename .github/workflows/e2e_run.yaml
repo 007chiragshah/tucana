@@ -1,0 +1,55 @@
+name: Automated - E2E tests
+
+on:
+  workflow_call:
+      inputs:
+        tag:
+          type: string
+          description: 'Test scenario tags'
+          required: true
+        target_environment:
+          type: string 
+          description: 'Environment the tests will hit'
+          required: true
+        slack_notifications:
+          type: string 
+          description: 'Active, Deactive QA Slack notifications'
+          required: true
+          default: true
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        id: checkout-repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install Poetry
+        run: pip3 install poetry
+
+      - name: Install Python package dependencies
+        run: poetry install
+        working-directory: ./automation/e2e/tucana_automation
+      
+      - name: Run tests inside a CI env
+        run: poetry run behavex -t ${{ inputs.tag }} -D env=${{ inputs.target_environment }} -D browser=chrome -D headless_browser -D always_notify_slack=${{ inputs.slack_notifications }}
+        env:
+          SLACK_WEBHOOK_SECRET: ${{ secrets.SLACK_WEBHOOK }}
+          WEB_APP_USER: ${{ secrets.WEB_APP_USER }}
+          WEB_APP_PASS: ${{ secrets.WEB_APP_PASS }}
+          WEB_APP_PROD_PASS: ${{ secrets.WEB_APP_PROD_PASS }}
+        working-directory: ./automation/e2e/tucana_automation
+
+      - name: Upload test reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: automation report
+          path: automation/e2e/tucana_automation/output
+        if: ${{ always() }}

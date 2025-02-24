@@ -1,0 +1,175 @@
+name: Cloud - Deploy to HQ
+
+concurrency:
+  group: ${{ github.ref }}-deploy-hq
+  cancel-in-progress: false
+
+on:
+  workflow_dispatch:
+    inputs:
+      github_ref:
+        description: Github ref (SHA / tag / branch)
+        type: string
+        required: false
+        default: 'develop'
+      instalation_task:
+        description: Task to run after installation
+        type: choice
+        required: false
+        default: 30-update-central-hub-release
+        options:
+          - 10-install-all-online
+          - 30-update-central-hub-release
+          - 40-update-central-hub-certificate
+jobs:
+  projects-to-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.github_ref }}
+          fetch-depth: 0
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: |
+            3.11.9
+      - name: Install Poetry
+        run: pip3 install poetry
+      - name: Install build tools
+        run: poetry install
+        working-directory: ./scripts/buildtools
+      - name: Detect existing projects - Dispatch
+        run: |
+          poetry run buildtools get-projects changed-projects.json \
+          --deployable
+        working-directory: ./scripts/buildtools
+      - name: Setup Matrix environment
+        id: set_matrix
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: ./scripts/buildtools/changed-projects.json
+    outputs:
+      matrix: ${{ steps.set_matrix.outputs.content }}
+      tag_name: ${{ github.sha }}
+
+  build-projects:
+    runs-on: ubuntu-latest
+    environment: prod
+    needs:
+      - projects-to-build
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      IMAGE_TAG: ${{needs.projects-to-build.outputs.tag_name}}
+    strategy:
+      matrix: ${{ fromJson(needs.projects-to-build.outputs.matrix) }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.github_ref }}
+          fetch-depth: 0
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: |
+            3.11.9
+      - name: Save image artifact
+        working-directory: ${{ matrix.path }}
+        env:
+          REGISTRY: sibel.health
+          REPOSITORY: ${{ matrix.name }}
+        run: |
+          echo $REGISTRY/$REPOSITORY
+          echo $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG --build-arg REGISTRY_NAME=$REGISTRY --build-arg SIBEL_VERSION=$IMAGE_TAG -f Dockerfile ../../.
+          mkdir -p images
+          docker save $REGISTRY/$REPOSITORY:$IMAGE_TAG | gzip > deploy/${REPOSITORY}-${IMAGE_TAG}.tar.gz
+      - name: Upload Helm charts to artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}
+          path: ${{ matrix.path }}/deploy
+          retention-days: 1
+  build-online-installation-image:
+    needs:
+      - projects-to-build
+      - build-projects
+    runs-on: ubuntu-latest
+    environment: prod
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.github_ref }}
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ github.workspace }}/infra/setup/installation-pack/central-hub/chart/charts
+      - name: Cleanup values files
+        run: |
+          rm -rfv ${{ github.workspace }}/infra/setup/installation-pack/central-hub/chart/charts/*/values.*.yaml
+      - name: Copy images
+        run: |
+          mkdir -p ${{ github.workspace }}/infra/setup/installation-pack/images
+          mv -v ${{ github.workspace }}/infra/setup/installation-pack/central-hub/chart/charts/*/*.tar.gz ${{ github.workspace }}/infra/setup/installation-pack/images
+      - name: Login to Github registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - name: Build, tag, and push image to Github registry
+        working-directory: infra/setup/
+        env:
+          REGISTRY: ghcr.io/${{ github.repository }}
+          REPOSITORY: install
+          IMAGE_TAG: ${{ needs.projects-to-build.outputs.tag_name }}
+        run: |
+          echo $REGISTRY/$REPOSITORY
+          echo $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG --build-arg SCI_CHART_SERVER_KEY=${{ secrets.SCI_CHART_SERVER_KEY }} --build-arg CENTRAL_HUB_RELEASE_TAG=$IMAGE_TAG -f Dockerfile ./
+          docker push --all-tags $REGISTRY/$REPOSITORY
+
+  execute-installation-image-task:
+    needs:
+      - projects-to-build
+      - build-online-installation-image
+    runs-on: bastion-hq
+    container:
+      image: ghcr.io/${{ github.repository }}/install:${{ needs.projects-to-build.outputs.tag_name }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
+      volumes:
+        - /home/bastion/hq:/tmp
+    steps:
+        - name: task
+          shell: bash
+          run: |
+            cd /install && task ${{ inputs.instalation_task }}
+
+  house-keeping:
+    runs-on: ubuntu-latest
+    needs:
+      - execute-installation-image-task
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    steps:
+      - name: Keep the last installation image in the Github registry
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'tucana/install'
+          package-type: 'container'
+          num-old-versions-to-delete: 1
