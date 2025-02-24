@@ -50,5 +50,4 @@ jobs:
 
       - name: push to resistry
         run: |
-          docker pull hardened-kubernetes:v1.29.1-rke2r1-build20240117
           docker buildx imagetools create -t localhost:5000/hardened-kubernetes:v1.29.1-rke2r1-build20240117 hardened-kubernetes:v1.29.1-rke2r1-build20240117
