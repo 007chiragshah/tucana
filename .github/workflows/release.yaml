@@ -11,6 +11,26 @@ jobs:
   projects-to-build:
     runs-on: ubuntu-latest
 
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: |
+            3.11.9
+
+      - name: Install Poetry
+        run: pip3 install poetry
+
+      - name: Install build tools
+        run: poetry install
+        working-directory: ./scripts/buildtools
+
   build-offline-installation-image:
     needs:
       - projects-to-build
