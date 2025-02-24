@@ -3,7 +3,7 @@ name: Tagged Release
 on:
   push:
     tags:
-      - v*.*.*
+      - CLOUDT-1030
 
 permissions: write-all
 
