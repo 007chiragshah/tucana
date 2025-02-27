@@ -50,8 +50,36 @@ jobs:
 
       - name: Prepare infrastructure images for offline installation
         run: |
-          while read f;
-            do docker pull ${f};
-            docker save ${f}
-            docker buildx imagetools create --tag localhost:5000/${f##*/} ${f};
-          done < infra/offline-infra-images.lst
+          mkdir -p ${{ github.workspace }}/infra/setup/installation-pack/images
+          echo "hello chirag" >> ${{ github.workspace }}/infra/setup/installation-pack/images/test.txt
+
+      - name: Upload offline image to artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: central-hub-images
+          path: ${{ github.workspace }}/infra/setup/installation-pack/images/
+
+  build-online-installation-image:
+    needs:
+      - projects-to-build
+      - build-offline-installation-image
+    runs-on:
+      - self-hosted
+      - k8s
+      - prod
+    environment: prod
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Download central hub image artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: central-hub-images
+          path: ${{ github.workspace }}/infra/setup/installation-pack/
+
+      - name: Prepare infrastructure images for offline installation
+        run: |
+          ls -l ${{ github.workspace }}/infra/setup/installation-pack
