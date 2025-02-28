@@ -3,7 +3,7 @@ name: Tagged Release
 on:
   push:
     tags:
-      - CLOUDT-1030
+      - cloudt-1030
 
 permissions: write-all
 
@@ -31,6 +31,27 @@ jobs:
         run: poetry install
         working-directory: ./scripts/buildtools
 
+      - name: Detect existing projects - Dispatch
+        run: |
+          poetry run buildtools get-projects changed-projects.json \
+          --deployable
+        working-directory: ./scripts/buildtools
+
+      - name: Setup Matrix environment
+        id: set_matrix
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: ./scripts/buildtools/changed-projects.json
+
+      - name: Get tag name
+        id: current_tag_name
+        run: |
+          echo "CURRENT_TAG_NAME=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
+
+    outputs:
+      matrix: ${{ steps.set_matrix.outputs.content }}
+      tag_name: ${{ steps.current_tag_name.outputs.CURRENT_TAG_NAME }}
+
   build-offline-installation-image:
     needs:
       - projects-to-build
@@ -39,44 +60,75 @@ jobs:
       - k8s
       - prod
     environment: prod
+    env:
+      IMAGE_TAG: ${{needs.projects-to-build.outputs.tag_name}}
+      
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
 
+      - name: creating directory
+        run: |
+          mkdir -p ${{ github.workspace }}/infra/setup/installation-pack/images/
+
+      - name: checking space and memory and cpu
+        run: |
+          df -Th
+          free -m
+          timeout 15 top
+
+      - name: Create and Use Docker Context
+        run: |
+          docker context create mycontext
+          docker context use mycontext
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          endpoint: mycontext
+
+      - name: Create and Inspect Buildx Builder
+        run: |
+          docker buildx create --name mybuilder --use mycontext
+          docker buildx inspect --bootstrap
+          docker buildx ls  # Verify builder creation
+
+      - name: start local registry
+        run: |
+          docker run -d --restart=always -p 5000:5000 --name image-registry registry:2
+
       - name: Prepare infrastructure images for offline installation
         run: |
-          mkdir -p ${{ github.workspace }}/infra/setup/installation-pack/images
-          echo "hello chirag" >> ${{ github.workspace }}/infra/setup/installation-pack/images/test.txt
+          while read f;
+            do docker pull ${f};
+            docker save ${f} | docker buildx imagetools create -t localhost:5000/${f##*/} ${f};
+          done < infra/offline-infra-images.lst
 
-      - name: Upload offline image to artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: central-hub-images
-          path: ${{ github.workspace }}/infra/setup/installation-pack/images/
-
-  build-online-installation-image:
-    needs:
-      - projects-to-build
-      - build-offline-installation-image
-    runs-on:
-      - self-hosted
-      - k8s
-      - prod
-    environment: prod
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref }}
-
-      - name: Download central hub image artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: central-hub-images
-          path: ${{ github.workspace }}/infra/setup/installation-pack/
-
-      - name: Prepare infrastructure images for offline installation
+      - name: Save local registry container as image
         run: |
-          ls -l ${{ github.workspace }}/infra/setup/installation-pack
+          mkdir -p ${{ github.workspace }}/infra/setup/installation-pack/images/
+          docker save -o ${{ github.workspace }}/infra/setup/installation-pack/images/registry.tar registry
+          docker cp image-registry:/var/lib/registry/docker/registry/v2 ${{ github.workspace }}/infra/setup/installation-pack/images/
+          du -sh ${{ github.workspace }}/infra/setup/installation-pack/images/v2
+          
+      - name: Prepare RKE2 components for offline installation
+        run: |
+          mkdir -p ${{ github.workspace }}/infra/setup/installation-pack/rke2/artifacts
+          # Get RKE2 checksum file and artifacts
+          RKE_VERSION=$(cat infra/setup/installation-pack/ansible/k8s-install-vars-offline.yml | grep rke2_version | awk '{print $2}' | sed 's/\"//g')
+          RKE_ARCH=$(cat infra/setup/installation-pack/ansible/k8s-install-vars-offline.yml | grep "rke2_architecture:" | awk '{print $2}' | sed 's/\"//g')
+          curl -sL https://github.com/rancher/rke2/releases/download/${RKE_VERSION}/sha256sum-${RKE_ARCH}.txt -o ${{ github.workspace }}/infra/setup/installation-pack/rke2/artifacts/sha256sum-${RKE_ARCH}.txt
+          curl -sL https://github.com/rancher/rke2/releases/download/${RKE_VERSION}/rke2.linux-${RKE_ARCH}.tar.gz -o ${{ github.workspace }}/infra/setup/installation-pack/rke2/artifacts/rke2.linux-${RKE_ARCH}.tar.gz
+          curl -sL https://github.com/rancher/rke2/releases/download/${RKE_VERSION}/rke2-images.linux-${RKE_ARCH}.tar.zst -o ${{ github.workspace }}/infra/setup/installation-pack/rke2/artifacts/rke2-images.linux-${RKE_ARCH}.tar.zst
+          cd ${{ github.workspace }}/infra/setup/installation-pack/rke2/artifacts
+          echo $(grep rke2.linux-${RKE_ARCH}.tar.gz sha256sum-${RKE_ARCH}.txt) | sha256sum --check
+          echo $(grep rke2-images.linux-${RKE_ARCH}.tar.zst sha256sum-${RKE_ARCH}.txt) | sha256sum --check
+          # Get RKE2 install script
+          curl -sL https://get.rke2.io -o ${{ github.workspace }}/infra/setup/installation-pack/rke2/artifacts/rke2.sh
+          chmod +x ${{ github.workspace }}/infra/setup/installation-pack/rke2/artifacts/rke2.sh
+
+      - name: checking space
+        run: |
+          df -Th
