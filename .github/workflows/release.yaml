@@ -77,7 +77,6 @@ jobs:
         run: |
           df -Th
           free -m
-          timeout 15 top
 
       - name: Create and Use Docker Context
         run: |
